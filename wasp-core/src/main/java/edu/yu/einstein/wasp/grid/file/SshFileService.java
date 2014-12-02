@@ -486,7 +486,7 @@ public class SshFileService implements GridFileService {
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
-						logger.info("interrupted: " + e.toString());
+						logger.info("interrupted: " + e1.toString());
 						Thread.currentThread().interrupt();
 					}
 					// ignore exception, try again

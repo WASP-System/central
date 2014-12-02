@@ -66,7 +66,8 @@ public class FileController {
 			logger.warn("unable to deliver file: " + uuid.toString());
 			e.printStackTrace();
 			try {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -89,7 +90,8 @@ public class FileController {
 		} catch (WaspException e) {
 			logger.warn("unable to deliver files(" + uuids + ")");
 			try {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -112,7 +114,8 @@ public class FileController {
 		} catch (WaspException e) {
 			logger.warn("unable to deliver filegroups(" + uuids + ")");
 			try {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -135,7 +138,8 @@ public class FileController {
 		} catch (WaspException e) {
 			logger.warn("unable to deliver files(" + uuids + ")");
 			try {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -99,6 +99,9 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
         	stepExecution.setExitStatus(new ExitStatus("FAILED", "Failed because wasp-daemon was shutdown inproperly (was found in an active state on startup)"));
         	stepExecution.setEndTime(new Date(oneSecondAgo));
         	jobRepository.update(stepExecution);
+        	BatchJobHibernationManager.resetRetryCounter(stepExecution);
+        	jobRepository.updateExecutionContext(stepExecution);
+        	jobRepository.updateExecutionContext(stepExecution.getJobExecution());
 		}
 		
 		// Now we can clean up all existing job executions in ExitStatus UNKNOWN or STARTED. We should set these to FAILED

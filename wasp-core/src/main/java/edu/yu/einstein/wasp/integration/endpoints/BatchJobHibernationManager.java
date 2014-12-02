@@ -920,7 +920,7 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Sets if this job is in error state and flagged for restart. Increments restart counter
+	 * Sets if this job is in error state and flagged for restart.
 	 * @param se
 	 * @param isFlaggedForRestart
 	 */
@@ -929,24 +929,46 @@ public class BatchJobHibernationManager {
 		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
 	}
 	
-	public static void incrementRestartCounter(StepExecution stepExecution) {
+	/**
+	 * increment number of retries in both step execution and corresponding job execution
+	 * @param stepExecution
+	 */
+	public static void incrementRetryCounter(StepExecution stepExecution) {
 		JobExecution je = stepExecution.getJobExecution();
-		Integer stepRestartCount = getRestartCount(stepExecution);
-		Integer jobRestartCount = getRestartCount(je);
+		Integer stepRestartCount = getRetryCount(stepExecution);
+		Integer jobRestartCount = getRetryCount(je);
 		stepRestartCount++;
 		jobRestartCount++;
 		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, stepRestartCount.toString());
 		je.getExecutionContext().put(GridResult.RESTART_COUNT, jobRestartCount.toString());
 	}
 	
-	public static int getRestartCount(StepExecution stepExecution){
+	/**
+	 * reset to 0 the number of retries in both step execution and corresponding job execution
+	 * @param stepExecution
+	 */
+	public static void resetRetryCounter(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, 0);
+		je.getExecutionContext().put(GridResult.RESTART_COUNT, 0);
+	}
+	
+	/**
+	 * get number of retries in step execution
+	 * @param stepExecution
+	 */
+	public static int getRetryCount(StepExecution stepExecution){
 		Integer restartCount = 0;
 		if (stepExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
 			restartCount = Integer.parseInt(stepExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
 		return restartCount;
 	}
 	
-	public static int getRestartCount(JobExecution jobExecution){
+	/**
+	 * get number of retries in job execution
+	 * @param stepExecution
+	 */
+	public static int getRetryCount(JobExecution jobExecution){
 		Integer restartCount = 0;
 		if (jobExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
 			restartCount = Integer.parseInt(jobExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));

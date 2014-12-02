@@ -249,6 +249,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 				    // temporarily ignore 5' barcoding 
 				    if (strategy.equals(MpsIndexingStrategy.FIVE_PRIME)) {
 				    	logger.warn("SKIPPING 5' barcoded sample!!!");
+				    	continue;
 				    }
 				}
 				

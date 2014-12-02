@@ -51,11 +51,11 @@ public class GenericfileviewingWebServiceImpl extends GenericfileviewingServiceI
 		} else if (fileGroup.getFileType().getIName().equals("html")) {
 			panelTab = HtmlFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("csv")) {
-			panelTab = CsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
+			panelTab = CsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), true);
 		} else if (fileGroup.getFileType().getIName().equals("tsv")) {
-			panelTab = TsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
+			panelTab = TsvFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), true);
 		} else if (fileGroup.getFileType().getIName().equals("vcf")) {
-			panelTab = VcfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), false);
+			panelTab = VcfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getInputStreamFromFileHandle(file), true);
 		} else if (fileGroup.getFileType().getIName().equals("pdf")) {
 			panelTab = PdfFilePanelRenderer.getPanelForFileGroup(fileName, fileService.getURLStringFromFileHandle(file));
 		} else if (fileGroup.getFileType().getIName().equals("jpg") ||

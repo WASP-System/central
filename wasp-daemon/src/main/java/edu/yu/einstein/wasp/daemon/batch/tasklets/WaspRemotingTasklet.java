@@ -119,9 +119,9 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code"); 
 			setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
 			doCleanupBeforeRestart(stepExecution);
-			int retryCount = getRestartCount(stepExecution) + 1;
+			int retryCount = getRetryCount(stepExecution) + 1;
 			if (retryCount <= maxRetryAttempts){
-				incrementRestartCounter(stepExecution);
+				incrementRetryCounter(stepExecution);
 				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + maxRetryAttempts);
 				throw new TaskletRetryException(e.getMessage());
 			}
@@ -162,6 +162,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	protected static GridResult getGridResult(ChunkContext context) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		return getGridResult(stepExecution);
+	}
+	
+	protected static GridResult getGridResult(StepExecution stepExecution) {
 		if (!stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
 			return null;
 		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);

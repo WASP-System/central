@@ -75,15 +75,15 @@
 				
 				<c:if test="${status.last}">
 					<tr style='text-align:center'>
-						<td colspan="4" >&nbsp;</td>
-						<td>
+						<td colspan="4" style='border-top: 2px solid gray;'>&nbsp;</td>
+						<td  style='border-top: 2px solid gray;'>
 						<select class="FormElement ui-widget-content ui-corner-all" name="startAnalysis" id = "startAnalysis${cellLibrary.getSampleSourceId()}" size="1" >
 							<option value=""><fmt:message key="task.aggregateAnalysis_startAnalysisQuestion.label" /></option>
 							<option value="Now"><fmt:message key="task.aggregateAnalysis_startAnalysisNow.label" /></option>
 							<option value="Later"><fmt:message key="task.aggregateAnalysis_startAnalysisLater.label" /></option>
 							<option value="Never"><fmt:message key="task.aggregateAnalysis_startAnalysisNever.label" /></option>
-						</select>				
-						<br />
+						</select>
+						<p style="color:red"><fmt:message key="task.aggregateAnalysis_startAnalysisNote.label" /></p>				
 						<input class="FormElement ui-widget-content ui-corner-all" type="reset" value="<fmt:message key="task.aggregateAnalysis_reset.label" />">
 						<input class="FormElement ui-widget-content ui-corner-all" type="submit" value="<fmt:message key="task.aggregateAnalysis_submit.label" />">
 						</td>
