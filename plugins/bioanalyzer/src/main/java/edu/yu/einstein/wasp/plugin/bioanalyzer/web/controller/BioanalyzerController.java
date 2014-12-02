@@ -541,12 +541,7 @@ public class BioanalyzerController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		  }
-		  //mark it as completed and return to starting page
-		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
-		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
-		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
-		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
-		  logger.warn("dubin 12-1-14 in markBioanalyzerJobAsCompleted");
+		  //mark it as completed and return to starting page		  
 		  try{
 			  jobService.sendNotifyJobCompleteMessage(job);
 			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
