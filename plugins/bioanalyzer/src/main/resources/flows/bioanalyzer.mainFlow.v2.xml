@@ -9,7 +9,7 @@
 	
 		
 	<!-- Define main job approval flow -->
-	<batch:job id="bioanalyzer.mainFlow.v2" restartable="true">
+	<batch:job id="default.waspJob.jobflow.bioanalyzer.v1" restartable="true">
 	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">

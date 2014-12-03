@@ -28,7 +28,7 @@
       </list>
     </property>
     
-    <property name="jobFlowBatchJob" value="bioanalyzer.mainFlow.v2" />
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.bioanalyzer.v1" />
 
     <property name="dependencies">
       <list>

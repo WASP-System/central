@@ -3,6 +3,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 
+<!-- THIS PAGE IS NOT BEING USED -->
+
+
 	<batch:job id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow">
 		<batch:step id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.notifyBioanalyzerStart" next="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.performAction">
 			<batch:tasklet>
