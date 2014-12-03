@@ -220,7 +220,8 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
 
     }
 
-    private void createSequenceFiles(Sample platformUnit, Set<SampleSource> cellLibs, BufferedReader br, Integer readSegments) throws SampleException,
+    @Transactional("entityManager")
+    public void createSequenceFiles(Sample platformUnit, Set<SampleSource> cellLibs, BufferedReader br, Integer readSegments) throws SampleException,
             InvalidFileTypeException, MetadataException {
         String line;
         FastqServiceImpl fqs = (FastqServiceImpl) fastqService;
