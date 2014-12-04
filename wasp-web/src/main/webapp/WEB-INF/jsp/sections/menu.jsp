@@ -113,7 +113,7 @@
 				</li>
 			</sec:authorize>
 			
-			<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('lu-*') and not hasRole('lx-*')">
+			<sec:authorize access="(hasRole('ga') or hasRole('fm') or hasRole('ft')) and not hasRole('su') and not hasRole('lu-*') and not hasRole('lx-*')">
 				<li class="main_menu-root">
 					<a href='<wasp:relativeUrl value="job/list.do"/>'><fmt:message key="menu.jobs.label" /></a>
 				</li>

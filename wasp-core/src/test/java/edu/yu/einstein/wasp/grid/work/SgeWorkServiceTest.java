@@ -166,9 +166,9 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 
 	@Test(groups = { "ssh" })
 	public void testGetStdOut() throws IOException, GridException, InterruptedException {
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory("/wasp/testing/");
-		w.setResultsDirectory("/wasp/testing/");
+		WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+        w.getConfiguration().setWorkingDirectory("/wasp/testing/");
+		w.getConfiguration().setResultsDirectory("/wasp/testing/");
 		w.setCommand("echo test");
 		GridResult r = gws.execute(w);
 		while (!ghr.isFinished(r)) {
@@ -182,9 +182,9 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 	
 	@Test(groups = { "ssh" })
 	public void testGetStdErr() throws IOException, GridException, InterruptedException {
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory("/wasp/testing/");
-		w.setResultsDirectory("/wasp/testing/");
+		WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+        w.getConfiguration().setWorkingDirectory("/wasp/testing/");
+		w.getConfiguration().setResultsDirectory("/wasp/testing/");
 		w.setCommand("echo testErr >&2");
 		GridResult r = gws.execute(w);
 		while (!ghr.isFinished(r)) {
@@ -197,9 +197,9 @@ public class SgeWorkServiceTest extends AbstractTestNGSpringContextTests {
 	
 	@Test(groups = { "ssh" })
 	public void testGetArbitraryFile() throws GridException, InterruptedException, IOException {
-		WorkUnit w = new WorkUnit();
-		w.setWorkingDirectory("/wasp/testing/");
-		w.setResultsDirectory("/wasp/testing/");
+		WorkUnit w = new WorkUnit(new WorkUnitGridConfiguration());
+        w.getConfiguration().setWorkingDirectory("/wasp/testing/");
+		w.getConfiguration().setResultsDirectory("/wasp/testing/");
 		w.setCommand("echo testArb > arbitraryFile.txt");
 		GridResult r = gws.execute(w);
 		while (!ghr.isFinished(r)) {

@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 		
-	<context:component-scan base-package="edu.yu.einstein.wasp.macstwo.service.impl" />
+
 
 	<bean id="macstwoPluginArea" class="java.lang.String">
 		<constructor-arg>
@@ -28,7 +28,7 @@
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.macstwo" />
 		<property name="name" value="macsTwo" />
-		<property name="description" value="peakcaller plugin" />
+		<property name="description" value="Algorithm that uses ChIP-seq data to identify genome-wide locations of transcription/chromatin factor binding or histone modification" />
 		<property name="provides" >
 			<set>
 				<ref bean="macstwo" /> 			

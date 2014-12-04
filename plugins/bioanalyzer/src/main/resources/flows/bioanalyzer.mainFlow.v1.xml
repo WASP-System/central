@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<batch:job id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow">
+		<batch:step id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.notifyBioanalyzerStart" next="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.performAction">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.bioanalyzer.integration.messages.SimpleBioanalyzerStatusMessageTemplate">
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.performAction" next="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.notifyComplete">
+			<!-- example do-nothing tasklet -->
+			<batch:tasklet ref="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.skipTasklet" />
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.notifyComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.bioanalyzer.integration.messages.SimpleBioanalyzerStatusMessageTemplate">
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+	<bean id="edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+</beans>
+
+<!-- NOTE 1: public static members of a bean can easily be accessed using SpEL e.g.:  -->
+<!-- <property name="task" value="#{fooBatchJobTask.MY_TASK}" /> -->
+
+<!-- NOTE 2: job parameters provided during job launching can be accessed by name using SpEL e.g.:  -->
+<!-- <constructor-arg name="fileGroupId" value="#{jobParameters['fileGroupId']}" /> -->
+<!-- or better to use statics (see NOTE 1): <constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" /> -->
+<!-- For this to work the tasklet bean definition must be in step scope (scope="step") -->
+
+

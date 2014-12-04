@@ -6,13 +6,19 @@ package edu.yu.einstein.wasp.helptag.plugin;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
@@ -31,20 +37,18 @@ import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
 /**
- * @author 
+ * @author
  */
-public class HelptagPlugin extends WaspPlugin 
-		implements 
-			BatchJobProviding,
-			WebInterfacing,
-			FileDataTabViewing,
-			ClientMessageI {
+public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
+		WebInterfacing, FileDataTabViewing, JobDataTabViewing, ClientMessageI {
 
 	/**
 	 * 
@@ -52,9 +56,10 @@ public class HelptagPlugin extends WaspPlugin
 	private static final long serialVersionUID = -1505200481435526198L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
-	@Qualifier("waspMessageHandlingServiceImpl") // more than one class of type WaspMessageHandlingService so must specify
+	@Qualifier("waspMessageHandlingServiceImpl")
+	// more than one class of type WaspMessageHandlingService so must specify
 	private WaspMessageHandlingService waspMessageHandlingService;
 
 	@Autowired
@@ -65,6 +70,13 @@ public class HelptagPlugin extends WaspPlugin
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+
+	protected JobExplorerWasp batchJobExplorer;
+	
+	@Autowired
+	void setJobExplorer(JobExplorer jobExplorer){
+		this.batchJobExplorer = (JobExplorerWasp) jobExplorer;
+	}
 
 	public static final String PREPROCESS_ANALYSIS_JOB = "helptag.library.preProcess.job";
 	public static final String AGREGATE_ANALYSIS_JOB = "helpta.library.aggrFlow.job";
@@ -205,5 +217,30 @@ public class HelptagPlugin extends WaspPlugin
 	public void destroy() throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+	@Override
+	public Status getStatus(Job job) {
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new LinkedHashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer
+				.getMostRecentlyStartedJobExecutionInList(batchJobExplorer
+						.getJobExecutions(AGREGATE_ANALYSIS_JOB, parameterMap,
+								false));
+		if (je == null)
+			return Status.UNKNOWN;
+		ExitStatus jobExitStatus = je.getExitStatus();
+		if (jobExitStatus.isRunning())
+			return Status.STARTED;
+		if (jobExitStatus.isCompleted())
+			return Status.COMPLETED;
+		return Status.FAILED;
+	}
+
+	@Override
+	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

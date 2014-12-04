@@ -22,6 +22,7 @@ import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +70,16 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		BatchJobTreeModel model = new BatchJobTreeModel();
 		model.setId(JOB_EXECUTION_ID_PREFIX + je.getId().toString());
 		model.setExecutionId(je.getId());
+		try {
+			Integer retryCount = 0;
+			ExecutionContext ec = jobExplorer.getJobExecution(je.getId()).getExecutionContext();
+			if (ec.containsKey(GridResult.RESTART_COUNT))
+				retryCount = Integer.parseInt(ec.get(GridResult.RESTART_COUNT).toString());
+			if (retryCount > 0)
+				model.setRetries(retryCount);
+		} catch (Exception e){
+			logger.warn(e.getCause());
+		}
 		model.setName(je.getJobInstance().getJobName());
 		model.setStartTime(je.getStartTime());
 		if (!je.getExitStatus().isRunning() && !je.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))
@@ -86,6 +97,15 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		BatchJobTreeModel model = new BatchJobTreeModel();
 		model.setId(JOB_EXECUTION_ID_PREFIX + se.getJobExecutionId().toString() + STEP_EXECUTION_ID_PREFIX + se.getId().toString());
 		model.setExecutionId(se.getId());
+		Integer retryCount = 0;
+		try {
+			if (se.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+				retryCount = Integer.parseInt(se.getExecutionContext().get(GridResult.RESTART_COUNT).toString());
+			if (retryCount > 0)
+				model.setRetries(retryCount);
+		} catch (Exception e){
+			logger.warn(e.getCause());
+		}
 		model.setName(se.getStepName());
 		model.setStartTime(se.getStartTime());
 		if (!se.getExitStatus().isRunning() && !se.getExitStatus().getExitCode().equals(ExitStatus.UNKNOWN.getExitCode()))

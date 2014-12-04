@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -46,6 +47,7 @@ public class FileGroup extends WaspModel {
 		derivedFrom = new HashSet<FileGroup>();
 		samples = new HashSet<Sample>();
 		sampleSources = new HashSet<SampleSource>();
+		children = new HashSet<FileGroup>();
 	}
 
 	/**
@@ -553,11 +555,102 @@ public class FileGroup extends WaspModel {
 
 	/**
 	 * WARNING: many-to-many relationship owned by SampleSource.
-	 * Adding SampleSources added here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
+	 * Adding SampleSources here without then calling fileService.addFileGroup() to persist this object will result in them NOT being persisted.
 	 * @param fileGroups the fileGroups to set
 	 */
 	public void setSampleSources(Set<SampleSource> sampleSource) {
 		this.sampleSources = sampleSource;
+	}
+	
+	/** 
+	 * parentId
+	 *
+	 */
+	@Column(name="parentid")
+	protected Integer parentId;
+
+	/**
+	 * setParentId(Integer parentId)
+	 *
+	 * @param parentId
+	 *
+	 */
+	public void setParentId (Integer parentId) {
+		this.parentId = parentId;
+	}
+
+	/**
+	 * getParentId()
+	 *
+	 * @return parentId
+	 *
+	 */
+	public Integer getParentId () {
+		return this.parentId;
+	}
+	
+	/**
+	 * parent
+	 *
+	 */
+	@NotAudited
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="parentid", insertable=false, updatable=false)
+	protected FileGroup parent;
+
+	/**
+	 * setParent (Sample parent)
+	 *
+	 * @param sampleSubtype
+	 *
+	 */
+	public void setParent (FileGroup parent) {
+		this.parent = parent;
+		this.parentId = parent.getId();
+	}
+	
+	/**
+	 * getParent()
+	 * 
+	 * If the sample is a library generated from a sample, the parent is that sample.  else null.
+	 *
+	 * @return FileGroup
+	 *
+	 */
+	
+	public FileGroup getParent() {
+		return this.parent;
+	}
+	
+	/** 
+	 * children
+	 *
+	 */
+	@NotAudited
+	@OneToMany(mappedBy = "parentId")
+	protected Set<FileGroup> children;
+
+
+	/** 
+	 * getChildren()
+	 *
+	 * @return children
+	 *
+	 */
+	@JsonIgnore
+	public Set<FileGroup> getChildren() {
+		return this.children;
+	}
+
+
+	/** 
+	 * setChildren
+	 *
+	 * @param children
+	 *
+	 */
+	public void setChildren (Set<FileGroup> children) {
+		this.children = children;
 	}
 	
 

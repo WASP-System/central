@@ -6,17 +6,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
-import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 
@@ -29,20 +30,48 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(MergeSampleBamFilesTasklet.class);
 	
-	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId) {
+	private boolean isDedup = false;
+	
+	public MergeSampleBamFilesTasklet(String inputFilegroupIds, String outputFilegroupIds, Integer jobId, Boolean isDedup) {
 		super(inputFilegroupIds, outputFilegroupIds, jobId);
+		this.isDedup = isDedup;
 	}
+	
 	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public GenomeIndexStatus getGenomeIndexStatus(StepExecution stepExecution) {
+		// no buildable resources required.
+		return GenomeIndexStatus.BUILT;
+	}
+	
+	@Override
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
 		Job job = jobService.getJobByJobId(jobId);
-		WorkUnit w = new WorkUnit();
-		w.setMode(ExecutionMode.PROCESS);
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMemoryRequirements(MEMORY_GB_4);
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setMode(ExecutionMode.PROCESS);
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMemoryRequirements(MEMORY_GB_4);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, gatk));
+		List<SoftwarePackage> dependencies = new ArrayList<>();
+		dependencies.add(gatk);
+		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
+		c.setSoftwareDependencies(dependencies);
+		return c;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
+		WorkUnit w = new WorkUnit(configureWorkUnit(stepExecution));
+		
 		w.setSecureResults(true);
 		
 		List<FileHandle> fhlist = new ArrayList<FileHandle>();
@@ -62,23 +91,27 @@ public class MergeSampleBamFilesTasklet extends AbstractGatkTasklet {
             	throw new WaspRuntimeException("Cannot obtain a single filehandle from FileGroup id=" + fgId);
         }
 		w.setResultFiles(outFiles);
-		List<SoftwarePackage> dependencies = new ArrayList<>();
-		dependencies.add(gatk);
-		dependencies.add(gatk.getSoftwareDependencyByIname("picard"));
-		w.setSoftwareDependencies(dependencies);
+		
 		LinkedHashSet<String> inputBamFilenames = new LinkedHashSet<>();
+		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
 		for (int i=0; i < fhlist.size(); i++)
 			inputBamFilenames.add("${" + WorkUnit.INPUT_FILE + "[" + i + "]}");
-		String mergedBamFilename = "merged.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
-		String mergedDedupBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
-		String mergedDedupBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
-		String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
-		Picard picard = (Picard) gatk.getSoftwareDependencyByIname("picard");
-		w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, null, MEMORY_GB_4));
-		w.addCommand(picard.getMarkDuplicatesCmd(mergedBamFilename, mergedDedupBamFilename, mergedDedupBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
-		GridResult result = gridHostResolver.execute(w);
+		String mergedBamFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
+		String mergedBaiFilename = "${" + WorkUnit.OUTPUT_FILE + "[1]}";
+		if (isDedup){
+			String mergedPreDedupBamFilename = "mergedPreDedup.${"+ WorkUnit.OUTPUT_FILE+ "[0]}";
+			String mergedDedupMetricsFilename = "${" + WorkUnit.OUTPUT_FILE + "[2]}";
+			w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedPreDedupBamFilename, null, MEMORY_GB_4));
+			w.addCommand(picard.getMarkDuplicatesCmd(mergedPreDedupBamFilename, mergedBamFilename, mergedBaiFilename, mergedDedupMetricsFilename, MEMORY_GB_4));
+		} else {
+			w.addCommand(picard.getMergeBamCmd(inputBamFilenames, mergedBamFilename, mergedBaiFilename, MEMORY_GB_4));
+		}
+		return w;
+	}
 
-		// place the grid result in the step context
-		saveGridResult(context, result);
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		super.doCleanupBeforeRestart(stepExecution);
 	}
 }

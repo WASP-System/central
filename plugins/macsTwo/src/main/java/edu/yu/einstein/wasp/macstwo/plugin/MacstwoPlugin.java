@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
+import edu.yu.einstein.wasp.macstwo.web.service.impl.MacstwoWebServiceImpl;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;
@@ -219,7 +220,7 @@ public class MacstwoPlugin extends WaspPlugin
 	}
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException{
-		return macstwoService.getMacstwoDataToDisplay(job);
+		return ((MacstwoWebServiceImpl)macstwoService).getMacstwoDataToDisplay(job);
 	}
 
 	@Override

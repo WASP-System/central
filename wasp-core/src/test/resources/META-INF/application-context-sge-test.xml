@@ -118,6 +118,8 @@
 
 	<aop:aspectj-autoproxy expose-proxy="true"
 		proxy-target-class="true" />
+		
+	<mockito:mock id="fileUrlResolver" class="edu.yu.einstein.wasp.grid.file.FileUrlResolver" />
 
 	<bean id="waspSoftwareManager" class="edu.yu.einstein.wasp.grid.work.NoneManager" />
 

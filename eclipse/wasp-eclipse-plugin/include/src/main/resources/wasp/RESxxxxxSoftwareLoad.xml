@@ -38,15 +38,15 @@
     <property name="uiFieldsFromWrapper">
       <list>
         <bean parent="___pluginIName___UiFieldWrapper">
-          <property name="baseName" value="foo" /> <!-- required - ->
-           <property name="metaposition" value="1" /> <!-- required: specifies order of form elements on page - ->
-           <property name="label" value="foo.bar.lab" /> <!-- required: define 'foo.bar.lab' in i18n e.g. 'foo.bar.lab=Please Enter a Foo' - ->
-           <property name="type" value="NUMBER" /> <!-- optional: can be INTEGER, NUMBER, or STRING- ->
-           <property name="range" value="1:100" /> <!-- optional: e.g. '10' (max of 10, no minimum) or '1:100' (from 1 to 100 inclusive) - ->
-           <property name="default" value="10" /> <!-- optional - ->
-           <property name="constraint" value="NotEmpty" /> <!-- optional: can be: 'NotEmpty' or 'RegExp:<regular expression>' (e.g. RegExp:^[AB].+(5)$) - ->
-           <property name="error" value="foo.bar.err" /> <!-- define 'foo.bar.err' in i18n properties files e.g. 'foo.bar.err=You must supply a Foo' - ->
-           <property name="tooltip" value="foo.bar.tt" /> <!-- define 'foo.bar.tt' in i18n properties files e.g. 'foo.bar.tt=A Foo is a curious thing' - ->
+          <property name="baseName" value="foo" /> <!- - required - ->
+           <property name="metaposition" value="1" /> <!- - required: specifies order of form elements on page - ->
+           <property name="label" value="foo.bar.lab" /> <!- - required: define 'foo.bar.lab' in i18n e.g. 'foo.bar.lab=Please Enter a Foo' - ->
+           <property name="type" value="NUMBER" /> <!- - optional: can be INTEGER, NUMBER, or STRING- ->
+           <property name="range" value="1:100" /> <!- - optional: e.g. '10' (max of 10, no minimum) or '1:100' (from 1 to 100 inclusive) - ->
+           <property name="default" value="10" /> <!- - optional - ->
+           <property name="constraint" value="NotEmpty" /> <!- - optional: can be: 'NotEmpty' or 'RegExp:<regular expression>' (e.g. RegExp:^[AB].+(5)$) - ->
+           <property name="error" value="foo.bar.err" /> <!- - define 'foo.bar.err' in i18n properties files e.g. 'foo.bar.err=You must supply a Foo' - ->
+           <property name="tooltip" value="foo.bar.tt" /> <!- - define 'foo.bar.tt' in i18n properties files e.g. 'foo.bar.tt=A Foo is a curious thing' - ->
         </bean>
       </list>
     </property> 

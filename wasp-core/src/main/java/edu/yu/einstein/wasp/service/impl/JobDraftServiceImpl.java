@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import edu.yu.einstein.wasp.dao.SampleDraftDao;
 import edu.yu.einstein.wasp.dao.SampleDraftJobDraftCellSelectionDao;
 import edu.yu.einstein.wasp.dao.SampleDraftMetaDao;
 import edu.yu.einstein.wasp.model.Adaptor;
-import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
@@ -53,10 +51,10 @@ import edu.yu.einstein.wasp.util.MetaHelper;
 @Transactional("entityManager")
 public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftService {
 	
-	final private int DEFAULT_MAX_COLUMNS = 25;
-	
-	final private String META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT = "userSubmittedJobComment";
-	final private String META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT = "User-submitted Job Comment";
+	private final int DEFAULT_MAX_COLUMNS = 25;
+	private final String ANALYSIS_SELECTED_META_KEY = "analysisSelected";
+	private final String META_MESSAGE_GROUP_FOR_USER_SUBMITTED_COMMENT = "userSubmittedJobComment";
+	private final String META_MESSAGE_NAME_FOR_USER_SUBMITTED_COMMENT = "User-submitted Job Comment";
 	
 	@Autowired
 	protected AdaptorDao adaptorDao;
@@ -111,7 +109,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			for (SampleDraft sd: samplesOnThisJobDraft) {
 				String checked = "0";
 				try {
-					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+					checked = ((String[])params.get("sdc_" + sd.getId() + "_" + i ))[0];
 				} catch (Exception e) { }
 
 				if (checked == null || checked.equals("0")) {
@@ -167,7 +165,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
 					
 					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+					if(adaptor.getId()==null || adaptor.getId()<=0){
 						throw new Exception("jobDraft.cell_adaptor_error.label");
 					}
 					if(adaptorsOnCell.contains(adaptor.getBarcodesequence().toUpperCase())){
@@ -200,7 +198,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 					}catch(Exception e){throw new Exception("jobDraft.cell_adaptor_error.label");}
 					
 					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					if(adaptor.getAdaptorId()==null || adaptor.getAdaptorId()<=0){
+					if(adaptor.getId()==null || adaptor.getId()<=0){
 						throw new Exception("jobDraft.cell_adaptor_error.label");
 					}
 					if("NONE".equals(adaptor.getBarcodesequence().toUpperCase()) || adaptor.getBarcodenumber().intValue()==0 ){
@@ -247,13 +245,13 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			boolean cellfound = false;
 
 			JobDraftCellSelection thisJobDraftCellSelection = new JobDraftCellSelection();
-			thisJobDraftCellSelection.setJobDraftId(jobDraft.getJobDraftId());
+			thisJobDraftCellSelection.setJobDraftId(jobDraft.getId());
 			thisJobDraftCellSelection.setCellIndex(cellindex + 1);
 
 			for (SampleDraft sd: samples) {
 				String checked = "0";
 				try {
-					checked = ((String[])params.get("sdc_" + sd.getSampleDraftId() + "_" + i ))[0];
+					checked = ((String[])params.get("sdc_" + sd.getId() + "_" + i ))[0];
 				} catch (Exception e) {
 				}
 
@@ -275,8 +273,8 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 
 				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelection = new SampleDraftJobDraftCellSelection();
 
-				sampleDraftJobDraftCellSelection.setJobDraftCellSelectionId(thisJobDraftCellSelection.getJobDraftCellSelectionId());
-				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getSampleDraftId());
+				sampleDraftJobDraftCellSelection.setJobDraftCellSelectionId(thisJobDraftCellSelection.getId());
+				sampleDraftJobDraftCellSelection.setSampledraftId(sd.getId());
 				sampleDraftJobDraftCellSelection.setLibraryIndex(libraryindex);
 
 				SampleDraftJobDraftCellSelection sampleDraftJobDraftCellSelectionDb = sampleDraftJobDraftCellSelectionDao.save(sampleDraftJobDraftCellSelection);
@@ -294,7 +292,7 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 					String adaptorIdAsString = MetaHelper.getMetaValue("genericLibrary", "adaptor", sd.getSampleDraftMeta());
 					Integer adaptorId = Integer.parseInt(adaptorIdAsString);				
 					Adaptor adaptor = adaptorDao.getAdaptorByAdaptorId(adaptorId);
-					if(adaptor.getAdaptorId()!=null && adaptor.getAdaptorId()>0){
+					if(adaptor.getId()!=null && adaptor.getId()>0){
 						map.put(sd, adaptor);
 					}
 				}catch(Exception e){}
@@ -457,13 +455,13 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 		/*
 		//for testing only
-		System.out.println("Testing replicatesListOfLists output");
+		logger.debug("Testing replicatesListOfLists output");
 		for (List<SampleDraft> sdList: replicatesListOfLists) {
 			for(SampleDraft sd : sdList){
-				System.out.println("---:"+sd.getId()+" ---: "+sd.getName());
+				logger.debug("---:"+sd.getId()+" ---: "+sd.getName());
 			}			
 		}
-		System.out.println("Completed testing replicatesListOfLists output");
+		logger.debug("Completed testing replicatesListOfLists output");
 		*/
 		return replicatesListOfLists;
 		
@@ -523,6 +521,11 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 			return;
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void removeSampleDraftFromReplicates(JobDraft jobDraft, SampleDraft sampleDraft){
 		String replicatesKey = jobDraft.getWorkflow().getIName()+"."+JobService.REPLICATE_SETS_META_KEY;
 		JobDraftMeta replicatesMetaData = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(replicatesKey, jobDraft.getId());
@@ -547,6 +550,11 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		return;
 
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void removeSampleDraftFromSamplePairsByJobDraft(JobDraft jobDraft, SampleDraft sampleDraftToBeRemoved){
 		Set<Map<SampleDraft, SampleDraft>> sampleDraftPairSet = this.getSampleDraftPairsByJobDraft(jobDraft);
 		if(sampleDraftPairSet.isEmpty()){return;}
@@ -558,5 +566,31 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}
 		sampleDraftPairSet.removeAll(mapsContainingTheSampleDraftToBeRemoved);
 		this.setSampleDraftPairsByJobDraft(jobDraft, sampleDraftPairSet);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setIsAnalysisSelected(JobDraft jobDraft, boolean isAnalysisSelected){
+		JobDraftMeta jdm = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(ANALYSIS_SELECTED_META_KEY, jobDraft.getId());
+		if (jdm.getId() == null){
+			jdm.setK(ANALYSIS_SELECTED_META_KEY);
+			jdm.setJobDraftId(jobDraft.getId());
+		}
+		jdm.setV(Boolean.toString(isAnalysisSelected));
+		jobDraftMetaDao.save(jdm);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Boolean getIsAnalysisSelected(JobDraft jobDraft){
+		JobDraftMeta jdm = jobDraftMetaDao.getJobDraftMetaByKJobDraftId(ANALYSIS_SELECTED_META_KEY, jobDraft.getId());
+		logger.debug(ANALYSIS_SELECTED_META_KEY + "=" + jdm);
+		if (jdm != null && jdm.getV() != null)
+			return Boolean.valueOf(jdm.getV());
+		return null;
 	}
 }

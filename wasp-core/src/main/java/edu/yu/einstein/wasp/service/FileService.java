@@ -389,5 +389,54 @@ public interface FileService extends WaspService {
 
 	public String getURLStringFromFileHandle(FileHandle fileHandle);
 
+	/**
+	 * Generated and persists a new FileGroup, adds each provided child FileGroup and ensures these are also persisted.
+	 * @param childFileGroups
+	 * @return a new entity-managed FileGroup containing a set of the provided FileGroups (also entity-managed)
+	 */
+	public FileGroup createFileGroupCollection(Set<FileGroup> childFileGroups);
+
+	/**
+	 * If the FileGroup is a collection of other FileGroups, return true, otherwise return false
+	 * @param fg
+	 * @return true / false
+	 */
+	public boolean isFileGroupCollection(FileGroup fg);
+
+	/**
+	 * Returns a set of all the FileHandles contained within all the child FileGroups maintained in this FileGroup collection. If a set of FileHandles is also associated
+	 * with this FileGroup directly, they are also returned (although it is recommended that FileGroup collections only contain FileGroups).
+	 * @param fgCollection
+	 * @return
+	 */
+	public Set<FileHandle> getAllFileHandlesFromFileGroupCollection(FileGroup fgCollection);
+	
+	public File createLocalTempFile();
+
+	/**
+	 * Removes the specified filegroup entry and all its metadata from the database
+	 * @param fileGroup
+	 */
+	public void remove(FileGroup fileGroup);
+
+	/**
+	 * Removes the specified filegroup and all associated filehandles (plus all metadata) from the database. WARNING: fileHandles may be associated with other FileGroups.
+	 * @param fileGroup
+	 */
+	public void removeWithAllAssociatedFilehandles(FileGroup fileGroup);
+
+	/**
+	 * Remove the specified filehandle and all its metadata from the database
+	 * @param fileHandle
+	 */
+	public void remove(FileHandle fileHandle);
+	
+	/**
+	 * Adds (inner) child file groups to existing (outer) parental FileGroup and ensures persistence.
+	 * @paran parentalFileGroup (existing, outer or enclosing file group)
+	 * @param childFileGroupSet (child (inner) file groups to be added)
+	 * @return parentalFileGroup (entity-managed)
+	 */
+	public FileGroup addToFileGroupCollection(FileGroup parentFileGroup, Set<FileGroup> childFileGroupSet);
 }
 

@@ -7,5 +7,9 @@ public interface BWAPluginCli {
 	public Message<String> align(Message<String> m) throws Exception;
 
 	public Message<String> alignHelp();
+	
+	public Message<String> buildIndex(Message<String> m) throws Exception;
+	
+	public Message<String> buildIndexHelp();
 
 }

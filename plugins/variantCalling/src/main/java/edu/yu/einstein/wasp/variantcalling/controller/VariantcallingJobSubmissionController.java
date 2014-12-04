@@ -45,7 +45,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showIntervalFileSelectionForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		Strategy jobStrategy = strategyService.getThisJobDraftsStrategy(StrategyType.LIBRARY_STRATEGY, jobDraft);
@@ -81,7 +81,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 	@RequestMapping(value="/intervals/{jobDraftId}.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateIntervalFileSelection(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 		
@@ -108,7 +108,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String showVarientCallingPairingForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 		
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 
@@ -148,7 +148,7 @@ public class VariantcallingJobSubmissionController extends JobSubmissionControll
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String updateVarientCallingPairings(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
 
-		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
 		if (! isJobDraftEditable(jobDraft))
 			return "redirect:/dashboard.do";
 	

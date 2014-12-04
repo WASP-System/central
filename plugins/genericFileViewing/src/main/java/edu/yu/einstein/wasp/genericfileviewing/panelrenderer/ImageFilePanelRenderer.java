@@ -16,12 +16,13 @@ public class ImageFilePanelRenderer {
 	public static PanelTab getPanelForFileGroup(String fileName, String url) {
 		PanelTab panelTab = new PanelTab();
 		panelTab.setNumberOfColumns(1);
-		panelTab.setName("Image File Viewer");
+		panelTab.setTabTitle("Image File Viewer");
 		panelTab.setDescription("Generic image file viewing");
-		panelTab.setMaxOnLoad(true);
+		
 		WebPanel panel = new WebPanel();
 		panel.setTitle(fileName);
-		panelTab.addPanel(panel);
+		panel.setMaxOnLoad(true);
+
 		WebContent content = new WebContent();
 		if (url == null) {
 			panel.setContent(content);
@@ -29,11 +30,11 @@ public class ImageFilePanelRenderer {
 		}
 
 		String html = "<img src='" + url + "' alt='"+ fileName + "'>";
-
 		content.setHtmlCode(html);
 
 		panel.setContent(content);
 
+		panelTab.addPanel(panel);
 		return panelTab;
 	}
 

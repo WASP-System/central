@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+   
+  <!-- Bioanalyzer Library sample --> 
+   
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bioanalyzerLibraryUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="bioanalyzerLibrary" />
+  </bean>
+
+  
+  <bean id="bioanalyzerLibrarySpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	        <!-- bioanalyzer Specific -->
+	     
+ 		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="size" />
+	          <property name="label" value="bioanalyzerLib.averageLibSize.label" /> <!-- This is asking for AVERAGE library size-->
+	          <property name="metaposition" value="10" />
+	          <property name="type" value="NUMBER" /> 
+	          <property name="range" value="0.0001:1000000000" /> 
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.averageLibSize.error" />
+	        </bean>
+	        
+	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="range" />
+	          <property name="label" value="bioanalyzerLib.libraryRange.label" />
+	          <property name="metaposition" value="11" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.libraryRange.error" />
+	          <property name="tooltip" value="bioanalyzerLib.libraryRange.tt" />
+	        </bean>
+	        
+		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="concentration" />
+	          <property name="label" value="bioanalyzerLib.conc.label" />
+	          <property name="metaposition" value="20" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLibrary.concentration.error" />
+	          <property name="type" value="NUMBER" />
+	          <property name="range" value="0.0001:1000000000" />
+	        </bean>
+	       
+	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="quantificationmethod" />
+	          <property name="label" value="bioanalyzerLib.quantificationmethod.label" />
+	          <property name="metaposition" value="30" />
+	          <property name="control" value="bioanalyzerLib.quantificationmethod.control" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.quantificationmethod.error" />
+	          <property name="tooltip" value="bioanalyzerLib.quantificationmethod.tt" />
+	        </bean>
+	                
+	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="volume" />
+	          <property name="label" value="bioanalyzerLib.vol.label" />
+	          <property name="metaposition" value="40" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.vol.error" />
+	       	  <property name="type" value="NUMBER" />
+	       	  <property name="range" value="0.0001:1000000000" />
+	        </bean>
+	
+	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
+	          <property name="baseName" value="buffer" />
+	          <property name="label" value="bioanalyzerLib.buffer.label" />
+	          <property name="metaposition" value="50" />
+	          <property name="control" value="bioanalyzerLib.buffer.control" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="bioanalyzerLib.buffer.error" />
+	        </bean>       
+              
+	    </list>
+      </property>
+  </bean>
+ 
+  <bean id="bioanalyzerLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+  	<property name="name" value="Bioanalyzer Library" />
+    <property name="area" value="bioanalyzerLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="applicableRoles" value="lu,ft" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="bioanalyzerLibrarySpecificUiFields" />
+    	</list>
+    </property>
+  </bean>
+  
+</beans>

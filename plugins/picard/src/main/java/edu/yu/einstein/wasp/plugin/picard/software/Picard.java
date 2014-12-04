@@ -27,7 +27,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileGroupMeta;
@@ -100,7 +101,7 @@ public class Picard extends SoftwarePackage {
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MarkDuplicates.jar I=" + inputBamFilename + " O=" + dedupBamFilename +
 				" REMOVE_DUPLICATES=false METRICS_FILE=" + dedupMetricsFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
+				" TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT\n";
 		if (createIndex) {
 			command += "tmpfn=" + dedupBamFilename + "\nif [ -e ${tmpfn}.bai ]; then\n mv ${tmpfn}.bai " + dedupBaiFilename + "\nfi\n";
 			command += "if [ -e ${tmpfn/.bam.bai/}.bai ]; then\n mv ${tmpfn/.bam.bai/}.bai " + dedupBaiFilename + "\nfi\n";
@@ -117,7 +118,7 @@ public class Picard extends SoftwarePackage {
 	 */
 	public String getIndexBamCmd(String bamFilename, String baiFilename, int memRequiredGb){
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/BuildBamIndex.jar I=" + bamFilename + " O=" + baiFilename + 
-				" TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} VALIDATION_STRINGENCY=SILENT";
+				" TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} VALIDATION_STRINGENCY=SILENT";
 		logger.debug("Will conduct picard indexing of bam file with command: " + command);
 		return command;
 	}	
@@ -136,7 +137,7 @@ public class Picard extends SoftwarePackage {
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar";
 		for (String fileName : inputBamFilenames)
 			command += " I=" + fileName;
-		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		command += " O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -155,7 +156,7 @@ public class Picard extends SoftwarePackage {
 		if (mergedBaiFilename != null)
 			createIndex = true;
 		String command = "java -Xmx" + memRequiredGb + "g -jar $PICARD_ROOT/MergeSamFiles.jar $(printf 'I=%s ' " + inputBamFilenamesGlob + ")" + 
-		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnit.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
+		" O=" + mergedBamFilename + " SO=coordinate TMP_DIR=${" + WorkUnitGridConfiguration.TMP_DIRECTORY + "} CREATE_INDEX=" + createIndex + " VALIDATION_STRINGENCY=SILENT";
 		if (createIndex)
 			 command += " && mv " + mergedBamFilename + ".bai " + mergedBaiFilename;
 		logger.debug("Will conduct picard MergeSamFiles with command: " + command);
@@ -185,7 +186,7 @@ public class Picard extends SoftwarePackage {
 			Samtools samtools = (Samtools) getSoftwareDependencyByIname("samtools");
 			Map <String,String> picardDedupMetricsMap = this.getPicardDedupMetrics(dedupMetricsFilename, scratchDirectory, gridHostResolver);
 			logger.debug("size of dedupMetrics in saveAlignmentMetrics: " + picardDedupMetricsMap.size());
-			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(Samtools.UNIQUELY_ALIGNED_READ_COUNT_FILENAME, Samtools.UNIQUELY_ALIGNED_NON_REDUNDANT_READ_COUNT_FILENAME, scratchDirectory, gridHostResolver);
+			Map <String,String> uniquelyAlignedReadCountMetricMap = samtools.getUniquelyAlignedReadCountMetrics(scratchDirectory, gridHostResolver);
 			
 			//capture and add and print out jsaon
 			logger.debug("dedupMetrics output:");
@@ -210,6 +211,7 @@ public class Picard extends SoftwarePackage {
 		} 		
 		logger.debug("ending saveAlignmentMetrics");
 	}
+	
 	public Map<String,String> getPicardDedupMetrics(String dedupMetricsFilename, String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
 		
 		/*
@@ -247,13 +249,13 @@ public class Picard extends SoftwarePackage {
 		String readPairOpticalDuplicates = "";
 		String percentDuplication = "";//this value is really a fraction, so store in fractionDuplicated; it's duplicated mapped reads / total mapped reads
 		String fractionDuplicated = "";//identical to percentDuplication, just provided with a more descriptive name; it's duplicated mapped reads / total mapped reads
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.SINGLE);
+		GridWorkService workService = gridHostResolver.getGridWorkService(c);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
+		c.setWorkingDirectory(scratchDirectory);
 		logger.debug("setting cat command in getPicardDedupMetrics");
+		WorkUnit w = new WorkUnit(c);
 		w.addCommand("cat " + dedupMetricsFilename + " | grep '.' | tail -1");//grep '.' excludes blank lines; tail to get the data
 		
 		GridResult r = transportConnection.sendExecToRemote(w);
@@ -323,69 +325,6 @@ public class Picard extends SoftwarePackage {
 		return picardDedupMetricsMap;
 	}
 
-	public Map<String,String> getUniquelyAlignedReadCountMetrics(String uniquelyAlignedReadCountfilename, String uniquelyAlignedNonRedundantReadCountfilename,String scratchDirectory, GridHostResolver gridHostResolver)throws Exception{
-		
-		logger.debug("entering getUniquelyAlignedReadCountMetrics");
-		
-		Map<String,String> uniquelyAlignedReadCountMetricsMap = new HashMap<String,String>();
-		
-		String uniqueReads = "";
-		String uniqueNonRedundantReads = "";
-		
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.SINGLE);
-		GridWorkService workService = gridHostResolver.getGridWorkService(w);
-		GridTransportConnection transportConnection = workService.getTransportConnection();
-		w.setWorkingDirectory(scratchDirectory);
-		logger.debug("setting cat command in getPicardDedupMetrics");
-		w.addCommand("cat " + uniquelyAlignedReadCountfilename );
-		w.addCommand("cat " + uniquelyAlignedNonRedundantReadCountfilename );
-		
-		GridResult r = transportConnection.sendExecToRemote(w);
-		InputStream is = r.getStdOutStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
-		boolean keepReading = true;
-		int lineNumber = 0;
-		logger.debug("getting ready to read 2 uniquelAlignedMetrics files");
-		while (keepReading){
-			lineNumber++;
-			String line = null;
-			line = br.readLine();
-			logger.debug("line number = " + lineNumber + " and line = " + line);
-			if (line == null)
-				keepReading = false;
-			if (lineNumber == 1){
-				uniqueReads = line.replaceAll("\\n", "");//just in case there is a trailing new line
-				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS, uniqueReads);
-				logger.debug("uniqueReads = " + uniqueReads);
-			} else if (lineNumber == 2){
-				uniqueNonRedundantReads = line.replaceAll("\\n", "");//just in case there is a trailing new line;
-				uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS, uniqueNonRedundantReads);
-				logger.debug("uniqueNonRedundantReads = " + uniqueNonRedundantReads);
-			} else {
-				keepReading = false;
-			}
-			 
-		}
-		br.close();	
-		
-		Double fractionUniqueNonRedundant_double = 0.0;
-		String fractionUniqueNonRedundant = fractionUniqueNonRedundant_double.toString();
-		Integer uniqueReads_integer = Integer.valueOf(uniqueReads);
-		Integer uniqueNonRedundantReads_integer = Integer.valueOf(uniqueNonRedundantReads);
-		
-		if(uniqueReads_integer>0 && uniqueNonRedundantReads_integer>0){
-			fractionUniqueNonRedundant_double = (double) uniqueNonRedundantReads_integer / uniqueReads_integer;
-			DecimalFormat myFormat = new DecimalFormat("0.000000");
-			fractionUniqueNonRedundant = myFormat.format(fractionUniqueNonRedundant_double);						
-		}	
-		uniquelyAlignedReadCountMetricsMap.put(BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT, fractionUniqueNonRedundant);
-		
-		logger.debug("leaving getUniquelyAlignedReadCountMetrics");
-		return uniquelyAlignedReadCountMetricsMap;
-		
-	}
-	
 	/**
 	 * 
 	 * Get a command string for Picard ExtractIlluminaBarcodes.  This command REQUIRES at least ~1500 file descriptors for Illumina HiSeq flowcells.   

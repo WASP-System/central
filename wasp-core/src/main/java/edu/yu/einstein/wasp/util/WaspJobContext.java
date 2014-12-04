@@ -16,6 +16,7 @@ import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 
 /**
  * Class to provide easy access to job information including resource and selected software information 

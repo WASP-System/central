@@ -1,57 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
-<script type="text/javascript">
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-
-$(document).ready(function() {
-	
-	$( "#strategy" ).change(function() {
-		  if($( this ).val()=='-1'){
-			  $("#workflowRowId").css("display", "none"); 
-			  $("#continueButtonDivId").css("display", "none"); 
-		  }
-		  else{			  
-			  $.getJSON("<wasp:relativeUrl value="jobsubmit/getWorkflowsForAStrategy.do" />", { strategy: $( this ).val() }, function( data ) {
-					 var numberOfEntries = 0;
-					 //unable to find a way to get this number directly. $.parseJSON(data) seems to screw up the data 
-					 $.each( data, function( key, val ) {
-						 numberOfEntries++ ;
-					  });
-					 
-					  $("#workflowId").empty();
-					  
-					  if(numberOfEntries == 0){
-						  	$("#workflowId").append("<option value='-1'><fmt:message key="jobsubmitCreate.noWorkflowsFound.label" /></option>"); 
-					  }
-					  else if(numberOfEntries > 1){
-					  	$("#workflowId").append("<option value='-1'><fmt:message key="wasp.default_select.label"/></option>"); 
-					  }
-					  
-					  $.each( data, function( key, val ) {
-						  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
-					  });				  
-				});//end of getJSON method 
-			  
-				$("#workflowRowId").css("display", "table-row");			  
-			  	if($( this ).val()!='-1'){
-			  		$("#continueButtonDivId").css("display", "inline");
-			  	}
-		  } 		  
-	});
-
-	$( "#viewDefinitionsAnchor" ).click(function() {
-		if($(this).text()=="<fmt:message key="jobsubmitCreate.viewHelp.label" />"){
-			$("#strategySummary").css("display", "inline");
-			$(this).text("<fmt:message key="jobsubmitCreate.hideHelp.label" />");
-		}
-		else{
-			$("#strategySummary").css("display", "none");
-			$(this).text("<fmt:message key="jobsubmitCreate.viewHelp.label" />");
-		}
-	});
-});
-</script>
-
 
 <h1><fmt:message key="jobDraft.create.label" /></h1>
 
@@ -66,34 +14,25 @@ $(document).ready(function() {
 	
 	  <tr class="FormData">
 	    <td class="CaptionTD"><fmt:message key="jobDraft.name.label"/>:</td>
-	    <td class="DataTD">
+	    <td class="DataTD" colspan="1">
 	      <input class="FormElement ui-widget-content ui-corner-all" name="name" value="<c:out value="${jobDraft.name}"/>">
+	      <span class="requiredField">*</span>
 	    </td>
 	    <td class="CaptionTD error"><form:errors path="name" /></td>
 	  </tr>
-	  <tr class="FormData">
-	    <td class="CaptionTD"><fmt:message key="jobDraft.labId.label"/>:</td>
-	    <td class="DataTD">
-	      <select class="FormElement ui-widget-content ui-corner-all" name="labId">
-	        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
-	        <c:forEach var="lab" items="${labs}">
-	          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> <fmt:message key="jobsubmitCreate.lab.label" /></option>
-	        </c:forEach>
-	      </select>
-	    </td>
-	    <td class="CaptionTD error"><form:errors path="labId" /></td>
-	  </tr>
+
 	  
 	  <c:if test="${not empty strategies}">
 		  <tr class="FormData">
 		    <td class="CaptionTD"><fmt:message key="jobsubmitCreate.libraryStrategy.label" />:</td>
-		    <td class="DataTD">
+		    <td class="DataTD" >
 		      <select class="FormElement ui-widget-content ui-corner-all" id="strategy" name="strategy">
 		        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
 		        <c:forEach var="strategy" items="${strategies}">
 		          <option value="${strategy.getType()}.${strategy.getStrategy()}"  <c:if test="${strategy.getId() == thisJobDraftsStrategy.getId()}"> SELECTED</c:if>  ><c:out value="${strategy.getDisplayStrategy()}"/></option>
 		        </c:forEach>
 		      </select>
+		      <span class="requiredField">*</span>
 		      <wasp:tooltip value="${libraryStrategyTooltip}" /> <a id="viewDefinitionsAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewHelp.label" /></a>
 		    </td>
 		    <td class="CaptionTD error"> <c:out value="${strategyError}"/> <%--this is not a real part of jobDraft object, so it's toxic here <form:errors path="strategy" />--%></td>
@@ -108,6 +47,7 @@ $(document).ready(function() {
 	    			<select class="FormElement ui-widget-content ui-corner-all" id="workflowId" name="workflowId">
 	        			<%-- options will be gotten via ajax call --%>
 	    			</select>
+	    			<span class="requiredField">*</span>
 	 				<wasp:tooltip value="${assayWorkflowTooltip}" />
 	    		</td>
 	    		<td class="CaptionTD error"><form:errors path="workflowId" /></td>
@@ -125,14 +65,88 @@ $(document).ready(function() {
 			        		<option value="${workflow.key}"  <c:if test="${workflow.key == jobDraft.workflowId}"> SELECTED</c:if>   >${workflow.value}</option>
 			        	</c:forEach>
 			    	 </select>
+			    	 <span class="requiredField">*</span>
 			    	 <wasp:tooltip value="${assayWorkflowTooltip}" />
 			    </td>
 			    <td class="CaptionTD error"><form:errors path="workflowId" /></td>
 		  </tr>
 	  	</c:otherwise>
 	  </c:choose>  
-	  
+	  <tr id="analysisSelectedRowId" class="FormData" style="display:none">
+		    <td class="CaptionTD"><fmt:message key="jobDraft.analysisSelected.label"/>:</td>
+		    <td class="DataTD" >
+		          <select class="FormElement ui-widget-content ui-corner-all" id="isAnalysisSelected" name="isAnalysisSelected">
+		          	<option value="false"  <c:if test="${!empty isAnalysisSelected && isAnalysisSelected == false}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedFalse.label"/></option>
+		        	<option value="true"  <c:if test="${empty isAnalysisSelected || isAnalysisSelected == true}"> SELECTED</c:if>   ><fmt:message key="jobDraft.analysisSelectedTrue.label" ><fmt:param value="${perLibraryAnalysisFee}"/></fmt:message></option>
+		    	  </select>
+		    	  <span class="requiredField">*</span>
+		    	 <wasp:tooltip value="${selectAnalysisTooltip}" />
+		    </td>
+		    <td class="CaptionTD error">&nbsp;</td>
+	  </tr>
+	  <tr class="FormData">
+	    <td class="CaptionTD"><fmt:message key="jobDraft.labId.label"/>:</td>
+	    <td class="DataTD" >
+	      <select class="FormElement ui-widget-content ui-corner-all" name="labId" id="labId">
+	        <option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+	        <c:forEach var="lab" items="${labs}">
+	          <option value="${lab.labId}" <c:if test="${lab.labId == jobDraft.labId}"> selected</c:if>><c:out value="${lab.getUser().getNameFstLst()}"/> <fmt:message key="jobsubmitCreate.lab.label" /></option>
+	        </c:forEach>
+	      </select>
+	      <span class="requiredField">*</span>
+	    </td>
+	    <td class="CaptionTD error"><form:errors path="labId" /></td>
+	  </tr>
+	  <tr class="FormData" id="grantSelectRowId" style="display:none">
+		    <td class="CaptionTD"><fmt:message key="jobDraft.selectGrant.label"/>:</td>
+		    <td class="DataTD" >
+		    	<select class="FormElement ui-widget-content ui-corner-all" id="selectGrantId" name="selectGrantId">
+		    		<option value='-1'><fmt:message key="wasp.default_select.label"/></option>
+		        	<c:forEach var="grant" items="${grantsAvailable}">
+		          		<option value="${grant.getId()}"  <c:if test="${grant.getId() == thisJobDraftsGrant.getId()}"> SELECTED</c:if>  ><c:out value="${grant.getCode()}"/></option>
+		        	</c:forEach>
+		      	</select>
+		      	<span class="requiredField">*</span>
+		      	<a id="viewAddGrantAnchor" href="javascript:void(0);"><fmt:message key="jobsubmitCreate.viewAddGrant.label" /></a>
+		      	<table class="EditTable ui-widget ui-widget-content " id="addGrantTable" style="display:none;margin-top:5px">
+				   <tr>
+				  	<th class="label-centered" style="background-color:#FAF2D6" colspan="3"><fmt:message key="jobDraft.grantDetails.label" /></th>
+				  </tr>
+				  <tr class="FormData" >
+					    <td class="CaptionTD"><fmt:message key="jobDraft.grantCode.label" />:</td>
+					    <td class="DataTD">
+					    	<input type="text" size="15" name="newGrantCode" id="newGrantCode" />
+					    	<span class="requiredField">*</span>
+					    </td>
+					    <td class="CaptionTD error" id="newGrantCodeError">&nbsp;</td>
+				  </tr>
+				  <tr class="FormData" >
+					    <td class="CaptionTD"><fmt:message key="jobDraft.grantName.label" />:</td>
+					    <td class="DataTD">
+					    	<input type="text" size="15" name="newGrantName" id="newGrantName" />
+					    </td>
+					    <td class="CaptionTD error" >&nbsp;</td>
+				  </tr>
+				  <tr class="FormData" >
+				    	<td class="CaptionTD"><fmt:message key="jobDraft.dateGrantExp.label" />:</td>
+					    <td class="DataTD">
+					    	<input type="text" size="15" name="newGrantExp" id="newGrantExp" />
+					    	<span class="requiredField">*</span>
+					    </td>
+					    <td class="CaptionTD error" id="newGrantExpError">&nbsp;</td>
+			      </tr>
+				  <tr>
+					    <td colspan="3">
+					    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.addGrantButton.label" />" onClick="addNewGrant()" /> 
+					    	<input class="fm-button" type="button" value="<fmt:message key="jobDraft.closeGrantButton.label" />" onClick="closeGrantAddTable()" /> 
+					    </td>
+				  </tr>
+				  </table>
+		    </td>
+		    <td class="CaptionTD error"><c:out value="${grantSelectError}"/></td>
+	  </tr>
 	  </table>
+	  
 	
 	  <div class="submit">
 	    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">

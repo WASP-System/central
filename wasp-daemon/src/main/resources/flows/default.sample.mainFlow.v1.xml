@@ -41,14 +41,6 @@
 					<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
 					<property name="status" value="CREATED" />
 				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate" >
-					<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
-					<property name="status" value="ABANDONED" />
-				</bean>
-				<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate" >
-					<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
-					<property name="status" value="FAILED" />
-				</bean>
 			</set>
 		</property>
 		<property name="parallelSiblingFlowSteps">
@@ -106,12 +98,13 @@
 								<property name="status" value="COMPLETED" />
 							</bean>
 							<bean class="edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate">
-								<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}" />
+								<constructor-arg name="sampleId" value="#{jobParameters[waspJobParameters.SAMPLE_ID]}"/>
 								<property name="task" value="#{sampleTasks.QC}" />
 								<property name="status" value="FAILED" />
 							</bean>
 						</set>
 					</property>
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="wasp.sample.step.notifySampleAbandoned" />

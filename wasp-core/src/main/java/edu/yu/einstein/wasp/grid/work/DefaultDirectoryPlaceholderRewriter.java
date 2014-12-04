@@ -47,7 +47,7 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		String scratch = transportConnection.getConfiguredSetting("scratch.dir");
 		String results = transportConnection.getConfiguredSetting("results.dir");
 		logger.debug("scratch: " + scratch + " & " + "results: " + results);
-		logger.debug("Work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory());
+		logger.debug("Work unit configured with work: " + w.getConfiguration().getWorkingDirectory() + " & results: " + w.getConfiguration().getResultsDirectory());
 		if (!PropertyHelper.isSet(scratch)) {
 			logger.warn("Scratch directory has not been set!  Set this value in the properties file of the config project: ("
 					+ transportConnection.getName() + ".settings.scratch.dir).  Defaulting to \"$HOME/\".");
@@ -65,46 +65,46 @@ public class DefaultDirectoryPlaceholderRewriter implements DirectoryPlaceholder
 		}
 		
 		// rewrite the tmp directory.
-		String td = w.getTmpDirectory();
-		if (td.contains(WorkUnit.TMP_DIR_PLACEHOLDER))
-			w.setTmpDirectory(replaceTmp(td, tmp, "TMP_", w));
+		String td = w.getConfiguration().getTmpDirectory();
+		if (td.contains(WorkUnitGridConfiguration.TMP_DIR_PLACEHOLDER))
+			w.getConfiguration().setTmpDirectory(replaceTmp(td, tmp, "TMP_", w));
 		
 		// rewrite the scratch directory.  By definition, scratch is not in results.
-		String wd = w.getWorkingDirectory();
-		if (wd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
-			w.setWorkingDirectory(replaceTmp(wd, tmp, "", w));
-			w.setWorkingDirectoryRelativeToRoot(true);
+		String wd = w.getConfiguration().getWorkingDirectory();
+		if (wd.contains(WorkUnitGridConfiguration.TMP_DIR_PLACEHOLDER)){
+			w.getConfiguration().setWorkingDirectory(replaceTmp(wd, tmp, "", w));
+			w.getConfiguration().setWorkingDirectoryRelativeToRoot(true);
 		} else 
-			w.setWorkingDirectory(replaceScratch(wd, scratch, w));
+			w.getConfiguration().setWorkingDirectory(replaceScratch(wd, scratch, w));
 		
 		// results might be in scratch, or in results, results should be careful to set a subdir
-		String rd = w.getResultsDirectory();
-		if (rd.contains(WorkUnit.SCRATCH_DIR_PLACEHOLDER)) {
-			w.setResultsDirectory(replaceScratch(rd, scratch, w));
-		} else if (rd.contains(WorkUnit.TMP_DIR_PLACEHOLDER)){
-			w.setResultsDirectory(replaceTmp(rd, tmp, "", w));
-		} else if (rd.equals(WorkUnit.RESULTS_DIR_PLACEHOLDER)) {
+		String rd = w.getConfiguration().getResultsDirectory();
+		if (rd.contains(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER)) {
+			w.getConfiguration().setResultsDirectory(replaceScratch(rd, scratch, w));
+		} else if (rd.contains(WorkUnitGridConfiguration.TMP_DIR_PLACEHOLDER)){
+			w.getConfiguration().setResultsDirectory(replaceTmp(rd, tmp, "", w));
+		} else if (rd.equals(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER)) {
 			// files need to go into $results/"somewhere"
 			logger.info("WorkUnit configured with default results location. Assuming not required.");
 		} else {
-			w.setResultsDirectory(replaceResults(rd, results));
+			w.getConfiguration().setResultsDirectory(replaceResults(rd, results));
 		}
 
-		logger.debug("After processing, work unit configured with work: " + w.getWorkingDirectory() + " & results: " + w.getResultsDirectory() +
-				" & tmp: " + w.getTmpDirectory());
+		logger.debug("After processing, work unit configured with work: " + w.getConfiguration().getWorkingDirectory() + " & results: " + w.getConfiguration().getResultsDirectory() +
+				" & tmp: " + w.getConfiguration().getTmpDirectory());
 
 	}
 	
 	private String replaceTmp(String s, String tmp, String subFolderPrefix, WorkUnit w) {
-		return s.replaceAll(WorkUnit.TMP_DIR_PLACEHOLDER, tmp + "/" + subFolderPrefix + w.getId() + "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnitGridConfiguration.TMP_DIR_PLACEHOLDER, tmp + "/" + subFolderPrefix + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceScratch(String s, String scratch, WorkUnit w) {
-		return s.replaceAll(WorkUnit.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER, scratch + "/" + w.getId() + "/").replaceAll("//", "/");
 	}
 	
 	private String replaceResults(String s, String results) {
-		return s.replaceAll(WorkUnit.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/");
+		return s.replaceAll(WorkUnitGridConfiguration.RESULTS_DIR_PLACEHOLDER, results + "/").replaceAll("//", "/");
 	}
 
 }

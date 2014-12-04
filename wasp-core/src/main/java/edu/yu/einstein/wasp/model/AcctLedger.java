@@ -252,7 +252,7 @@ public class AcctLedger extends WaspModel {
 	 */
 	@NotAudited
 	@OneToMany
-	@JoinColumn(name="jobid", insertable=false, updatable=false)
+	@JoinColumn(name="jobid", referencedColumnName="jobid", insertable=false, updatable=false)
 	protected List<AcctGrantjob> acctGrantjob;
 
 

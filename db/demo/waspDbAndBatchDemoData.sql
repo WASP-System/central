@@ -63,15 +63,33 @@ CREATE TABLE `acct_grantjob` (
   `uuid` binary(16) DEFAULT NULL,
   `grantid` int(11) DEFAULT NULL,
   `isactive` int(11) DEFAULT NULL,
-  `lastupdatebyuser` int(11) DEFAULT NULL,
   `jobid` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FKAA5FF3CD50566623` (`lastupdatebyuser`),
-  KEY `FKAA5FF3CDF2431449` (`grantid`),
-  KEY `FKAA5FF3CD5E117DCB` (`jobid`),
-  CONSTRAINT `FKAA5FF3CD5E117DCB` FOREIGN KEY (`jobid`) REFERENCES `acct_ledger` (`id`),
-  CONSTRAINT `FKAA5FF3CD50566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
-  CONSTRAINT `FKAA5FF3CDF2431449` FOREIGN KEY (`grantid`) REFERENCES `acct_grant` (`id`)
+  KEY `FK_fj8mld1ba44nuigr2ui7fkl7q` (`lastupdatebyuser`),
+  KEY `FK_p7de70lasp3emwmjh5jyai46k` (`grantid`),
+  KEY `FK_e2wlvvlnq6egrnb94e0b8wd62` (`jobid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table acct_grantjobdraft
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `acct_grantjobdraft`;
+
+CREATE TABLE `acct_grantjobdraft` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` datetime DEFAULT NULL,
+  `updated` datetime DEFAULT NULL,
+  `uuid` binary(16) DEFAULT NULL,
+  `grantid` int(11) DEFAULT NULL,
+  `isactive` int(11) DEFAULT NULL,
+  `lastupdatebyuser` int(11) DEFAULT NULL,
+  `jobdraftid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_ok733j0rmd92t4u5idljm8g8a` (`lastupdatebyuser`),
+  KEY `FK_dqmrkci06e16fhocg480gx2xc` (`grantid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -118,12 +136,10 @@ CREATE TABLE `acct_ledger` (
   `jobid` int(11) DEFAULT NULL,
   `lastupdatebyuser` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `FKAB07671550566623` (`lastupdatebyuser`),
-  KEY `FKAB0767158FCE445E` (`jobid`),
-  KEY `FKAB076715B2EEB2AB` (`invoiceid`),
-  CONSTRAINT `FKAB076715B2EEB2AB` FOREIGN KEY (`invoiceid`) REFERENCES `acct_invoice` (`id`),
-  CONSTRAINT `FKAB07671550566623` FOREIGN KEY (`lastupdatebyuser`) REFERENCES `wuser` (`id`),
-  CONSTRAINT `FKAB0767158FCE445E` FOREIGN KEY (`jobid`) REFERENCES `job` (`id`)
+  UNIQUE KEY `UK_t5iq6extfj57dy3fh7yk0mr5q` (`jobid`),
+  KEY `FK_p3duyg3du4isdfv1hvgdt3m0g` (`lastupdatebyuser`),
+  KEY `FK_k6326ii0gp2dsscnf5jderd9w` (`invoiceid`),
+  KEY `FK_t5iq6extfj57dy3fh7yk0mr5q` (`jobid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -814,7 +830,7 @@ CREATE TABLE `BATCH_JOB_EXECUTION_PARAMS` (
   `JOB_EXECUTION_ID` bigint(20) NOT NULL,
   `TYPE_CD` varchar(6) NOT NULL,
   `KEY_NAME` varchar(100) NOT NULL,
-  `STRING_VAL` varchar(250) DEFAULT NULL,
+  `STRING_VAL` text DEFAULT NULL,
   `DATE_VAL` datetime DEFAULT NULL,
   `LONG_VAL` bigint(20) DEFAULT NULL,
   `DOUBLE_VAL` double DEFAULT NULL,

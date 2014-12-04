@@ -14,8 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
@@ -55,6 +56,9 @@ public class Helptag extends SoftwarePackage{
 	@Autowired
 	private FileType bamFileType;
 
+	@Autowired
+	private FileType fastqFileType;
+
 	/**
 	 * 
 	 */
@@ -87,7 +91,7 @@ public class Helptag extends SoftwarePackage{
 			w = prepareWorkUnit(inputBamFiles);
 
 			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			w.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
+			w.getConfiguration().setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
 			
 			StringBuilder mergeBamCmd;
 			String mergedBamFile = "";
@@ -127,26 +131,20 @@ public class Helptag extends SoftwarePackage{
 
 	
 	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
-		WorkUnit w = new WorkUnit();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMode(ExecutionMode.PROCESS);
+	
 		// require 4GB memory
-		w.setMemoryRequirements(4);
-		
-		// require a single thread, execution mode PROCESS
-		// indicates this is a vanilla exectuion.
-		w.setProcessMode(ProcessMode.SINGLE);
-		w.setMode(ExecutionMode.PROCESS);
-		
-		// set working directory to scratch
-		w.setWorkingDirectory(WorkUnit.SCRATCH_DIR_PLACEHOLDER);
-		
-		w.setSecureResults(false);
-
-		w.setRequiredFiles(fhlist);
-		
+		c.setMemoryRequirements(4);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
-		w.setSoftwareDependencies(sd);
+		c.setSoftwareDependencies(sd);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		WorkUnit w = new WorkUnit(c);
+		w.setRequiredFiles(fhlist);
+		w.setSecureResults(false);
 	
 		return w;
 	}

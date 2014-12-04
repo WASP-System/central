@@ -40,10 +40,9 @@ public interface PicardService extends WaspService {
 		public String getFractionDuplicated(FileGroup fileGroup);
 		public String getDuplicateReads(FileGroup fileGroup);
 		public String getFractionDuplicatedAsCalculation(FileGroup fileGroup);
-		public String getFractionUniqueNonRedundant(FileGroup fileGroup);
-		public String getUniqueReads(FileGroup fileGroup);
-		public String getUniqueNonRedundantReads(FileGroup fileGroup);
-		public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup);
+		public String getUniqueReads(FileGroup fileGroup);		
+		public String getUniqueNonRedundantReads(FileGroup fileGroup);		
+		public String getNonRedundantReadFraction(FileGroup fileGroup);
 		
 		public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup);
 }

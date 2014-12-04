@@ -23,12 +23,13 @@ public class TextFilePanelRenderer {
 	public static PanelTab getPanelForFileGroup(String fileName, InputStream is) {
 		PanelTab panelTab = new PanelTab();
 		panelTab.setNumberOfColumns(1);
-		panelTab.setName("Text File Viewer");
+		panelTab.setTabTitle("Text File Viewer");
 		panelTab.setDescription("Generic text-file viewing");
-		panelTab.setMaxOnLoad(true);
+		
 		WebPanel panel = new WebPanel();
 		panel.setTitle(fileName);
-		panelTab.addPanel(panel);
+		panel.setMaxOnLoad(true);
+		
 		WebContent content = new WebContent();
 		if (is == null) {
 			panel.setContent(content);
@@ -58,6 +59,7 @@ public class TextFilePanelRenderer {
 
 		panel.setContent(content);
 
+		panelTab.addPanel(panel);
 		return panelTab;
 	}
 

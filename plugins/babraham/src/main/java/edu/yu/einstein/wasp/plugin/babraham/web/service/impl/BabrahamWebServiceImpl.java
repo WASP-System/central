@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.exception.PanelException;
@@ -16,14 +17,15 @@ import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.babraham.batch.tasklet.FastQScreenTasklet;
 import edu.yu.einstein.wasp.plugin.babraham.charts.BabrahamPanelRenderer;
 import edu.yu.einstein.wasp.plugin.babraham.plugin.TrimGalorePlugin;
-import edu.yu.einstein.wasp.plugin.babraham.service.impl.BabrahamServiceImpl;
+import edu.yu.einstein.wasp.plugin.babraham.service.impl.AbstractBabrahamServiceImpl;
 import edu.yu.einstein.wasp.plugin.babraham.software.FastQC.PlotType;
 import edu.yu.einstein.wasp.plugin.babraham.web.service.BabrahamWebService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
+@Service
 @Transactional("entityManager")
-public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements BabrahamWebService {
+public class BabrahamWebServiceImpl extends AbstractBabrahamServiceImpl implements BabrahamWebService {
 	
 	@Value("${wasp.host.servletPath:/wasp}")
 	private String servletPath;
@@ -62,7 +64,7 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 	@Override
 	public PanelTab getFastQCDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqc.getName());
+		panelTab.setTabTitle(fastqc.getName());
 		panelTab.setDescription(fastqc.getDescription());
 		
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(PlotType.QC_RESULT_SUMMARY, fastqc, fileGroupId);
@@ -122,8 +124,9 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 	@Override
 	public PanelTab getFastQScreenDataToDisplay(Integer fileGroupId) throws PanelException{
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(fastqscreen.getName());
+		panelTab.setTabTitle(fastqscreen.getName());
 		panelTab.setDescription(fastqscreen.getDescription());
+		panelTab.setNumberOfColumns(1);
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(FastQScreenTasklet.FASTQSCREEN_PLOT_META_KEY, fastqscreen, fileGroupId);
 		if (json != null)
 			panelTab.addPanel(BabrahamPanelRenderer.getFastQScreenPanel(json, messageService, servletPath));
@@ -132,8 +135,9 @@ public class BabrahamWebServiceImpl extends BabrahamServiceImpl implements Babra
 
 	public PanelTab getTrimGaloreDataToDisplay(Integer fileGroupId) throws PanelException {
 		PanelTab panelTab = new PanelTab();
-		panelTab.setName(trim_galore.getName());
+		panelTab.setTabTitle(trim_galore.getName());
 		panelTab.setDescription(trim_galore.getDescription());
+		panelTab.setNumberOfColumns(1);
 		JSONObject json = getJsonForParsedSoftwareOutputByKey(TrimGalorePlugin.TRIM_GALORE_PLOT_KEY, trim_galore, fileGroupId);
 		if (json != null)
 			panelTab.addPanel(BabrahamPanelRenderer.getTrimGalorePanel(json, messageService, servletPath));

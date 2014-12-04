@@ -13,6 +13,7 @@
 					<constructor-arg name="inputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_INPUT]}" />
 					<constructor-arg name="outputFilegroupIds" value="#{jobParameters[waspSoftwareJobParameters.FILEGROUP_ID_LIST_OUTPUT]}" />
 					<constructor-arg name="jobId" value="#{jobParameters[waspSoftwareJobParameters.JOB_ID]}" />
+					<constructor-arg name="isDedup" value="#{jobParameters[waspSoftwareJobParameters.IS_DEDUP]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:next on="FAILED" to="gatk.variantDiscovery.mergeSampleBamFiles.notifyRegisterFail" />

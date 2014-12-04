@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import edu.yu.einstein.wasp.controller.WaspController;
 
 @Controller
-@RequestMapping("/wasp-genericDnaSeq")
+@RequestMapping("/genericDnaSeq")
 public class WaspGenericDnaSeqController extends WaspController {
 
-	@RequestMapping(value="/description", method=RequestMethod.GET)
+	@RequestMapping(value="/displayDescription", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
 		return "genericdnaseq/description";
 	}

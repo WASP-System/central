@@ -47,6 +47,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
@@ -902,6 +903,76 @@ public class BatchJobHibernationManager {
 		for (int i=0; i< jsonArray.length(); i++)
 			templates.add(new WaspStatusMessageTemplate(jsonArray.getJSONObject(i)));
 		return templates;
+	}
+	
+	/**
+	 * returns true if this job is in error state and flagged for restart
+	 * @param se
+	 * @return
+	 */
+	public static boolean isInErrorConditionAndFlaggedForRestart(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		boolean isFlaggedForRestart = false;
+		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
+			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
+		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
+		return isFlaggedForRestart;
+	}
+	
+	/**
+	 * Sets if this job is in error state and flagged for restart.
+	 * @param se
+	 * @param isFlaggedForRestart
+	 */
+	public static void setIsInErrorConditionAndFlaggedForRestart(StepExecution stepExecution, Boolean isFlaggedForRestart) {
+		JobExecution je = stepExecution.getJobExecution();
+		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+	}
+	
+	/**
+	 * increment number of retries in both step execution and corresponding job execution
+	 * @param stepExecution
+	 */
+	public static void incrementRetryCounter(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		Integer stepRestartCount = getRetryCount(stepExecution);
+		Integer jobRestartCount = getRetryCount(je);
+		stepRestartCount++;
+		jobRestartCount++;
+		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, stepRestartCount.toString());
+		je.getExecutionContext().put(GridResult.RESTART_COUNT, jobRestartCount.toString());
+	}
+	
+	/**
+	 * reset to 0 the number of retries in both step execution and corresponding job execution
+	 * @param stepExecution
+	 */
+	public static void resetRetryCounter(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, 0);
+		je.getExecutionContext().put(GridResult.RESTART_COUNT, 0);
+	}
+	
+	/**
+	 * get number of retries in step execution
+	 * @param stepExecution
+	 */
+	public static int getRetryCount(StepExecution stepExecution){
+		Integer restartCount = 0;
+		if (stepExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+			restartCount = Integer.parseInt(stepExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+		return restartCount;
+	}
+	
+	/**
+	 * get number of retries in job execution
+	 * @param stepExecution
+	 */
+	public static int getRetryCount(JobExecution jobExecution){
+		Integer restartCount = 0;
+		if (jobExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
+			restartCount = Integer.parseInt(jobExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+		return restartCount;
 	}
 	
 	/**

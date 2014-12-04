@@ -19,6 +19,8 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	
 	private String exitCode = "";
 	
+	private int retries = 0;
+	
 	private boolean isResultAvailable = false;
 
 	public BatchJobTreeModel() {
@@ -29,7 +31,7 @@ public class BatchJobTreeModel extends ExtTreeModel {
 	}
 
 	public BatchJobTreeModel(String id, ExtIcon iconCls, boolean isExpanded, boolean isLeaf, String name, Long executionId, Date startTime, Date endTime,
-			String status, String exitCode, boolean isResultAvailable) {
+			String status, String exitCode, int retries, boolean isResultAvailable) {
 		super(id, iconCls, isExpanded, isLeaf);
 		this.name = name;
 		this.executionId = executionId;
@@ -37,6 +39,7 @@ public class BatchJobTreeModel extends ExtTreeModel {
 		setEndTime(endTime);
 		this.status = status;
 		this.exitCode = exitCode;
+		this.retries = retries;
 		this.isResultAvailable = isResultAvailable;
 	}
 
@@ -93,6 +96,14 @@ public class BatchJobTreeModel extends ExtTreeModel {
 
 	public void setExitCode(String exitCode) {
 		this.exitCode = exitCode;
+	}
+
+	public int getRetries() {
+		return retries;
+	}
+
+	public void setRetries(int retries) {
+		this.retries = retries;
 	}
 
 	public boolean isResultAvailable() {

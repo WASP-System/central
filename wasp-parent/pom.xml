@@ -359,12 +359,12 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
-				<version>1.6.9</version>
+				<version>1.8.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.6.9</version>
+				<version>1.8.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hsqldb</groupId>
@@ -380,6 +380,11 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
 				<version>1.8.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.3.2</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-beanutils</groupId>
@@ -400,11 +405,6 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 				<groupId>commons-digester</groupId>
 				<artifactId>commons-digester</artifactId>
 				<version>2.1</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.6</version>
 			</dependency>
 		<!-- logging, slf4j + logback -->
 			<dependency>
@@ -990,7 +990,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 			<dependency>
 				<groupId>com.jcraft</groupId>
 				<artifactId>jsch</artifactId>
-				<version>0.1.50</version>
+				<version>0.1.51</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mchange</groupId>

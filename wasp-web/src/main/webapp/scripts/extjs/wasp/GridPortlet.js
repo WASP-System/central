@@ -1,12 +1,6 @@
-Ext.require([
-	'Ext.grid.*',
-	'Ext.data.*',
-	'Ext.form.field.Number',
-	'Ext.form.field.Date',
-	'Ext.tip.QuickTipManager',
-	'Ext.selection.CheckboxModel',
-	'Wasp.RowActions'
-]);
+Ext.require(['Ext.grid.*', 'Ext.data.*', 'Ext.form.field.Number',
+		'Ext.form.field.Date', 'Ext.tip.QuickTipManager', 'Ext.tip.ToolTip',
+		'Ext.selection.CheckboxModel', 'Wasp.RowActions']);
 
 function mergeDownloadLinks(records, linkfield) {
 
@@ -20,85 +14,138 @@ function mergeDownloadLinks(records, linkfield) {
 	return links;
 }
 
-
-
 var rowHeight = 30, gridHeaderHeight = 30;
 var minGridHeight = 200, maxGridHeight = 650;
 
 Ext.define('Wasp.GridPortlet', {
-	extend: 'Ext.grid.Panel',
-	alias: 'widget.gridportlet',
+	extend : 'Ext.grid.Panel',
+	alias : 'widget.gridportlet',
 
-	fields: [],
-	data: [],
-	columns: [],
+	fields : [],
+	data : [],
+	columns : [],
 
-	height: minGridHeight,
+	actionset : [],
 
-	grouping: false,
-	groupfield: '',
-	groupheader: '{name}',
+	height : minGridHeight,
 
-	dlcol: false,
-	dllinkfld: '',
-	dlcoltip: "Download",
+	grouping : false,
+	groupfield : '',
+	groupheader : '{name}',
+	groupactiondatamap : {},
 
-	dlselect: false,
-	dlbtntxt: "Download selected",
-	dlbtnalign: 'center',
-
-	grpdl: false,
-	grpdltip: "Download all",
-	grpdlalign: 'right',
-
-	statusfld: null,
-
-	gbcol: false,
-	gblink: '',
-	gbtype: '',
-	gbttp: '',
-	hidegb: '',
+	statusfld : null,
 
 	/**
 	 * Custom function used for column renderer
-	 * @param {Object} val
+	 * 
+	 * @param {Object}
+	 *            val
 	 */
-	status: function (val) {
-		if (val.match(/complete/i) != null) {
-			return '<span style="color:green;">' + val + '</span>';
-		} else if (val.match(/start/i) != null) {
-			return '<span style="color:blue;">' + val + '</span>';
-		} else if (val.match(/pending/i) != null) {
-			return '<span style="color:pink;">' + val + '</span>';
-		} else if (val.match(/unknown/i) != null) {
-			return '<span style="color:orange;">' + val + '</span>';
-		} else if (val.match(/fail/i) != null) {
-			return '<span style="color:red;">' + val + '</span>';
+	// DataTabViewing.Status values: COMPLETED, STARTED, PENDING, FAILED, UNKNOWN, NOT_APPLICABLE, INCOMPLETE
+	status : function(val) {
+		if (val == "COMPLETED") {
+			return '<span style="color:green;">Completed</span>';
+		} else if (val == "STARTED") {
+			return '<span style="color:green;">Started</span>';
+		} else if (val == "PENDING") {
+			return '<span style="color:green;">Pending</span>';
+		} else if (val == "FAILED") {
+			return '<span style="color:red;">Failed</span>';
+		} else if (val == "UNKNOWN") {
+			return '<span style="color:orange;">Unknown</span>';
+		} else if (val == "NOT_APPLICABLE") {
+			return '<span style="color:orange;">N/A</span>';
+		} else if (val == "INCOMPLETE") {
+			return '<span style="color:orange;">Incomplete</span>';
 		} else {
-			return '<span style="color:gold;">' + val + '</span>';
+			return "";
 		}
 	},
 
-	listeners: {
-		cellclick: function (view, td, cellIndex, record, tr, rowIndex, e, eOpts) {
-			//Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+	listeners : {
+		cellclick : function(view, td, cellIndex, record, tr, rowIndex, e,
+				eOpts) {
+			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
 		},
-		celldblclick: function (view, td, cellIndex, record, tr, rowIndex, e, eOpts) {
-			//Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		celldblclick : function(view, td, cellIndex, record, tr, rowIndex, e,
+				eOpts) {
+			// Ext.Msg.alert('Selected Record', 'td : ' + td + ' tr: ' + tr);
+		},
+		headerclick: function( grid, col, e ) {
+		},
+		viewready : function(grid) {
+			var view = grid.view;
+
+			// record the current cellIndex
+			grid.mon(view, {
+				uievent : function(type, view, cell, recordIndex, cellIndex, e) {
+					grid.cellIndex = cellIndex;
+					grid.recordIndex = recordIndex;
+				}
+			});
+
+			grid.tip = Ext.create('Ext.tip.ToolTip', {
+				target : view.el,
+				delegate : '.x-grid-cell',
+				trackMouse : true,
+				maxWidth : 700,
+				renderTo : Ext.getBody(),
+				listeners : {
+					beforeshow : function updateTipBody(tip) {
+						if (!Ext.isEmpty(grid.cellIndex)
+								&& grid.cellIndex !== -1) {
+							var header = grid.headerCt.getGridColumns()[grid.cellIndex];
+							if (!header.shownInTtp
+									|| header.xtype === 'rowactions') {
+								return false;
+							}
+							var val = grid.getStore().getAt(grid.recordIndex)
+									.get(header.dataIndex);
+							tip.update(header.xtype == 'datecolumn'
+									? Ext.util.Format.date(val, header.format)
+									: val);
+						}
+					}
+				}
+			});
 		}
 	},
 
-	initComponent: function () {
+	initToolTip : function(view) {
+		// var view = this.view.getView();
+		this.toolTip = Ext.create('Ext.tip.ToolTip', {
+			target : view.el,
+			delegate : view.cellSelector,
+			trackMouse : true,
+			renderTo : Ext.getBody(),
+			listeners : {
+				beforeshow : function(tip) {
+					var trigger = tip.triggerElement, parent = tip.triggerElement.parentElement, columnTitle = view
+							.getHeaderByCell(trigger).text, columnDataIndex = view
+							.getHeaderByCell(trigger).dataIndex, columnText = view
+							.getRecord(parent).get(columnDataIndex).toString();
+					if (columnText) {
+						tip.update("<b>" + columnTitle + ":</b> " + columnText);
+					} else {
+						return false;
+					}
+				}
+			}
+		});
+	},
+
+	initComponent : function() {
 		var grid = this;
 
 		Ext.tip.QuickTipManager.init();
 
 		var myStore = Ext.create('Ext.data.ArrayStore', {
-			fields: this.fields,
-			autoLoad: true,
-			data: this.data
-		});
-		
+					fields : this.fields,
+					autoLoad : true,
+					data : this.data
+				});
+
 		var rowCnt = myStore.getTotalCount();
 
 		// enable grouping view
@@ -107,144 +154,229 @@ Ext.define('Wasp.GridPortlet', {
 			myStore.group(this.groupfield);
 
 			var groupingFeature = Ext.create('Ext.grid.feature.Grouping', {
-				groupHeaderTpl: this.groupheader
-			});
+						groupHeaderTpl : this.groupheader
+					});
 			Ext.apply(this, {
-				features: groupingFeature
-			});
-			
+						features : groupingFeature
+					});
+
 			rowCnt += myStore.getGroups().length;
 		}
 
 		var actioncol = {
-			xtype: 'rowactions',
-			header: 'Actions',
-			minWidth: 80,
-			actions: [],
-			callbacks: {
-				'icon-gb-ucsc': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				},
-				'icon-gb-ensembl': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				},
-				'icon-gb-igv': function(grid, record, action, row, col) {
-					window.open(record.get(grid.gblink), '_blank');
-				}
+			xtype : 'rowactions',
+			header : 'Actions',
+			minWidth : 80,
+			actions : [],
+			callbacks : {
+			// 'icon-gb-ucsc': function(grid, record, action, row, col) {
+			// window.open(record.get(grid.gblink), '_blank');
+			// },
+			// 'icon-gb-ensembl': function(grid, record, action, row, col) {
+			// window.open(record.get(grid.gblink), '_blank');
+			// },
+			// 'icon-gb-igv': function(grid, record, action, row, col) {
+			// window.open(record.get(grid.gblink), '_blank');
+			// }
 			},
-			keepSelection: true
+			sortable: false,
+			keepSelection : true
 		};
-		
-		// Add download action buttons to the action column
-		if (this.dlcol && this.dllinkfld != '') {
-			actioncol.actions.push({
-				iconCls: 'icon-download',
-				qtip: this.dlcoltip,
-				hideIndex: this.hidedl,
-				callback: function (grid, record, action, idx, col, e, target) {
-					window.location = record.get(grid.dllinkfld);
-				}
-			});
 
-			// If grouping view is set, add group download button
-			if (this.grpdl) {
-				actioncol.groupActions = [{
-					iconCls: 'icon-group-download',
-					qtip: this.grpdltip,
-					align: this.grpdlalign,
-					callback: function (grid, records, action, groupValue) {
-						if (records.length > 0)
-							window.location = mergeDownloadLinks(records, grid.dllinkfld);
-					}
-				}];
+		for (var akey in this.actionset) {
+			var action = this.actionset[akey];
+			var strcbfunc;
+			if (action.callbackFunctionType === 'DOWNLOAD') {
+				strcbfunc = '{"'
+						+ action.iconClassName
+						+ '": "function(grid, record, action, row, col){window.location = record.get(\'cb'
+						+ action.icnHashCode.toString().replace('-', '_')
+						+ '\');}"}';
+			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
+				strcbfunc = '{"'
+						+ action.iconClassName
+						+ '": "function(grid, record, action, row, col){window.open(record.get(\'cb'
+						+ action.icnHashCode.toString().replace('-', '_')
+						+ '\'), \'_blank\');}"}';
+			} else if (action.callbackFunctionType === 'OPEN_IN_CSS_WIN') {
+				strcbfunc = '{"'
+						+ action.iconClassName
+						+ '": "function(grid, record, action, row, col){getPanelDisplayWindowForFilegroup(record.get(\'cb'
+						+ action.icnHashCode.toString().replace('-', '_')
+						+ '\'));}"}';
+			} else {
+				strcbfunc = '{"'
+						+ action.iconClassName
+						+ '": "function(grid, record, action, row, col){alert(\'Action type '
+						+ action.callbackFunctionType
+						+ ' is not supported.\');}"}';
 			}
 
-		}
+			var configobj = JSON.parse(strcbfunc, function(key, value) {
+						if (value && (typeof value === 'string')
+								&& value.indexOf("function") === 0) {
+							// we can only pass a function as string in JSON ==>
+							// doing a real function
+							// eval("var jsFunc = " + value);
+							var jsFunc = new Function('return ' + value)();
+							return jsFunc;
+						}
+
+						return value;
+					});
+			// var configobj = JSON.parse('{ "'+action.iconClassName+'":
+			// function(grid, record, action, row, col) {
+			// eval('+action.callbackContent+'); } }');
+			Ext.apply(actioncol.callbacks, configobj);
+			actioncol.actions.push({
+						iconIndex : 'icon'
+								+ action.icnHashCode.toString().replace('-',
+										'_'),
+						qtipIndex : 'tip'
+								+ action.icnHashCode.toString().replace('-',
+										'_'),
+						hideIndex : 'hide'
+								+ action.icnHashCode.toString().replace('-',
+										'_')
+
+					});
+
+			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
+				actioncol.groupActions = [{
+					iconCls : action.groupIconClassName,
+					qtip : action.groupTooltip,
+					align : action.groupAlign.toLowerCase(),
+					callback : function(grid, records, groupAction, groupValue) {
+						if (records.length > 0 && groupAction in grid.groupactiondatamap)
+							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+					}
+				}];
+				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
+			}
+		};
+
+		// Add download action buttons to the action column
+		// if (this.dlcol && this.dllinkfld != '') {
+		// actioncol.actions.push({
+		// iconCls: 'icon-download',
+		// qtip: this.dlcoltip,
+		// hideIndex: this.hidedl,
+		// callback: function (grid, record, action, idx, col, e, target) {
+		// window.location = record.get(grid.dllinkfld);
+		// }
+		// });
+		//
+		// // If grouping view is set, add group download button
+		// if (this.grpdl) {
+		// actioncol.groupActions = [{
+		// iconCls: 'icon-group-download',
+		// qtip: this.grpdltip,
+		// align: this.grpdlalign,
+		// callback: function (grid, records, action, groupValue) {
+		// if (records.length > 0)
+		// window.location = mergeDownloadLinks(records, grid.dllinkfld);
+		// }
+		// }];
+		// }
+		//
+		// }
 
 		// Add genome browser buttons to the action column
-		if (this.gbcol && this.gblink != '') {
-			actioncol.actions.push({
-				iconIndex: this.gbtype,
-				qtipIndex: this.gbttp,
-				hideIndex: this.hidegb
-			});
-		}
+		// if (this.gbcol && this.gblink != '') {
+		// actioncol.actions.push({
+		// iconIndex: this.gbtype,
+		// qtipIndex: this.gbttp,
+		// hideIndex: this.hidegb
+		// });
+		// }
 
-		if (actioncol.actions.length > 0)
-			this.columns.push(actioncol);
+		// Avoid multiple insertion of action column
+		if (actioncol.actions.length > 0) {
+			var acol = this.columns[this.columns.length - 1];
+			if (acol === undefined || acol.xtype === undefined
+					|| acol.xtype !== 'rowactions')
+				this.columns.push(actioncol);
+		}
 
 		// Add colorful renderer to the status column
 		if (this.statusfld != null) {
-			this.columns.forEach(function (element, index, array) {
-				if (element.dataIndex == grid.statusfld) {
-					Ext.apply(element, {
-						renderer: grid.status
+			this.columns.forEach(function(element, index, array) {
+						if (element.dataIndex == grid.statusfld) {
+							Ext.apply(element, {
+										renderer : grid.status
+									});
+						}
 					});
-				}
-			});
 		}
-		
+
 		// add cell align and header align to columns
-		this.columns.forEach(function (element, index, array) {
-			if (element.cellAlign != 'undefined') {
-				Ext.apply(element, { align: element.cellAlign });
-			}
-			if (element.headerAlign != 'undefined') {
-				Ext.apply(element, { style: 'text-align: '+element.headerAlign });
-			}
-		});
+		this.columns.forEach(function(element, index, array) {
+					if (element.cellAlign != 'undefined') {
+						Ext.apply(element, {
+									align : element.cellAlign
+								});
+					}
+					if (element.headerAlign != 'undefined') {
+						Ext.apply(element, {
+									style : 'text-align: '
+											+ element.headerAlign
+								});
+					}
+				});
 
 		// enable selecting multiple files to download
 		if (this.dlselect && this.dllinkfld != '') {
 			Ext.apply(this, {
-				selModel: Ext.create('Ext.selection.CheckboxModel', {
-					singleSelect: false,
-					sortable: false,
-					checkOnly: false,
-					mode: 'SIMPLE',
-					listeners: {
-						selectionchange: function (me, selected, eOpts) {
-							var dlbtn = grid.down('button[text="' + grid.dlbtntxt + '"]');
-							if (selected.length == 0) {
-								dlbtn.disable();
-							} else {
-								dlbtn.enable();
+				selModel : Ext.create('Ext.selection.CheckboxModel', {
+							singleSelect : false,
+							sortable : false,
+							checkOnly : false,
+							mode : 'SIMPLE',
+							listeners : {
+								selectionchange : function(me, selected, eOpts) {
+									var dlbtn = grid.down('button[text="'
+											+ grid.dlbtntxt + '"]');
+									if (selected.length == 0) {
+										dlbtn.disable();
+									} else {
+										dlbtn.enable();
+									}
+								}
 							}
-						}
-					}
-				}),
-				dockedItems: [{
-					xtype: 'toolbar',
-					dock: 'bottom',
-					ui: 'footer',
-					layout: {
-						pack: this.dlbtnalign
+						}),
+				dockedItems : [{
+					xtype : 'toolbar',
+					dock : 'bottom',
+					ui : 'footer',
+					layout : {
+						pack : this.dlbtnalign
 					},
-					items: [{
-						minWidth: 80,
-						disabled: true,
-						text: this.dlbtntxt,
-						handler: function (me, e) {
+					items : [{
+						minWidth : 80,
+						disabled : true,
+						text : this.dlbtntxt,
+						handler : function(me, e) {
 							var records = grid.getSelectionModel()
-								.getSelection();
+									.getSelection();
 							if (records.length > 0) {
-								window.location = mergeDownloadLinks(records, grid.dllinkfld);
+								window.location = mergeDownloadLinks(records,
+										grid.dllinkfld);
 							}
 						}
+					}]
 				}]
-			}]
 			});
 		}
 
-		// adjust grid height by the number of rows in the grid 
+		// adjust grid height by the number of rows in the grid
 		var gridHeight = rowCnt * rowHeight + gridHeaderHeight;
-		gridHeight = (gridHeight<minGridHeight) ? minGridHeight : gridHeight;
-		gridHeight = (gridHeight>maxGridHeight) ? maxGridHeight : gridHeight;
+		gridHeight = (gridHeight < minGridHeight) ? minGridHeight : gridHeight;
+		gridHeight = (gridHeight > maxGridHeight) ? maxGridHeight : gridHeight;
 		Ext.apply(this, {
-			store: myStore,
-			columns: this.columns,
-			height: gridHeight //this.height
-		});
+					store : myStore,
+					columns : this.columns,
+					height : gridHeight
+				});
 
 		this.callParent(arguments);
 	}

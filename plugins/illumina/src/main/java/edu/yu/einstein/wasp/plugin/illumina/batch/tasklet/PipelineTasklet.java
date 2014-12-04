@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,8 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
@@ -84,7 +86,7 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		// TODO: check to see if the Makefile exists already (already configured and re-run because of grid exception).
 		
@@ -107,34 +109,34 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		// TODO: handle single and dual situations.
 		
 		// creating a work unit this way sets the runID from the jobparameters
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.FIXED);
-		w.setSoftwareDependencies(sd);
-		GridWorkService gws = hostResolver.getGridWorkService(w);
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		
+		c.setProcessMode(ProcessMode.FIXED);
+		c.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
 		String p = sm.getConfiguredSetting("casava.env.processors");
 		Integer procs = 1;
 		if (PropertyHelper.isSet(p)) {
 			procs = new Integer(p);
 		}
-		w.setProcessorRequirements(procs);
+		c.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() 
+		c.setWorkingDirectory(dataDir + "/" + run.getName() 
 				+ "/Data/Intensities/BaseCalls/" );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
-		
+		c.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand(getConfigureBclToFastqString(sm, run, procs, sampleSheetName, outputFolder));
 
 		GridResult result = gws.execute(w);
 		
 		logger.debug("started illumina pipeline: " + result.getUuid());
 		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 	}
 	
 	private String getConfigureBclToFastqString(SoftwareManager sm, Run run, int proc, String sampleSheetName, String outputFolder) throws MetadataException {
@@ -245,6 +247,26 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	@Autowired
 	public void setRunService(RunService runService) {
 		this.runService = runService;
+	}
+
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// delete semaphore file
+		GridResult result = getGridResult(stepExecution);
+		if (result == null || result.getWorkingDirectory() == null){
+			logger.debug("Unable to retrieve a working directory for stepExecution id=" + stepExecution.getId());
+			return;
+		}
+		String workingDir = result.getWorkingDirectory();
+		String semaphore;
+		if (method == IlluminaIndexingStrategy.TRUSEQ) {
+			semaphore = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE;
+		} else {
+			semaphore = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
+		}
+		String remoteFile = workingDir + "/" + semaphore;
+		hostResolver.getGridWorkService(result).getGridFileService().delete(remoteFile);
 	}
 
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="username" value="${testDb.jdbc.user}" />
+		<property name="password" value="${testDb.jdbc.password}" />
+		<property name="driverClassName" value="${testDb.jdbc.driver}" />
+		<property name="url" value="${testDb.jdbc.url}" />
+	</bean>
+
+	<jdbc:initialize-database data-source="batchDataSource" >
+		<jdbc:script location="${testDb.resetSchema.script}" />
+		<jdbc:script location="${testDb.schema.script}" />
+	</jdbc:initialize-database>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="batchDataSource" />
+	</bean>
+	
+	
+	<!-- need to use qualifier 'entityManager' for WaspJobSoftwareLaunchTasklet  -->
+	<!-- to make test work simply use the 'batchDataSource' (even though this is a hack)  -->
+	<bean id="transactionManagerEM" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+		<property name="dataSource" ref="batchDataSource" />
+		<qualifier value="entityManager" />
+	</bean>
+	
+	<!-- Enable @Transactional support -->
+	<tx:annotation-driven />
+
+</beans>

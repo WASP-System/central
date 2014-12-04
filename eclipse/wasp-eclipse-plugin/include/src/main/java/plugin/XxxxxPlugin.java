@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.HashMap; ///// PIP
 import java.util.Map; ///// PIP
 import java.util.Properties;
+import java.util.Set;
 
 import org.json.JSONException; ///// PIP
 import org.json.JSONObject; ///// PIP
@@ -19,7 +20,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
-import edu.yu.einstein.wasp.Hyperlink;  ///// FORMVIZ
+import edu.yu.einstein.wasp.interfacing.Hyperlink;  ///// FORMVIZ
 import edu.yu.einstein.wasp.exception.PanelException; ///// VIZ
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException; ///// PIP 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -28,12 +29,14 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters; ///// PIP
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;  ///// PIP
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup; ///// VIZ
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Software;  ///// RES
-import edu.yu.einstein.wasp.plugin.BatchJobProviding;  ///// PIP 
+import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;  ///// PIP 
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
-import edu.yu.einstein.wasp.plugin.WebInterfacing; ///// FORM
+import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing; ///// FORM
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing; ///// VIZ
-import edu.yu.einstein.wasp.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing; ///// VIZ
+import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab; ///// VIZ
 
@@ -45,6 +48,7 @@ public class ___PluginIName___Plugin extends WaspPlugin
 			BatchJobProviding,	///// PIP
 			WebInterfacing, ///// FORM
 			FileDataTabViewing, ///// VIZ
+			JobDataTabViewing, ///// VIZ
 			ClientMessageI {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -186,6 +190,22 @@ public class ___PluginIName___Plugin extends WaspPlugin
 	 */
 	@Override
 	public PanelTab getViewPanelTab(FileGroup fileGroup) throws PanelException {
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Status getStatus(Job job) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException {
 		return null;
 	}
 	

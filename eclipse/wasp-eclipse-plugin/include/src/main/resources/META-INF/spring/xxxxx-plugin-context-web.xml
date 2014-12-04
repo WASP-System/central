@@ -7,7 +7,8 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 ////> VIZ FORM
 	<!-- component scan -->
-  	<context:component-scan base-package="___package___.controller" />
+  	<context:component-scan base-package="___package___.web.controller" />
+  	<context:component-scan base-package="___package___.web.service.impl" />
 ////<
 	<!-- common definitions -->
 	<import resource="___pluginIName___-plugin-context-common.xml" />

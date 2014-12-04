@@ -5,9 +5,7 @@
 package edu.yu.einstein.wasp.gatk.plugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONArray;
@@ -22,7 +20,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.exception.PanelException;
-import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -33,6 +31,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
@@ -69,6 +68,13 @@ public class GatkPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
+	@Autowired
+	@Qualifier("gatk")
+	private Software gatk;
+	
+	@Autowired
+	private GatkService gatkService;
+		
 	public static final String PREPROCESSING_FLOW = "gatk.dataPreprocessing.jobFlow.v1";
 	
 	public static final String VARIANT_DISCOVERY_FLOW = "gatk.variantDiscovery.jobFlow.v1";
@@ -103,10 +109,6 @@ public class GatkPlugin extends WaspPlugin
 				"wasp -T gatk -t helloWorld\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
-	
-	
-	
-	
 
 	public Message<String> launchPreprocessingFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
@@ -114,29 +116,22 @@ public class GatkPlugin extends WaspPlugin
 		
 		logger.info("launching gatk data preprocessing flow");
 		
-		try {
-			Integer id = getIDFromMessage(m);
-			if (id == null)
-				return MessageBuilder.withPayload("Unable to determine cellLibrary id from message: " + m.getPayload().toString()).build();
-			
-			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with gatk data preprocessing flow " + PREPROCESSING_FLOW + " and cellLibrary id: " + id);
-			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
-			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
-
-			waspMessageHandlingService.launchBatchJob(PREPROCESSING_FLOW, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating gatk data preprocessing flow on cellLibrary id " + id).build();
-		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + PREPROCESSING_FLOW);
-			return MessageBuilder.withPayload("Unable to launch batch job " + PREPROCESSING_FLOW).build();
+		List<Integer> ids = getIDSFromMessage(m);
+		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids);
+		if (ids.isEmpty())
+			return MessageBuilder.withPayload("Unable to determine cellLibrary id from message: " + m.getPayload().toString()).build();
+		logger.info("Sending launch message with gatk data preprocessing flow " + PREPROCESSING_FLOW + " and cellLibrary ids: " + clidl);
+		try{
+			gatkService.doLaunchFlow(ids, gatk.getId(), PREPROCESSING_FLOW);
+		} catch (Exception e){
+			return MessageBuilder.withPayload("Caught exception during launch attempt : " + e.getLocalizedMessage()).build();
 		}
-		
+		return (Message<String>) MessageBuilder.withPayload("Initiating gatk data preprocessing flow on cellLibrary ids " + clidl).build();
 	}
 	
 	private Message<String> launchPreprocessingFlowHelp() {
 		String mstr = "\nLaunch the gatk data preprocessing flow with provided cellLibrary id.\n" +
-				"wasp -T gatk -t launchTestFlow -m \'{id:\"1\"}\'\n";
+				"wasp -T gatk -t launchPreprocessingFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
@@ -148,53 +143,23 @@ public class GatkPlugin extends WaspPlugin
 		
 		logger.info("launching gatk variant discovery flow");
 		
-		try {
-			List<Integer> ids = getIDSFromMessage(m);
-			if (ids.isEmpty())
-				return MessageBuilder.withPayload("Unable to determine cell library ids from message: " + m.getPayload().toString()).build();
-			
-			Map<String, String> jobParameters = new HashMap<String, String>();
-			logger.info("Sending launch message with  gatk variant discovery flow " + VARIANT_DISCOVERY_FLOW + " and cellLibrary ids: " + ids);
-			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids));
-			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			//jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
-			jobParameters.put("gatk-stand_call_conf", "30");
-			jobParameters.put("gatk-stand_emit_conf", "10");
-			jobParameters.put("gatk--max_alternate_alleles", "6");
-
-			waspMessageHandlingService.launchBatchJob(VARIANT_DISCOVERY_FLOW, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating gatk variant discovery flow on cellLibrary ids " + ids).build();
-		} catch (WaspMessageBuildingException e1) {
-			logger.warn("Unable to build message to launch batch job " + VARIANT_DISCOVERY_FLOW);
-			return MessageBuilder.withPayload("Unable to launch batch job " + VARIANT_DISCOVERY_FLOW).build();
+		List<Integer> ids = getIDSFromMessage(m);
+		String clidl = WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(ids);
+		if (ids.isEmpty())
+			return MessageBuilder.withPayload("Unable to determine cell library ids from message: " + m.getPayload().toString()).build();
+		logger.info("Sending launch message with  gatk variant discovery flow " + VARIANT_DISCOVERY_FLOW + " and cellLibrary ids: " + clidl);
+		try{
+			gatkService.doLaunchFlow(ids, gatk.getId(), VARIANT_DISCOVERY_FLOW);
+		} catch (Exception e){
+			return MessageBuilder.withPayload("Caught exception during launch attempt : " + e.getLocalizedMessage()).build();
 		}
-		
+		return (Message<String>) MessageBuilder.withPayload("Initiating gatk variant discovery flow on cellLibrary ids " + clidl).build();
 	}
 	
 	private Message<String> launchDiscoveryFlowHelp() {
 		String mstr = "\nLaunch the gatk variant discovery flow with specified cellLibrary id list.\n" +
-				"wasp -T gatk -t launchCallFlow -m \'{ids:[\"11\",\"12\"]}\'\n";
+				"wasp -T gatk -t launchDiscoveryFlow -m \'{ids:[\"11\",\"12\"]}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	/**
-	 * 
-	 * @param m
-	 * @return 
-	 */
-	public Integer getIDFromMessage(Message<String> m) {
-		Integer id = null;
-		
-		JSONObject jo;
-		try {
-			jo = new JSONObject(m.getPayload().toString());
-			if (jo.has("id")) {
-				id = new Integer(jo.get("id").toString());
-			} 
-		} catch (JSONException e) {
-			logger.warn("unable to parse JSON");
-		}
-		return id;
 	}
 	
 	public List<Integer> getIDSFromMessage(Message<String> m) {
@@ -207,6 +172,8 @@ public class GatkPlugin extends WaspPlugin
 				JSONArray idJsonArray = jo.getJSONArray("ids");
 				for (int i=0; i<idJsonArray.length(); i++)
 					ids.add(new Integer(idJsonArray.getString(i)));
+			} else if (jo.has("id")) {
+				ids.add(new Integer(jo.get("id").toString()));
 			} 
 		} catch (JSONException e) {
 			logger.warn("unable to parse JSON");

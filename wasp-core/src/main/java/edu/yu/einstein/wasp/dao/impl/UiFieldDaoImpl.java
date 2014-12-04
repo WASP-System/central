@@ -11,6 +11,7 @@ package edu.yu.einstein.wasp.dao.impl;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,22 +32,21 @@ public class UiFieldDaoImpl extends WaspDaoImpl<UiField> implements edu.yu.einst
 @SuppressWarnings("unchecked")
 @Override
 public List<String> getUniqueAreas() {
-	String sql="SELECT DISTINCT area FROM  uifield ORDER BY area";
-    return entityManager.createNativeQuery(sql).getResultList();
+	String query="SELECT DISTINCT u.area FROM  UiField u ORDER BY u.area";
+    return entityManager.createQuery(query).getResultList();
   }
   
   //returns true if a combination of locale, area, name, attrName already exists
   @Override
 public boolean exists(final String locale, final String area, final String name, final String attrName) {
-	String sql=
-		   
-		   	"select 1 from uifield \n"+
-		   	"where locale=:locale\n"+
-		   	"and area=:area\n"+
-		   	"and name=:name\n"+
-		   	"and attrname=:attrname\n";
+	String query=
+		   	"SELECT 1 from UiField u \n"+
+		   	"WHERE u.locale=:locale\n"+
+		   	"AND u.area=:area\n"+
+		   	"AND u.name=:name\n"+
+		   	"AND u.attrName=:attrname\n";
 		 
-    Query q = entityManager.createNativeQuery(sql)
+    Query q = entityManager.createQuery(query)
     .setParameter("locale", locale)
     .setParameter("area", area)
     .setParameter("name", name)
@@ -105,5 +105,25 @@ public String dumpUiFieldTable() {
 
 	  return result+"";
   }
+
+	@Override
+	public UiField get(String locale, String area, String name, String attrName) {
+		String query = "SELECT u FROM UiField AS u " + 
+						"WHERE locale=:locale " + 
+						"AND area=:area " + 
+						"AND name=:name " + 
+						"AND attrname=:attrname";
+
+		TypedQuery<UiField> q = entityManager.createQuery(query, UiField.class)
+				.setParameter("locale", locale)
+				.setParameter("area", area)
+				.setParameter("name", name)
+				.setParameter("attrname", attrName);
+
+		if (!exists(locale, area, name, attrName)) {
+			return null;
+		}
+		return q.getResultList().get(0);
+	}
 }
 

@@ -8,7 +8,6 @@ import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 
 /**
@@ -29,7 +28,6 @@ public class SkipTasklet implements Tasklet {
 	}
 
 	@Override
-	@RetryOnExceptionFixed
 	public RepeatStatus execute(StepContribution contribution, ChunkContext context) throws InterruptedException {
 		// do nothing
 		StepContext sc = context.getStepContext();

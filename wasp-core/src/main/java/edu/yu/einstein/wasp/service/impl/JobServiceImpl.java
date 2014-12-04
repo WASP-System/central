@@ -94,6 +94,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTempl
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
 import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -127,6 +128,7 @@ import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -147,10 +149,9 @@ import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 @Service
 @Transactional("entityManager")
 public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements JobService {
-
-	private final String[] jobApproveArray = {"piApprove", "daApprove", "fmApprove"};
-	//public String[] getJobApproveArray(){return jobApproveArray;}
 	
+	private final String ANALYSIS_SELECTED_META_KEY = "analysisSelected";
+
 	private JobDao	jobDao;
 	
 	/**
@@ -363,6 +364,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 
 	@Autowired
 	protected FileService fileService;
+	
+	@Autowired
+	protected AccountsService accountsService;
 
 	
 	protected JobExplorerWasp batchJobExplorer;
@@ -901,12 +905,20 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  }
 		  }
 		  for(JobMeta jobMeta : job.getJobMeta()){
-			String str = area+".runType";
-			if(str.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+			String strRunType = area+".runType";
+			String strReadType = area+".readType";
+			String strReadLength = area+".readLength";
+			if(strRunType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
+			else if(strReadType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta.getV());
+			}
+			if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+			}
 		  }
-		  
+		  /*
 		  try {
 			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
 			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
@@ -918,7 +930,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
 			  e.printStackTrace();
 		  }
-		 
+		 */
+		  
 		  /* replaced with code below
 		  try{
 			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
@@ -948,47 +961,48 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  Assert.assertParameterNotNull(job, "No Job provided");
 		  Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
 		  LinkedHashMap<String, String> jobApprovalsMap = new LinkedHashMap<String, String>();
-		  
+		  final String PI_APPROVAL_CODE = "piApprove";
+		  final String DA_APPROVAL_CODE = "daApprove";
+		  final String FM_APPROVAL_CODE = "fmApprove";
 		  List<String> jobApproveList = new ArrayList<String>();
-		  for(int i = 0; i < this.jobApproveArray.length; i++){
-			  jobApproveList.add(jobApproveArray[i]);//piApprove, daApprove, fmApprove
-		  }	  
+		  jobApproveList.add(PI_APPROVAL_CODE);
+		  jobApproveList.add(DA_APPROVAL_CODE);
+		  jobApproveList.add(FM_APPROVAL_CODE);
 		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
 		  Set<String> jobIdStringSet = new HashSet<String>();
 		  jobIdStringSet.add(job.getId().toString());
 		  parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
 
 		  for(String jobApproveCode : jobApproveList){
-			  //List<StepExecution> stepExecutions =  batchJobExplorer.getStepExecutions("step.piApprove", parameterMap, true);
-			  List<StepExecution> stepExecutions = null;
-			  stepExecutions =  batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true);
-			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(stepExecutions);
+			  StepExecution stepExecution = batchJobExplorer.getMostRecentlyStartedStepExecutionInList(batchJobExplorer.getStepExecutions("step." + jobApproveCode, parameterMap, true));
 			  String approveStatus = null;
 			  if (stepExecution == null){
-				  //jobApprovalsMap.put(piStatusLabel, "status.notYetSet.label");
-				  approveStatus = new String("notYetSet");
+				  approveStatus = "notYetSet";
 			  }
 			  else {
 				  ExitStatus adminApprovalStatus = stepExecution.getExitStatus();
 				  if( adminApprovalStatus.isRunning()){
-					  approveStatus = new String("awaitingResponse");
-					  //jobApprovalsMap.put(piStatusLabel, "status.awaitingResponse.label");
+					  approveStatus = "awaitingResponse";
 				  }
 				  else if( adminApprovalStatus.isCompleted()){
-					  approveStatus = new String("approved");
-					  //jobApprovalsMap.put(piStatusLabel, "status.approved.label");
+					  approveStatus = "approved";
 				  }
-				  else if( adminApprovalStatus.isFailed()){
-					  approveStatus = new String("rejected");
-					  //jobApprovalsMap.put(piStatusLabel, "status.rejected.label");
-				  }
-				  else if(adminApprovalStatus.isTerminated()){
-					  approveStatus = new String("abandoned");
-					  //jobApprovalsMap.put(piStatusLabel, "status.abandoned.label");
+				  else if(adminApprovalStatus.isTerminated() || adminApprovalStatus.isStopped()){
+					  // check if rejected step exists
+					  String stepNameSuffix = "step.";
+					  if (jobApproveCode.equals(PI_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByPi";
+					  else if (jobApproveCode.equals(DA_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByDa";
+					  else if (jobApproveCode.equals(FM_APPROVAL_CODE))
+						  stepNameSuffix += "rejectedByFm";
+					  if (batchJobExplorer.getMostRecentlyStartedStepExecutionInList(batchJobExplorer.getStepExecutions(stepNameSuffix, parameterMap, true)) != null)
+						  approveStatus = "rejected";
+					  else
+						  approveStatus = "abandoned";
 				  }
 				  else{
-					  approveStatus = new String("unknown");
-					  //jobApprovalsMap.put(piStatusLabel, "status.unknown.label");
+					  approveStatus ="unknown";
 				  }
 			  }
 			  jobApprovalsMap.put(jobApproveCode, approveStatus);
@@ -1206,6 +1220,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 					jobFileDao.save(jobFile);
 				}
 			}	
+			AcctGrant grant = accountsService.getGrantForJobDraft(jobDraft);
+			accountsService.saveJobGrant(jobDb, grant);
 			
 			// update the jobdraft
 			jobDraft.setStatus("SUBMITTED");
@@ -2059,44 +2075,37 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getJobStatus(Job job){
+	public String getDetailedJobStatusString(Job job){
+		//PLEASE ALSO SEE jobService.getAllPossibleJobStatusAsString()
 		if(job==null || job.getId()==null)
 			return "Unknown";
-		String currentStatus = "Not Yet Set";
-		//String approvalStatus = "Not Yet Set";
-		LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
-		logger.debug("isJobActive for id=" + job.getId() + " : " + isJobActive(job));
-		if(isJobActive(job)){
-			currentStatus = "In Progress";
-			for(String jobApproveCode : jobApprovalsMap.keySet()){
-				if("awaitingResponse".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-					currentStatus = "Awaiting Approval(s)";
-					break;
-				}
-			}
+		ExitStatus status = getJobStatus(job);
+		if (status.isCompleted())
+			return "Completed";
+		if (status.isRunning()){
+			if (isJobPendingApprovalOrQuote(job))
+				return "Awaiting Approvals";
+			return "In Progress";
 		}
-		else{
-			currentStatus = "Completed";
+		if (status.isTerminated()){
+			LinkedHashMap<String,String> jobApprovalsMap = this.getJobApprovals(job);
 			for(String jobApproveCode : jobApprovalsMap.keySet()){
 				//if any single jobStatus is rejected, the rest are set to abandoned, so this job is withdrawn, so break
 				if("rejected".equalsIgnoreCase(jobApprovalsMap.get(jobApproveCode))){
-					if("piApprove".equals(jobApproveCode)){
-							currentStatus = "Withdrawn By PI";
-					}
-					else if("daApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By Dept.";
-					}
-					else if("fmApprove".equals(jobApproveCode)){
-						currentStatus = "Withdrawn By Facility";
-					}
-					else {//should never occur
-						currentStatus = "Withdrawn";
-					}
-					break;
+					if("piApprove".equals(jobApproveCode))
+						return "Withdrawn By PI";
+					else if("daApprove".equals(jobApproveCode))
+						return "Withdrawn By Dept.";
+					else if("fmApprove".equals(jobApproveCode))
+						return "Withdrawn By Facility";
+					else //should never occur
+						return "Withdrawn";
 				}
 			}
 		}
-		return currentStatus;
+		if (status.isFailed())
+			return "Failed";
+		return "Unknown";
 	}
 	
 	/**
@@ -2181,7 +2190,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 				try{
 					if (sampleService.isCellSequencedSuccessfully(sampleService.getCell(cellLibrary))){
 						ExitStatus preProcessingStatus = sampleService.getCellLibraryPreprocessingStatus(cellLibrary);
-						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated()){
+						if (!preProcessingStatus.isCompleted() && !preProcessingStatus.isFailed() && !preProcessingStatus.isTerminated() && !preProcessingStatus.equals(ExitStatus.NOOP)){
 							logger.debug("job " + job.getId() + ": the library has been run and it's cell has passed QC but has not completed pre-processing yet - returning true");
 							return true; // the library has been run and passed QC but has not been pre-processed yet
 						} else if (sampleService.isCellLibraryAwaitingQC(cellLibrary)){
@@ -2300,6 +2309,24 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		if (batchJobExplorer.getJobExecutions(parameterMap, true).size() > 0)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExitStatus getJobStatus(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(
+				batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true) );
+		if (je == null)
+			return ExitStatus.UNKNOWN;
+		return je.getExitStatus();
 	}
 	
 	/**
@@ -2442,7 +2469,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws Exception 
 	 */
 	@Override
-	public void createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
+	public FileGroup createNewQuoteAndSaveQuoteFile(MPSQuote mpsQuote, File file, Float totalFinalCost, boolean saveQuoteAsJSON) throws FileUploadException, JSONException, QuoteException{
 			Job job = this.getJobByJobId(mpsQuote.getJobId());
 		
 			Date now = new Date();
@@ -2470,6 +2497,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			} catch (WaspMessageBuildingException e) {
 				throw new MessagingException(e.getLocalizedMessage());
 			}
+	 	   	return fileGroup;
 	}
 	
 	/** 
@@ -2478,11 +2506,12 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * @throws WaspMessageBuildingException 
 	 */
 	@Override
-	public void createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
+	public FileGroup createNewQuoteOrInvoiceAndUploadFile(Job job, MultipartFile mpFile, String fileDescription, Float totalCost) throws FileUploadException, QuoteException, WaspMessageBuildingException{
 		if(!fileDescription.equalsIgnoreCase("quote") && !fileDescription.equalsIgnoreCase("invoice")){
 			  throw new QuoteException(); 
 		}
- 	   	FileGroup fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
+ 	   	FileGroup fileGroup = null;
+ 	   	fileGroup = fileService.uploadFileAndReturnFileGroup(mpFile, job, fileDescription, new Random(System.currentTimeMillis()));
  	   	//if this is a new quote, save quote; if invoice, save invoice
  	   	AcctQuote acctQuote = new AcctQuote();
  	   	acctQuote.setAmount(totalCost);
@@ -2492,6 +2521,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
  	   	acctQuoteMeta.setV(fileGroup.getId().toString());
  	   	acctQuoteMetaList.add(acctQuoteMeta);
  	   	this.addNewQuote(job.getId(), acctQuote, acctQuoteMetaList);
+ 	   	return fileGroup;
 	}
 	
 	/*
@@ -2557,5 +2587,35 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 		}
 		return replicatesListOfLists;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean getIsAnalysisSelected(Job job){
+		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
+		logger.debug(ANALYSIS_SELECTED_META_KEY + "=" + jm);
+		if (jm != null && jm.getV() != null)
+			return Boolean.valueOf(jm.getV());
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getAllPossibleJobStatusAsString(){
+		//PLEASE also see jobService.getDetailedJobStatusString(job)
+		List<String> list = new ArrayList<String>();
+		list.add("Unknown");
+		list.add("Completed");
+		list.add("Awaiting Approvals");
+		list.add("In Progress");
+		list.add("Withdrawn By PI");
+		list.add("Withdrawn By Dept.");
+		list.add("Withdrawn By Facility");
+		list.add("Failed");
+		return list;		
 	}
 }

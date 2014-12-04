@@ -10,7 +10,8 @@
 <table class="EditTable ui-widget ui-widget-content">
    	<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><fmt:message key="librarydetail_ro.libraryDetails.label" /></td></tr>
   	 <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.libraryName.label" />: </td><td class="DataTD"><c:out value="${sample.name}" /></td></tr>
-     <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.librarySampleType.label" />: </td><td class="DataTD">Library</td></tr>
+     <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.id.label" />:</td><td class="DataTD"><c:out value="${sample.getId()}" /></td></tr>
+     <tr class="FormData"><td class="CaptionTD"><fmt:message key="librarydetail_ro.librarySampleType.label" />: </td><td class="DataTD"><c:out value="${sample.sampleType.name}" /></td></tr>
      <c:set var="_area" value = "library" scope="request"/>
      <c:set var="_metaList" value = "${sample.getSampleMeta()}" scope="request" />
      <c:import url="/WEB-INF/jsp/meta_ro.jsp" />

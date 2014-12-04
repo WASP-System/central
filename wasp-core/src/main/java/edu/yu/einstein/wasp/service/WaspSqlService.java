@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface WaspSqlService {
 
-	public void executeNativeSqlUpdateOnList(List<String> updateQuery);
+	public void executeQueryUpdateOnList(List<String> updateQuery);
 	
 }

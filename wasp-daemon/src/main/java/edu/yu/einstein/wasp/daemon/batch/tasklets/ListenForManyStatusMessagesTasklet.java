@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import edu.yu.einstein.wasp.batch.SimpleManyJobRecipient;
-import edu.yu.einstein.wasp.batch.annotations.RetryOnExceptionFixed;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
@@ -77,35 +76,24 @@ public class ListenForManyStatusMessagesTasklet extends WaspHibernatingTasklet i
     }
 
     @Override
-    @PostConstruct
-    protected void init() {
-        super.init();
-    }
-
-    @Override
-    @PreDestroy
-    protected void destroy() {
-        super.destroy();
-    }
-
-    @Override
     protected void doHibernate(StepExecution stepExecution) throws WaspBatchJobExecutionReadinessException {
         super.doHibernate(stepExecution);
     }
 
     @Override
-    @RetryOnExceptionFixed
     public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
+    	stepExecution = context.getStepContext().getStepExecution();
+    	jobExecution = stepExecution.getJobExecution();
         Long stepExecutionId = stepExecution.getId();
         Long jobExecutionId = jobExecution.getId();
         logger.trace(name + "execute() invoked on stepId=" + stepExecutionId);
         
         // if we are woken by a message, it means that the BatchJobHibernationManager has concluded
         // that all of the messages have been received.  
-        if (wasWokenOnMessage(context)) {
+        if (wasWokenOnMessage(stepExecution)) {
             logger.info("StepExecution (id=" + stepExecutionId + ", JobExecution id=" + jobExecutionId
                     + ") was woken up from hibernation on completion.");
-
+            removeWokenOnMessageStatus(stepExecution);
             if (!stepExecution.getExecutionContext().containsKey(BatchJobHibernationManager.ABANDONED_CHILD_IDS)) {
                 logger.debug(stepExecution.getStepName() + ":" + stepExecutionId + "appears to be complete, returning FINISHED");
             

@@ -8,6 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,7 @@ public class LocalhostFileService implements GridFileService {
 		Path localFileAbsolutePath = Paths.get(localFile.getAbsolutePath());
 		logger.debug("put called: " + localFileAbsolutePath + " to localhost as " + remote);
 		if (!Files.exists(remote.getParent()))
-			Files.createDirectories(remote.getParent());
+			Files.createDirectories(remote.getParent(), getFolderFilePerms());
 		Files.copy(localFileAbsolutePath, remote, StandardCopyOption.REPLACE_EXISTING);
 		logger.debug(localFileAbsolutePath + " copied to " + remote);
 	}
@@ -69,7 +73,7 @@ public class LocalhostFileService implements GridFileService {
 		Path remote = getLocalhostFilePath(remoteFile);
 		logger.debug("touch called: " + remote);
 		if (!Files.exists(remote.getParent()))
-			Files.createDirectories(remote.getParent());
+			Files.createDirectories(remote.getParent(), getFolderFilePerms());
 		try {
 			Files.createFile(remote);
 		} catch (FileAlreadyExistsException e){
@@ -84,7 +88,7 @@ public class LocalhostFileService implements GridFileService {
 		if (Files.exists(remote))
 			logger.debug("not creating directory " + remote + " as already exists on localhost");
 		else {
-			Files.createDirectories(remote);
+			Files.createDirectories(remote, getFolderFilePerms());
 			logger.debug(remote + " created on localhost");
 		}
 	}
@@ -103,7 +107,7 @@ public class LocalhostFileService implements GridFileService {
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("move called: " + originPath + " to " + destinationPath + " at localhost");
 		if (!Files.exists(destinationPath.getParent()))
-			Files.createDirectories(destinationPath.getParent());
+			Files.createDirectories(destinationPath.getParent(), getFolderFilePerms());
 		Files.move(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 		logger.debug(originPath + " moved to " + destinationPath + " on localhost");
 	}
@@ -114,7 +118,7 @@ public class LocalhostFileService implements GridFileService {
 		Path destinationPath = getLocalhostFilePath(destination);
 		logger.debug("copy called: " + originPath + " to " + destinationPath + " at localhost");
 		if (!Files.exists(destinationPath.getParent()))
-			Files.createDirectories(destinationPath.getParent());
+			Files.createDirectories(destinationPath.getParent(), getFolderFilePerms());
 		Files.copy(originPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 		logger.debug(originPath + " copied to " + destinationPath + " on localhost");
 	}
@@ -139,16 +143,28 @@ public class LocalhostFileService implements GridFileService {
 	}
 	
 	public Path getLocalhostFilePath(String path) {
+		path = removePrefix(path);
 		Path pathObj = null;
+		pathObj = Paths.get(path);
+		logger.debug("constructed path: " + pathObj);
+		return pathObj;
+	}
+	
+	private FileAttribute<Set<PosixFilePermission>> getFolderFilePerms(){
+		return PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxr-x"));
+	}
+	
+	private String removePrefix(String path) {
+		String newPath = null;
 		if (userDirIsRoot){
 			if (path.startsWith("/"))
 				path = path.replaceFirst("/", "");
-			pathObj = Paths.get(System.getProperty("user.home") + "/" + path);
-		}
-		else
-			pathObj = Paths.get(path);
-		logger.debug("constructed path: " + pathObj);
-		return pathObj;
+			if (path.startsWith("$HOME/"))
+				path = path.replaceFirst("\\$HOME/", "");
+			newPath = System.getProperty("user.home") + "/" + path;
+			return newPath;
+		} 
+		return path;
 	}
 
 }

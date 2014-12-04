@@ -59,7 +59,6 @@ import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.exception.InvalidParameterException;
 import edu.yu.einstein.wasp.exception.MetaAttributeNotFoundException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.PluginException;
 import edu.yu.einstein.wasp.exception.ResourceException;
 import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleIndexException;
@@ -67,6 +66,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -78,6 +78,7 @@ import edu.yu.einstein.wasp.integration.messages.templates.LibraryStatusMessageT
 import edu.yu.einstein.wasp.integration.messages.templates.SampleStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.SequencingViewProviding;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Barcode;
 import edu.yu.einstein.wasp.model.Job;
@@ -596,7 +597,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			else if(internalStatus.isCompleted()){
 				return "RECEIVED";
 			}
-			else if(internalStatus.isTerminated()){
+			else if(internalStatus.isTerminated() || internalStatus.isStopped()){
 				return "WITHDRAWN";
 			} 
 			else {
@@ -604,23 +605,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			}
 	  }
 	  
-	  /**
-	   * {@inheritDoc}
-	   */
-	  @Override
-	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus){
-		  // TODO: Write test!!
-		  Assert.assertParameterNotNull(webStatus, "No webStatus provided");
-		  	if(webStatus.equals("RECEIVED")){
-				return WaspStatus.CREATED;
-			}
-			else if(webStatus.equals("WITHDRAWN")){
-				return WaspStatus.ABANDONED;
-			}
-			else {
-				return WaspStatus.UNKNOWN;
-			}
-	  }
 	  
 	  /**
 	   * {@inheritDoc}
@@ -941,6 +925,14 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  }
 			  }
 		  }
+		  class SampleCreatedComparator implements Comparator<Sample> {
+				@Override
+				public int compare(Sample arg0, Sample arg1) {
+					return arg1.getCreated().compareTo(arg0.getCreated());
+				}
+			}
+			Collections.sort(availableAndCompatibleFlowCells, new SampleCreatedComparator());//most recent is now first, least recent is last
+
 		  return availableAndCompatibleFlowCells;
 	  }
 	  
@@ -2588,6 +2580,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public ExitStatus getCellLibraryPreprocessingStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			if (!jobService.getIsAnalysisSelected(getJobOfLibraryOnCell(cellLibrary)))
+				return ExitStatus.NOOP;
 			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> ssIdStringSet = new LinkedHashSet<String>();
@@ -2609,6 +2603,8 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException{
 			Assert.assertParameterNotNull(cellLibrary, "cellLibrary cannot be null");
 			Assert.assertParameterNotNull(cellLibrary.getId(), "sourceSampleId cannot be null");
+			if (!jobService.getIsAnalysisSelected(getJobOfLibraryOnCell(cellLibrary)))
+				return ExitStatus.NOOP;
 			ExitStatus status = ExitStatus.UNKNOWN;
 			Map<String, Set<String>> jobParameters = new HashMap<String, Set<String>>();
 			Set<String> jobIdStringSet = new LinkedHashSet<String>();
@@ -2934,7 +2930,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		   * @return
 		   */
 		  @Override
-		  public String getPlatformunitViewLink(Sample platformunit){
+		  public String getPlatformunitViewLink(Sample platformunit) throws WaspException{
 			  Assert.assertParameterNotNull(platformunit, "a platformunit must be supplied");
 			  Assert.assertTrue(isPlatformUnit(platformunit), "sample is not a platformunit");
 			  Set<SequencingViewProviding> plugins = new LinkedHashSet<>(); // use set so duplicates not added
@@ -2942,10 +2938,10 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				  plugins.addAll(pluginRegistry.getPluginsHandlingArea(rc.getIName(), SequencingViewProviding.class));
 			  // we expect one (and ONLY one) plugin to handle the platformunit otherwise we do not know which one to show so programming defensively:
 			 if (plugins.size() > 1)
-				  throw new PluginException("More than one SequencingViewProviding plugin found");
+				  throw new WaspException("More than one SequencingViewProviding plugin found");
 			  for (SequencingViewProviding plugin : plugins)
 				  return plugin.getShowPlatformUnitViewLink(platformunit.getId()); // should only be one so this is ok
-			  throw new PluginException("No SequencingViewProviding plugins found");
+			  throw new WaspException("No SequencingViewProviding plugins found");
 		  }
 
 		@Override
@@ -2988,21 +2984,16 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			Integer genomeId = null;
 			Sample tempSample = sample;
 			while(true){
-				try{	////System.out.println("-------at A where testSampleName (id) =" + tempSample.getName() + "(id is " + tempSample.getId() + ")");
+				try{	
 					genomeId = Integer.parseInt(MetaHelper.getMetaValue(ORGANISM_META_AREA, ORGANISM_META_KEY, tempSample.getSampleMeta()));
-					////System.out.println("-------at B where genomeId = " + genomeId);
 					organismName = genomeService.getOrganismMap().get(genomeId).getName();
-					////System.out.println("-------at C where organismName = " + organismName);
 					return organismName;
 				}
 				catch(Exception me){
-					///System.out.println("-------at D");
 					if(tempSample.getParentId()!=null){
-						////System.out.println("-------at E");
 						tempSample = tempSample.getParent();
 						continue;
 					}
-					////System.out.println("-------at F");
 					logger.debug("Unable to identify organism for sampleId " + sample.getId() + " assuming it is of type 'Other'");
 					organismName="Other";
 					return organismName;
@@ -3494,6 +3485,23 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 					  throw new MetadataException("Unable to set LibraryOnCell SampleSourceMeta");
 				  }
 				  logger.debug("OK, was able to add controlLibrary to Lane: " + cell.getName());				  
+			}
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception{
+				try{
+					metaMessageService.saveToGroup("reasonForNewLibraryComment", "Reason For New Library", comment, sampleId, SampleMeta.class, sampleMetaDao);
+				}catch(Exception e){ throw new Exception(e.getMessage());}
+			}
+			
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId){
+				return metaMessageService.read("reasonForNewLibraryComment", sampleId, SampleMeta.class, sampleMetaDao);
 			}
 
 }

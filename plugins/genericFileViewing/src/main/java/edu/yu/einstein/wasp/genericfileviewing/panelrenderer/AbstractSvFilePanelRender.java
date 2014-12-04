@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -18,6 +21,8 @@ import edu.yu.einstein.wasp.viewpanel.GridDataField;
  *
  */
 public class AbstractSvFilePanelRender {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AbstractSvFilePanelRender.class);
 	
 	
 	protected AbstractSvFilePanelRender(){} // makes abstract
@@ -34,54 +39,52 @@ public class AbstractSvFilePanelRender {
 		GridContent content = new GridContent();
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			String line;
-			String headerLine = "";
-			boolean isFirstNonHeaderLineNotProcessed = true;
+			String currentLine;
+			String lastLine = "";
+			String workingLine = "";
 			int lineNumber = 1;
-			while ((line = br.readLine()) != null && !line.trim().isEmpty() && (lineLimit == -1 || lineNumber <= lineLimit)) {
-				line = line.trim();
-				if (isFirstNonHeaderLineNotProcessed){
-					// If the first line starts with #, it might be a header line There may be more than one so only consider the 
-					// last one we find a possible header line and then only if more than one tab delimited item
-					if (line.startsWith("#")) {
-						header = true;
-						headerLine = line.replaceFirst("#+", "");
-						continue;
-					}
-					if (header && headerLine.isEmpty()){
-						headerLine = line;
-						continue;
-					}
+			boolean headerProceessed = false;
+			while ((currentLine = br.readLine()) != null && (lineLimit == -1 || lineNumber <= lineLimit)) {
+				logger.trace(currentLine);
+				currentLine = currentLine.trim();
+				lastLine = workingLine;
+				workingLine = currentLine;
+				if (workingLine.startsWith("#"))
+					continue;
+				if (workingLine.replaceAll(seperator, "").isEmpty())
+					continue;
+				boolean dontProcessLineAsDataRow = false;
+				String[] dataFields = workingLine.split(seperator);
+				if (!headerProceessed){
+					String[] lastLineFields = lastLine.replaceFirst("#+", "").split(seperator);
+					String[] headerFields = dataFields; // default
+					if (lastLineFields.length == dataFields.length)
+						headerFields = lastLineFields;
+					else
+						dontProcessLineAsDataRow = true;
 					if (header){
+						int dataIndex = 1;
 						// process header line first
-						String[] fields = headerLine.split(seperator);
-						if (fields.length > 1){ // unlikely to be a true header if only 1 field
-							Integer dataIndex = 1;
-							for (String fstr : fields) {
-								GridColumn c = new GridColumn(fstr.trim(), "di"+dataIndex, 1);
-								c.setWidth(150);
-								content.addColumn(c);
-								content.addDataFields(new GridDataField("di"+dataIndex, "string"));
-								dataIndex++;
-							}
+						logger.trace("processing header: " + currentLine);
+						
+						for (String fstr : headerFields) {
+							GridColumn c = new GridColumn(fstr.trim(), "di"+dataIndex, 1);
+							c.setWidth(150);
+							content.addColumn(c);
+							content.addDataFields(new GridDataField("di"+dataIndex, "string"));
+							dataIndex++;
 						}
-					}
-					Integer dataIndex = 1;
-					List<String> row = new ArrayList<String>();
-					for (String fstr : line.split(seperator)) {
-						if (!header){
+					} else {
+						for (int dataIndex = 1; dataIndex <= headerFields.length; dataIndex++) {
 							content.addColumn(new GridColumn("", "di"+dataIndex, 1));
 							content.addDataFields(new GridDataField("di"+dataIndex, "string"));
 						}
-						row.add(fstr.trim());
-						dataIndex++;
 					}
-					content.addDataRow(row);
-					isFirstNonHeaderLineNotProcessed = false;
-					lineNumber++;
-				} else { 
+					headerProceessed = true;
+				} 
+				if (headerProceessed && !dontProcessLineAsDataRow) { 
 					List<String> row = new ArrayList<String>();
-					for (String fstr : line.split(seperator)){
+					for (String fstr : dataFields){
 						row.add(fstr.trim());
 					}
 					content.addDataRow(row);

@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/ext-all-dev.js"></script>
-<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-4.2.1/release/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
+<script type="text/javascript" src="http://waspsystem.org/lib/ext-4.2.1/ext-all-dev.js"></script>
+<script type="text/javascript" src="http://waspsystem.org/lib/ext-4.2.1/packages/ext-theme-neptune/build/ext-theme-neptune.js"></script>
 <script type="text/javascript"	src="<wasp:relativeUrl value='scripts/extjs/wasp/WaspNamespaceDefinition.js.jsp' />"></script>
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/ext-theme-neptune-all-wasp.css' />" />
 <link rel="stylesheet" type="text/css" href="<wasp:relativeUrl value='css/treeGrid.css' />" />
@@ -36,6 +36,7 @@ Ext.define('BatchTreeModel', {
         {name: 'status',     type: 'string'},
         {name: 'exitCode', type: 'string'},
         {name: 'exitMessage',     type: 'string'},
+        {name: 'retries',     type: 'integer'},
         {name: 'resultAvailable', type: 'boolean'}
     ]
 });
@@ -195,9 +196,14 @@ Ext.onReady(function() {
         columns: [{
         	xtype: 'treecolumn', //this is so we know which column will show the tree
             text: '<fmt:message key="batchViewer.nameCol.label"/>',
-            width: 420,
+            width: 400,
             sortable: true,
             dataIndex: 'name'
+        },{
+            text: '<fmt:message key="batchViewer.retries.label"/>',
+            width: 50,
+            sortable: true,
+            dataIndex: 'retries'
         },{
             text: '<fmt:message key="batchViewer.idCol.label"/>',
             width: 70,

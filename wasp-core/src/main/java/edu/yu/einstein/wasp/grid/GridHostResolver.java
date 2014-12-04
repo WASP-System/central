@@ -6,6 +6,7 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 
 /**
  * Mechanism for fine grained control over where remote jobs are sent.  GridHostResolvers need to implement this 
@@ -27,7 +28,7 @@ public interface GridHostResolver {
 	 * @param w
 	 * @return
 	 */
-	public String getHostname(WorkUnit w) throws GridUnresolvableHostException;
+	public String getHostname(WorkUnitGridConfiguration c) throws GridUnresolvableHostException;
 	
 	/**
 	 * Returns the username in use at the destination host.  Username/hostname should be stable for
@@ -36,7 +37,7 @@ public interface GridHostResolver {
 	 * @return
 	 * @throws GridUnresolvableHostException
 	 */
-	public String getUsername(WorkUnit w) throws GridUnresolvableHostException;
+	public String getUsername(WorkUnitGridConfiguration c) throws GridUnresolvableHostException;
 	
 	/**
 	 * Returns the username at the given host.
@@ -51,7 +52,7 @@ public interface GridHostResolver {
 	 * @param w
 	 * @throws GridUnresolvableHostException 
 	 */
-	public GridWorkService getGridWorkService(WorkUnit w) throws GridUnresolvableHostException;
+	public GridWorkService getGridWorkService(WorkUnitGridConfiguration c) throws GridUnresolvableHostException;
 	
 	/**
 	 * Get the work service that is working on the result
@@ -83,7 +84,7 @@ public interface GridHostResolver {
 	 * @param w
 	 * @return string or null
 	 */
-	public String getParallelEnvironmentString(WorkUnit w);
+	public String getParallelEnvironmentString(WorkUnitGridConfiguration c);
 	
 	/**
 	 * Pass through method to execute a {@link WorkUnit}.

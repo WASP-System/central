@@ -361,7 +361,7 @@ public class UserController extends WaspController {
 		if (adding) {
 			// set random password. We don't care what it is as new user will be prompted to
 			// set a new one via email.
-			userForm.setPassword(webAuthenticationService.encodePassword(webAuthenticationService.getRandomPassword(10)));
+			userForm.setPassword(webAuthenticationService.encodePassword(webAuthenticationService.getRandomPassword(20)));
 			userForm.setIsActive(1);
 			User userDb = this.userDao.save(userForm);
 			userId=userDb.getId();

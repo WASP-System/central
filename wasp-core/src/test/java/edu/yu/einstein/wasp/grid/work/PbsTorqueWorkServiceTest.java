@@ -78,7 +78,7 @@ public class PbsTorqueWorkServiceTest { //extends AbstractTestNGSpringContextTes
 		logger.debug("got: " + output);
 		
 		boolean unknown = pbsTorqueWorkService.isUnknown(retval);
-		System.out.println("unk:" + unknown);
+		logger.debug("unk:" + unknown);
 		
 		Assert.assertTrue(unknown);
 		

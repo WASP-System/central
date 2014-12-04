@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,7 @@ import edu.yu.einstein.wasp.dao.SampleSubtypeDao;
 import edu.yu.einstein.wasp.dao.SampleTypeDao;
 import edu.yu.einstein.wasp.dao.UserMetaDao;
 import edu.yu.einstein.wasp.dao.UserPendingMetaDao;
+import edu.yu.einstein.wasp.dao.WorkflowDao;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -53,6 +56,7 @@ import edu.yu.einstein.wasp.model.SampleBarcode;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -117,6 +121,9 @@ public class AutoCompleteController extends WaspController{
 
 	@Autowired
 	private JobService jobService;
+	
+	@Autowired
+	private WorkflowDao workflowDao;
 
 	/**
 	   * NOT USED - but shows a way to have the json message contain list of all PIs where each entry in the list looks something like "Peter Piper" but once selected, it is "Peter Piper (PPiper)" that is actually put into the autocomplete input box"
@@ -907,4 +914,83 @@ public class AutoCompleteController extends WaspController{
 			}	
 		}
 
+		/**
+		   * Obtains a json message containing distinct list of all workflow names"
+		   * Order ascending
+		   * Used to populate a JQuery autocomplete managed input box
+		   * @param workflowNameFragment
+		   * @return json message
+		   */
+		  @RequestMapping(value="/getAllWorkflowNamesForDisplay", method=RequestMethod.GET)
+		  public @ResponseBody String getAllWorkflowNamesForDisplay(@RequestParam String workflowNameFragment) {
+			 //no longer used
+			  List<Workflow> workflowList = new ArrayList<Workflow>();
+			  workflowList = workflowDao.findAll();
+			  Set<String> theSet = new HashSet<String>();
+			  for(Workflow wf : workflowList){//use set for distinct
+				  theSet.add(wf.getName());
+			  }
+			  List<String> theList = new ArrayList<String>();
+			  theList.addAll(theSet);
+			  Collections.sort(theList);
+			  
+		      String jsonString = new String();
+		      jsonString = jsonString + "{\"source\": [";
+		      for (String r: theList){
+		      	 if(r.indexOf(workflowNameFragment) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+		       		 jsonString = jsonString + "\""+ r +"\",";
+		       	 }
+		      }
+		     jsonString = jsonString.replaceAll(",$", "") + "]}";
+		     /*
+		     class WorkflowNameComparator implements Comparator<Workflow> {
+				    @Override
+				    public int compare(Workflow arg0, Workflow arg1) {
+				        return arg0.getName().compareToIgnoreCase(arg1.getName());
+				    }
+			  }
+			  Collections.sort(workflowList, new WorkflowNameComparator());//sort by Workflow name 
+			  Map<String,String> theLinkedHashMap = new LinkedHashMap<String,String>();
+			  for(Workflow wf : workflowList){//use set for distinct
+				  theLinkedHashMap.put(wf.getIName(), wf.getName());
+			  }
+		      ObjectMapper mapper = new ObjectMapper();
+		      try{
+				  jsonString=mapper.writeValueAsString(theLinkedHashMap);
+				  logger.debug("in getAllWorkflowNamesForDisplay: ");
+				  logger.debug("jsonString: " + jsonString);
+			  }catch(Exception e){logger.debug("unable to convert map to json in getAllWorkflowNamesForDisplay()");}
+		      */
+		      return jsonString;                
+		  }
+		  
+			/**
+		   * Obtains a json message containing distinct list of all jobStatus states (for display on web)"
+		   * Order ascending
+		   * Used to populate a JQuery autocomplete managed input box
+		   * @param jobStatus
+		   * @return json message
+		   */
+		  @RequestMapping(value="/getAllJobStatusForDisplay", method=RequestMethod.GET)
+		  public @ResponseBody String getAllJobStatusForDisplay(@RequestParam String jobStatus) {
+			  //no longer used
+			  List<String> list = jobService.getAllPossibleJobStatusAsString();
+			  Set<String> theSet = new HashSet<String>();
+			  for(String s : list){//use set for distinct
+				  theSet.add(s);
+			  }
+			  List<String> theList = new ArrayList<String>();
+			  theList.addAll(theSet);
+			  Collections.sort(theList);
+			  
+		      String jsonString = new String();
+		      jsonString = jsonString + "{\"source\": [";
+		      for (String r: theList){
+		      	 if(r.indexOf(jobStatus) > -1){//note: if str equals "", this, perhaps unexpectedly, evaluates to true
+		       		 jsonString = jsonString + "\""+ r +"\",";
+		       	 }
+		      }
+		      jsonString = jsonString.replaceAll(",$", "") + "]}";
+		      return jsonString;                
+		  }
 }

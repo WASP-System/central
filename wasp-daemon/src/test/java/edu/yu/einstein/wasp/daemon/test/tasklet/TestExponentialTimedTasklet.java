@@ -1,11 +1,13 @@
 package edu.yu.einstein.wasp.daemon.test.tasklet;
 
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
+import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 
@@ -16,18 +18,20 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 	private static final int MAX_REPEATS = 3;
 	
 	@Override
-	public void doExecute(ChunkContext context) throws Exception {
-		
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		return null;
 	}
 	
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception{
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("Woken on timeout");
 			wasHibernationRequested = false;
-			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+			removeWokenOnTimeoutStatus(stepExecution);
 		}
-		ExecutionContext ec = context.getStepContext().getStepExecution().getExecutionContext();
+		ExecutionContext ec = stepExecution.getExecutionContext();
 		int count = 0;
 		if (!ec.containsKey("COUNT")){
 			count = 1;
@@ -45,8 +49,14 @@ public class TestExponentialTimedTasklet extends WaspRemotingTasklet {
 		
 		Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 		logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
-		addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+		addStatusMessagesToAbandonStepToContext(context.getStepContext().getStepExecution(), abandonTemplates);
 		requestHibernation(context);
 		return RepeatStatus.CONTINUABLE;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 }

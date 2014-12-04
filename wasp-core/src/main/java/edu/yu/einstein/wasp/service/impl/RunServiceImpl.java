@@ -254,7 +254,30 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override	public boolean isRunActive(Run run){
+	@Override	
+	public ExitStatus getRunBatchStatus(Run run){
+		Assert.assertParameterNotNull(run, "run cannot be null");
+		Assert.assertParameterNotNull(run.getId(), "run must be defined");
+		if (isAnySuccessfulRunCells(run))
+			return ExitStatus.COMPLETED; // no point looking for status in Batch if we know it's completed already
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> runIdStringSet = new LinkedHashSet<String>();
+		runIdStringSet.add(run.getId().toString());
+		Set<String> genericParamValStringSet = new LinkedHashSet<String>();
+		genericParamValStringSet.add("*");
+		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING));
+		if (je == null)
+			return ExitStatus.UNKNOWN;
+		return je.getExitStatus();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override	
+	public boolean isRunActive(Run run){
 		Assert.assertParameterNotNull(run, "run cannot be null");
 		Assert.assertParameterNotNull(run.getId(), "run must be defined");
 		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
@@ -289,6 +312,12 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 				logger.warn("unable to proccess a run Id as a parameter for job execution: "+ jobExecution.toString());
 			}
 		}
+		// if runs entered manually via CLI they will not appear in batch so perform an alternative check.
+		// We normally set all cells of the PU to having being successfully run in order to proceed with analysis 
+		// so we can use this as an alternative to see if a run is complete
+		for (Run run : runDao.findAll())
+			if (!runs.contains(run) && isAnySuccessfulRunCells(run))
+				runs.add(run);
 		return runs;
 	}
 	

@@ -8,24 +8,24 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
 import edu.yu.einstein.wasp.gatk.service.GatkService;
 import edu.yu.einstein.wasp.gatk.software.GATKSoftwareComponent;
-import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.WaspModel;
+import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 
-public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
+public abstract class AbstractGatkTasklet extends TestForGenomeIndexTasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractGatkTasklet.class);
 	
@@ -52,9 +52,6 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 	
 	@Autowired
 	protected GATKSoftwareComponent gatk;
-	
-	@Autowired
-	protected GridHostResolver gridHostResolver;
 
 	protected LinkedHashSet<Integer> inputFilegroupIds;
 	
@@ -151,13 +148,25 @@ public abstract class AbstractGatkTasklet extends WaspRemotingTasklet {
 		return sampleFileGroups;
 	}
 	
-	@Transactional("entityManager")
 	@Override
+	@Transactional("entityManager")
 	public void doPreFinish(ChunkContext context) throws Exception {
 		for (Integer fgId : this.getOutputFilegroupIds()){
 			logger.debug("Setting as active FileGroup with id=: " + fgId);
 			fileService.getFileGroupById(fgId).setIsActive(1);
 		}
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		
+	}
+	
+	@Override
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution){
+		super.beforeStep(stepExecution);
 	}
 
 }

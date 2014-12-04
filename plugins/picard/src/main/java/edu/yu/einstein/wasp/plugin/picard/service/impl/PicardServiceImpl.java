@@ -122,22 +122,19 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		String duplicateReads = getDuplicateReads(fileGroup);
 		String mappedReads = this.getMappedReads(fileGroup);		
 		return duplicateReads + " / " + mappedReads + " = " + fractionDuplicated;	}
+	public String getUniqueReads(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS_FROM_ALL);
+	}
 	
-	public String getFractionUniqueNonRedundant(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT);
+	public String getUniqueNonRedundantReads(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS_FROM_ALL);
 	}
-	public String getUniqueReads(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_READS);
+	
+	public String getNonRedundantReadFraction(FileGroup fileGroup){
+		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_FRACTION_UNIQUE_NONREDUNDANT_FROM_ALL);
 	}
-	public String getUniqueNonRedundantReads(FileGroup fileGroup){	
-		return this.getAlignmentMetric(fileGroup, BamService.BAMFILE_ALIGNMENT_METRIC_UNIQUE_NONREDUNDANT_READS);
-	}
-	public String getFractionUniqueNonRedundantAsCalculation(FileGroup fileGroup){	
-		String fractionUniqueNonRedundant = getFractionUniqueNonRedundant(fileGroup);
-		String uniqueReads = getUniqueReads(fileGroup);
-		String uniqueNonRedundantReads = getUniqueNonRedundantReads(fileGroup);		
-		return uniqueNonRedundantReads + " / " + uniqueReads + " = " + fractionUniqueNonRedundant;
-	}
+	
+	
 	public PanelTab getAlignmentMetricsForDisplay(FileGroup fileGroup){
 		
 		List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
@@ -158,11 +155,11 @@ public class PicardServiceImpl extends WaspServiceImpl implements PicardService 
 		duplicate.put("Fraction Duplicated", getFractionDuplicated(fileGroup));
 		metrics.put("Duplicate Stats:", duplicate);
 		
-		Map<String,String> unique = new LinkedHashMap<String, String>();
-		unique.put("Uniquely Mapped Reads", formatWithCommas(getUniqueReads(fileGroup)));
-		unique.put("Uniquely Mapped &amp; Nonredundant Reads", formatWithCommas(getUniqueNonRedundantReads(fileGroup)));
-		unique.put("Fraction Uniquely Mapped &amp; Nonredundant", getFractionUniqueNonRedundant(fileGroup));
-		metrics.put("Uniquely Aligned Stats:", unique);
+		if(getUniqueReads(fileGroup)!=null && !getUniqueReads(fileGroup).isEmpty()){
+			Map<String,String> nrf = new LinkedHashMap<String, String>();
+			nrf.put("NRF From All Uniquely-Mapped Reads", getNonRedundantReadFraction(fileGroup)  + " = " + formatWithCommas(getUniqueNonRedundantReads(fileGroup)) + " / " + formatWithCommas(getUniqueReads(fileGroup)));
+			metrics.put("Non-Redundant Read Fraction From Uniquely-Mapped Reads (NRF):", nrf);
+		}
 		
 		return PicardWebPanels.getAlignmentMetrics(metrics, bamFileName);
 	}

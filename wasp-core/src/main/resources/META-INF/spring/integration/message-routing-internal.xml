@@ -59,6 +59,10 @@
 	
 	<int:channel id="wasp.channel.reply.unfiltered" />
 	
+	<int:channel id="wasp.channel.runSuccessOut" >
+		<int:queue />
+	</int:channel>
+	
 	
 	<!-- publish-subscribe channels for broadcasting messages -->	
 	<int:publish-subscribe-channel id="wasp.channel.notification.batch" />
@@ -144,9 +148,12 @@
 		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessFilter" />
 	</int:filter>
 		
-	<int:splitter input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.batch">
-		<bean class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessSplitter" />
-	</int:splitter>
+	<bean id="runSuccessServiceActivator" class="edu.yu.einstein.wasp.integration.endpoints.RunSuccessServiceActivator" />
+	
+	<int:service-activator input-channel="wasp.channel.notification.run.success" output-channel="wasp.channel.runSuccessOut" ref="runSuccessServiceActivator" method="process" />
+	
+	<!-- for some reason the runId header gets added by Spring automatically to output messages (probably because it technically a reply to a message containing that header) -->
+	<int:header-filter input-channel="wasp.channel.runSuccessOut" output-channel="wasp.channel.batch" header-names="#{T(edu.yu.einstein.wasp.integration.messages.WaspJobParameters).RUN_ID}"/>
 	
 	<bean id="batchJobHibernationManager" class="edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager" />
 	

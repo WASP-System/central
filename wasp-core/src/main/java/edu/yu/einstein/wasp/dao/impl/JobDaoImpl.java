@@ -91,16 +91,16 @@ public class JobDaoImpl extends WaspDaoImpl<Job> implements edu.yu.einstein.wasp
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<Integer,List<Job>> getJobSamplesByWorkflow(final int workflowId) {
-		   String sql=
+		   String query=
 			   "SELECT ws.samplesubtypeId, j.id, j.name\n"+
-			   "FROM job j\n"+
-			   "JOIN workflowsamplesubtype ws ON ws.workflowId = j.workflowId\n"+
+			   "FROM Job j\n"+
+			   "JOIN WorkflowSampleSubtype ws ON ws.workflowId = j.workflowId\n"+
 			   "WHERE j.workflowId = :workflowId\n"+
 			   "ORDER BY j.updated DESC , j.name ASC\n";
 		   
 		   Map<Integer,List<Job>> result=new LinkedHashMap<Integer,List<Job>>();
 		   
-		   List<Object[]> listObj=entityManager.createNativeQuery(sql).setParameter("workflowId", workflowId).getResultList();
+		   List<Object[]> listObj=entityManager.createQuery(query).setParameter("workflowId", workflowId).getResultList();
 		   for(Object[] o:listObj) {
 			   
 			   Integer sampleSubtypeId=(Integer)o[0];

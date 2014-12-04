@@ -153,7 +153,7 @@ $(document).ready(function() {
 				// searchoptions: {value: "Completed:Completed;In Progress:In Progress;Unknown:Unknown"} 
 				editable: true, edittype: "select", stype: 'select',
    // editoptions: { value: "Completed:Completed;In Progress:In Progress;Unknown:Unknown", defaultValue: "--Select Status--" },
-    searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.statusAll.label" />;Completed:<fmt:message key="run.statusCompleted.label" />;In Progress:<fmt:message key="run.statusInProgress.label" />;Unknown:<fmt:message key="run.statusUnknown.label" />' }
+    searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.statusAll.label" />;Completed:<fmt:message key="run.statusCompleted.label" />;In Progress:<fmt:message key="run.statusInProgress.label" />;Failed:<fmt:message key="run.statusFailed.label" />;Unknown:<fmt:message key="run.statusUnknown.label" />' }
 				
 			});
 	

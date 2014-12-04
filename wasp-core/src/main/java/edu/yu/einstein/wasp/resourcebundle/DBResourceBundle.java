@@ -128,7 +128,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 						|| StringUtils.startsWithIgnoreCase(line.trim(), "delete")
 						|| StringUtils.startsWithIgnoreCase(line.trim(), "truncate")
 					){
-						updateList.add(line);
+						updateList.add(line.replace(";",""));
 				}
 			}
 			br.close();
@@ -138,7 +138,7 @@ public class DBResourceBundle implements ApplicationContextAware{
 		 	
 		// execute sql statements
 		try{
-			waspSqlService.executeNativeSqlUpdateOnList(updateList);
+			waspSqlService.executeQueryUpdateOnList(updateList);
 		} catch(Exception e){
 			throw new WaspMessageInitializationException("Problem executing sql updates : "+e.getMessage(), e);
 		}

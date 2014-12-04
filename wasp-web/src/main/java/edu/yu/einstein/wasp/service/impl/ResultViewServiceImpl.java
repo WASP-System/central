@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,8 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.ResultViewService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
 import edu.yu.einstein.wasp.viewpanel.GridColumn;
 import edu.yu.einstein.wasp.viewpanel.GridContent;
 import edu.yu.einstein.wasp.viewpanel.GridDataField;
@@ -115,18 +118,19 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 		GridContent fileGridContent = new GridContent();
 		fileGridContent.addColumn(new GridColumn("File Name", "fname", 1));
 		fileGridContent.addColumn(new GridColumn("MD5 Checksum", "md5", 300, 0, "center", "center"));
-		fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, false));
+		fileGridContent.addColumn(new GridColumn("Size", "size", 100, 0, true, true, false));
 		
 		fileGridContent.addDataFields(new GridDataField("fgname", "string"));
 		fileGridContent.addDataFields(new GridDataField("fid", "string"));
 		fileGridContent.addDataFields(new GridDataField("fname", "string"));
 		fileGridContent.addDataFields(new GridDataField("md5", "string"));
 		fileGridContent.addDataFields(new GridDataField("size", "string"));
-		fileGridContent.addDataFields(new GridDataField("link", "string"));
-		fileGridContent.addDataFields(new GridDataField("gblink", "string"));
-		fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
-		fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
-		fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
+//		fileGridContent.addDataFields(new GridDataField("dllink", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gblink", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gbtype", "string"));
+//		fileGridContent.addDataFields(new GridDataField("gbttp", "string"));
+//		fileGridContent.addDataFields(new GridDataField("hidegb", "boolean"));
+//		fileGridContent.addDataFields(new GridDataField("fgid", "string"));
 		
 		try {
 			for (FileGroup fg : fgSet) {
@@ -141,13 +145,14 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 					filerow.add(fh.getFileName());
 					filerow.add(fh.getMd5hash());
 					filerow.add(fh.getSizek() != null ? fh.getSizek().toString() : "");
-					hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+/*					hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
 					filerow.add(hl.getTargetLink());
+					filerow.add(fg.getId().toString());
 					
 					filerow.add(hl.getTargetLink());
-//					filerow.add("ucsc");
-//					filerow.add("View in UCSC Genome Browser");
-//					filerow.add("false");
+					filerow.add("ucsc");
+					filerow.add("View in UCSC Genome Browser");
+					filerow.add("true");
 					switch ( (int) (Math.random()*3) ) {
 						case 0:	filerow.add("ucsc");
 								filerow.add("View in UCSC Genome Browser");
@@ -175,11 +180,51 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 						
 						default: break;
 					}
-					
+*/					
 					fileGridContent.addDataRow(filerow);
+					
+					hl = new Hyperlink("Download", fileUrlResolver.getURL(fh).toString());
+					
+					List<Action> actionrow = new ArrayList<Action>();
+					int num = (int) (Math.random()*3);
+					LoggerFactory.getLogger(this.getClass()).trace("num=" + num);
+					for (int i=0;i<=num;i++) {
+						Action dlAction = new Action();
+						switch ( i ) {
+							case 0:	dlAction.setIconClassName("icon-download");
+									dlAction.setTooltip("Download");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.DOWNLOAD);
+									dlAction.setCallbackContent(hl.getTargetLink());
+									break;
+							
+							case 1:	dlAction.setIconClassName("icon-new-window");
+									dlAction.setTooltip("View in new window");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_NEW_BROWSER_WIN);
+									dlAction.setCallbackContent(hl.getTargetLink());
+									break;
+							
+							case 2:	dlAction.setIconClassName("icon-view-file");
+									dlAction.setTooltip("Viewer by file type");
+									dlAction.setCallbackFunctionType(CallbackFunctionType.OPEN_IN_CSS_WIN);
+									dlAction.setCallbackContent(fg.getId().toString());
+									break;
+					
+							default: break;
+						}
+						actionrow.add(dlAction);
+					}
+					
+					fileGridContent.addActions(actionrow);
 				}
 			}
+			
+			// after all rows added to the content, call following method to add missing actions as hidden
+			// actions to the grid
+			// this step will be done when calling GridPanel.setContent() menthod
+			//fileGridContent.appendActionsToData();
+			
 		} catch (GridUnresolvableHostException e) {
+			e.printStackTrace();
 			throw new WaspException(e);
 		}
 		
@@ -188,9 +233,9 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 		filePanel.setGrouping(true);
 		filePanel.setGroupField("fgname");
 		
-		filePanel.setHasDownload(true);
-		filePanel.setDownloadLinkField("link");
-		filePanel.setDownloadTooltip("Download");
+//		filePanel.setHasDownload(true);
+//		filePanel.setDownloadLinkField("link");
+//		filePanel.setDownloadTooltip("Download");
 		
 		filePanel.setAllowSelectDownload(true);
 		filePanel.setSelectDownloadText("Download selected");
@@ -199,11 +244,11 @@ public class ResultViewServiceImpl extends WaspServiceImpl implements ResultView
 		filePanel.setGroupDownloadTooltip("Download all");
 		filePanel.setGroupDownloadAlign("left");
 		
-		filePanel.setHasGbLink(true);
-		filePanel.setGbLinkField("gblink");
-		filePanel.setGbTypeField("gbtype");
-		filePanel.setGbTtpField("gbttp");
-		filePanel.setHideGbField("hidegb");
+//		filePanel.setHasGbLink(true);
+//		filePanel.setGbLinkField("gblink");
+//		filePanel.setGbTypeField("gbtype");
+//		filePanel.setGbTtpField("gbttp");
+//		filePanel.setHideGbField("hidegb");
 		return filePanel;
 	}
 	

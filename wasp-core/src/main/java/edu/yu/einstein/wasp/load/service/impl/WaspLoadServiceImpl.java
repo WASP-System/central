@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -31,17 +33,36 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 	@Autowired
 	private MessageSource messageSource;
 	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	/** 
+	 * Update UiFields if they are new or changed.
+	 * 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateUiFields(List<UiField> uiFields) {
 		for (UiField f: safeList(uiFields)) {
-			String key = f.getArea() + "." + f.getName() + "." + f.getAttrName();
-			String lang = f.getLocale().substring(0, 2);
-			String cntry = f.getLocale().substring(3);
-			uiFieldDao.save(f); 
-			Locale locale = new Locale(lang, cntry);
-			((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
+			UiField existing = uiFieldDao.get(f.getLocale(), f.getArea(), f.getName(), f.getAttrName());
+			if (existing != null) {
+				if (!existing.equals(f)) {
+					logger.trace("uifield " + f.getArea() + ":" + f.getName() + " exists but changed");
+					save(f);
+				}
+			} else {
+				logger.trace("uifield " + f.getArea() + ":" + f.getName() + " is new");
+				save(f);
+			}
 		}
+	}
+	
+	private void save(UiField f) {
+		String key = f.getArea() + "." + f.getName() + "." + f.getAttrName();
+		String lang = f.getLocale().substring(0, 2);
+		String cntry = f.getLocale().substring(3);
+		uiFieldDao.save(f); 
+		Locale locale = new Locale(lang, cntry);
+		((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
 	}
 	
 	/**

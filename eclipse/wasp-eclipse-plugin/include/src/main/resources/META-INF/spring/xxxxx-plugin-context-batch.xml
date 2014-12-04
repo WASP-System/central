@@ -8,6 +8,7 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<context:component-scan base-package="___package___.batch.service.impl" />  ///// PIP
 	
 	<!-- common definitions -->
 	<import resource="___pluginIName___-plugin-context-common.xml" />

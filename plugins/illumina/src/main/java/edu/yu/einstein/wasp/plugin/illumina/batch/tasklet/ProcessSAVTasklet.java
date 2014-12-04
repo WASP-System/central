@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,9 @@ import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.SoftwareManager;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ProcessMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.illumina.software.SavR;
@@ -67,7 +68,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
 		
 		run = runService.getRunById(runId);
 		
@@ -77,29 +78,27 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		
 		
 		// creating a work unit this way sets the runID from the jobparameters
-		WorkUnit w = new WorkUnit();
-		w.setProcessMode(ProcessMode.FIXED);
-		w.setSoftwareDependencies(sd);
-		GridWorkService gws = hostResolver.getGridWorkService(w);
-		SoftwareManager sm = gws.getTransportConnection().getSoftwareManager();
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+		c.setProcessMode(ProcessMode.FIXED);
+		c.setSoftwareDependencies(sd);
+		GridWorkService gws = hostResolver.getGridWorkService(c);
 		Integer procs = 1;
-		w.setProcessorRequirements(procs);
+		c.setProcessorRequirements(procs);
 		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
 		if (!PropertyHelper.isSet(dataDir))
 			throw new GridException("illumina.data.dir is not defined!");
 		
-		w.setWorkingDirectory(dataDir + "/" + run.getName() );
+		c.setWorkingDirectory(dataDir + "/" + run.getName() );
 		
-		w.setResultsDirectory(dataDir + "/" + run.getName() );
+		c.setResultsDirectory(dataDir + "/" + run.getName() );
 		
+		WorkUnit w = new WorkUnit(c);
 		w.setCommand(savR.getSavR());
 
 		GridResult result = gws.execute(w);
 		
 		logger.debug("started savR processing: " + result.getUuid());
-		
-		//place the grid result in the step context
-		saveGridResult(context, result);
+		return result;
 	}
 
 
@@ -116,6 +115,12 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 	@Autowired
 	public void setRunService(RunService runService) {
 		this.runService = runService;
+	}
+
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

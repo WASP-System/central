@@ -6,7 +6,7 @@
 <script>
 	
 	function validate(){
-		TOTAL_LANES = 8;
+		TOTAL_LANES = <c:out value="${cellIndexList.size()}" />;
 		messagePassFailRoot = '<fmt:message key="waspIlluminaPlugin.displayQc_noChoose.error" />';
 		messagePassFailLanes = "";
 		messageCommentsRoot = '<fmt:message key="waspIlluminaPlugin.displayQc_noComment.error" />';

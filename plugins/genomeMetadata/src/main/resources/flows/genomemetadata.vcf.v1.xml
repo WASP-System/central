@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<!--
+		Generic flow for building vcf genome indexes.  When launching, requires the following job parameters:
+		
+		WaspJobParameters.HOSTNAME	Host where index is to be built
+		GenomeMetadataPlugin.METADATA_PATH_KEY	Path to metadata folder, e.g. $METADATA/TAXONID/GENOMENAME/BUILDID
+		GenomeMetadataPlugin.vcf_URL_KEY	Single curl ready URL for vcf file, will be sorted in FASTA order
+		GenomeMetadataPlugin.BUILD_NAME_KEY String representation of the build, will represent the genome (e.g. METADATA_PATH_KEY/BUILD_NAME_KEY.fa)
+	
+	 -->
+
+	<batch:job id="genomemetadata.vcf">
+		<batch:step id="genomemetadata.vcf.notifyGenomemetadataStart" next="genomemetadata.vcf.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="genomemetadata.vcf.markBegin">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/vcf/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_STARTED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="genomemetadata.vcf.markFailed" />
+			<batch:next on="*" to="genomemetadata.vcf.getvcf" />
+		</batch:step>
+		
+		<batch:step id="genomemetadata.vcf.getvcf">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.file.DownloadAndSortTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="remoteBuildPath" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/vcf/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}" />
+					<constructor-arg name="remoteFastaIndexName" value="../../fasta/#{jobParameters[genomemetadataPlugin.BUILD_NAME_KEY]}.genome.fa.fai" />
+					<constructor-arg name="fileUrl" value="#{jobParameters[genomemetadataPlugin.VCF_URL_KEY]}" />
+					<constructor-arg name="fileName" value="#{jobParameters[genomemetadataPlugin.BUILD_NAME_KEY]}.#{jobParameters[genomemetadataPlugin.VERSION_KEY]}.#{jobParameters[genomemetadataPlugin.VCF_TYPE_KEY]}.vcf" />
+					<constructor-arg name="strategy" value="VCF" />
+					<property name="checksum" value="#{jobParameters[genomemetadataPlugin.VCF_CHECKSUM_KEY]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="genomemetadata.vcf.markFailed" />
+			<batch:next on="*" to="genomemetadata.vcf.markComplete" />
+		</batch:step>
+		
+		<batch:step id="genomemetadata.vcf.markComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/vcf/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_COMPLETED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="genomemetadata.vcf.markFailed" />
+			<batch:next on="*" to="genomemetadata.vcf.notifyComplete" />
+		</batch:step>
+		
+		<batch:step id="genomemetadata.vcf.notifyComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.plugin.genomemetadata.integration.messages.SimpleGenomeMetadataStatusMessageTemplate">
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="genomemetadata.vcf.markFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.file.TouchFileTasklet" scope="step">
+					<constructor-arg name="hostname" value="#{jobParameters[waspJobParameters.HOSTNAME]}" />
+					<constructor-arg name="file" value="#{jobParameters[genomemetadataPlugin.METADATA_PATH_KEY]}/vcf/#{jobParameters[genomemetadataPlugin.VERSION_KEY]}/#{T(edu.yu.einstein.wasp.service.GenomeService).INDEX_CREATION_FAILED}" />
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*"/>
+		</batch:step>
+		
+	</batch:job>
+
+	<bean id="edu.yu.einstein.wasp.plugin.genomemetadata.mainFlow.skipTasklet" class="edu.yu.einstein.wasp.daemon.batch.tasklets.SkipTasklet" scope="step" />
+
+</beans>
+
+

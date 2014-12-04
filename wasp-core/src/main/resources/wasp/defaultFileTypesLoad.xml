@@ -5,6 +5,13 @@
 	default-autowire="byName"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
+	<bean id="fileGroupCollectionFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+	    <property name="name" value="Collection of FileGroups" />
+	    <property name="area" value="fileGroupCollectionFileType" />
+	    <property name="description" value="File Group Collection" />
+	    <property name="extensions" value="" />
+  	</bean>
+	
 	<bean id="csvFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
 	    <property name="name" value="Comma Seperated Values" />
 	    <property name="area" value="csv" />

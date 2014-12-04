@@ -30,6 +30,7 @@ import edu.yu.einstein.wasp.model.LabPending;
 import edu.yu.einstein.wasp.model.LabUser;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.UserMeta;
 import edu.yu.einstein.wasp.service.LabService;
 
 @Service
@@ -128,6 +129,25 @@ public class LabServiceImpl extends WaspServiceImpl implements LabService {
 	  @Override
 	  public List<LabUser> getAllLabUsers(){
 		  return labUserDao.findAll();
+	  }
+	  
+	  @Override
+	  public String getInstitutionOfLabPI(Lab lab){
+		  String institution = "";
+		  User pi = lab.getUser();//labPI
+		  for(UserMeta um : pi.getUserMeta()){
+			  if(um.getK().toLowerCase().endsWith("institution")){
+				  institution = um.getV();
+				  break;
+			  }
+		  }		  
+		  return institution;
+	  }
+	  
+	  @Override
+	  public Lab getLabByLabId(Integer labId){
+		  Lab lab = labDao.getLabByLabId(labId);
+		  return lab;
 	  }
 }
 

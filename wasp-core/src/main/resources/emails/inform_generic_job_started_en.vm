@@ -27,6 +27,6 @@ ReadLength: ${readLength} bp<br /><br />
 
 <b>Samples</b><br />
 #foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1
-  ${velocityCount}. ${sample.getName()} (sample type: ${sample.getSampleType().getName()})<br />
+  ${velocityCount}. ${sample.getName()} (Sample ID: ${sample.getId()}; sample type: ${sample.getSampleType().getName()})<br />
 #end
 </p>

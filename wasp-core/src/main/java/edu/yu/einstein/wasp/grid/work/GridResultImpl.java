@@ -15,7 +15,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.yu.einstein.wasp.grid.work.WorkUnit.ExecutionMode;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 
 
 /**
@@ -38,7 +38,7 @@ public class GridResultImpl implements GridResult, Serializable {
 	private String workingDirectory;
 	private String resultsDirectory;
 	protected GridJobStatus status;
-	transient protected String archivedResultOutputPath;
+	protected String archivedResultOutputPath;
 
 	private int exitCode;
 	

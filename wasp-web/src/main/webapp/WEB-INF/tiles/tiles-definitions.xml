@@ -39,12 +39,6 @@
 		<put-attribute name="body-content" value="" />
 	</definition>
 
-	<definition name="template-unadorned-with-stylesheet" template="/WEB-INF/jsp/layouts/unadornedWithStylesheet.jsp">
-		<put-attribute name="head-style" value="" />
-		<put-attribute name="head-js" value="" />
-		<put-attribute name="body-content" value="" />
-	</definition>
-	
 	<definition name="auth/accessdenied" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/wasp403.jsp" />
 	</definition>
@@ -77,6 +71,9 @@
 	<definition name="auth/newpi/institute" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/auth/newpi/institute.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/institute.jsp" />
+	</definition>
+	<definition name="auth/newuser/selectpi" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newuser/selectpi.jsp" />
 	</definition>
 	<definition name="auth/newpi/form" extends="template-base">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/auth/newpi/form.jsp" />
@@ -118,7 +115,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/dashboard.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/dashboard.jsp" />
 	</definition>
-	<!-- <definition name="jobresults/treeview" extends="template-unadorned-with-stylesheet"> -->
+	<!-- <definition name="jobresults/treeview" extends="template-unadorned"> -->
 	<definition name="jobresults/treeview" extends="template-base">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/jobresults/treeview.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobresults/treeview.jsp" />
@@ -221,7 +218,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/sampleDnaToLibrary/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/sampleDnaToLibrary/librarydetail_rw.jsp" />
 	</definition>
-	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-unadorned-with-stylesheet">
+	<definition name="datadisplay/mps/jobs/runs/mainpage" extends="template-unadorned">
 		<put-attribute name="head-js" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/datadisplay/mps/jobs/runs/mainpage.jsp" />
 	</definition>
@@ -268,6 +265,9 @@
 	<definition name="job/home/comments" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/comments.jsp" />
 	</definition>
+	<definition name="job/home/samplePrepComment" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samplePrepComment.jsp" />
+	</definition>
 	<definition name="job/home/fileUploadManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/fileUploadManager.jsp" />
 	</definition>
@@ -277,7 +277,9 @@
 	<definition name="job/home/samples" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/samples.jsp" />
 	</definition>
-	
+	<definition name="job/home/sampleDetails" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/sampleDetails.jsp" />
+	</definition>	
 	<definition name="job/home/addLibrariesToCell" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/addLibrariesToCell.jsp" />
 	</definition>
@@ -301,7 +303,7 @@
 		<put-attribute name="head-js" value="/WEB-INF/jsp/job/home/adaptorSelection.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/createLibrary.jsp" />
 	</definition>
-	<definition name="job/home/message" extends="template-unadorned-with-stylesheet">
+	<definition name="job/home/message" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/message.jsp" />
 	</definition>
 	
@@ -416,6 +418,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/list.jsp" />
 	</definition>
 	<definition name="jobsubmit/create" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/create.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/create.jsp" />
 	</definition>
 	<definition name="jobsubmit/metaform" extends="template-base">
@@ -425,6 +428,7 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/resource.jsp" />
 	</definition>
 	<definition name="jobsubmit/software" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/jobsubmit/software.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/jobsubmit/software.jsp" />
 	</definition>
 	<definition name="jobsubmit/cell" extends="template-base">

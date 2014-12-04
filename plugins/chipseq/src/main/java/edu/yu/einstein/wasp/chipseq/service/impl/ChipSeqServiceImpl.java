@@ -25,7 +25,7 @@ import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
-import edu.yu.einstein.wasp.util.SoftwareConfiguration;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.WaspJobContext;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
@@ -82,5 +82,19 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 		return retValue;
 	}
 	
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public String getPeakType(Sample sample){
+		String peakType = "";
+		List<SampleMeta> sampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(sample.getId());
+		for(SampleMeta sampleMeta : sampleMetaList){
+			if(sampleMeta.getK().equals("chipseqDna.peakType")){
+				return sampleMeta.getV();
+			}
+		}
+		return peakType;
+	}
 }

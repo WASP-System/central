@@ -17,13 +17,17 @@ public class GridColumn {
 	
 	private Integer flex = 0;
 	
-	private boolean sortable = false;
+	private boolean sortable = true;
 	
-	private boolean hideable = false;
+	private boolean hideable = true;
+	
+	private boolean groupable = true;
 	
 	private String cellAlign = "left";
 	
 	private String headerAlign = "left";
+	
+	private boolean shownInTtp = false;
 
 	/**
 	 * @return the header
@@ -114,6 +118,20 @@ public class GridColumn {
 	}
 
 	/**
+	 * @return the groupable
+	 */
+	public boolean isGroupable() {
+		return groupable;
+	}
+
+	/**
+	 * @param groupable the groupable to set
+	 */
+	public void setGroupable(boolean groupable) {
+		this.groupable = groupable;
+	}
+
+	/**
 	 * @return the cellAlign
 	 */
 	public String getCellAlign() {
@@ -148,6 +166,20 @@ public class GridColumn {
 	}
 
 	/**
+	 * @return the shownInTtp
+	 */
+	public boolean isShownInTtp() {
+		return shownInTtp;
+	}
+
+	/**
+	 * @param shownInTtp the shownInTtp to set
+	 */
+	public void setShownInTtp(boolean shownInTtp) {
+		this.shownInTtp = shownInTtp;
+	}
+
+	/**
 	 * @param header
 	 * @param dataIndex
 	 */
@@ -159,12 +191,36 @@ public class GridColumn {
 	/**
 	 * @param header
 	 * @param dataIndex
+	 * @param showInTtp
+	 */
+	public GridColumn(String header, String dataIndex, boolean shownInTtp) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		this.shownInTtp = shownInTtp;
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
 	 * @param flex
 	 */
 	public GridColumn(String header, String dataIndex, Integer flex) {
 		this.header = header;
 		this.dataIndex = dataIndex;
 		this.flex = flex;
+	}
+
+	/**
+	 * @param header
+	 * @param dataIndex
+	 * @param flex
+	 * @param showInTtp
+	 */
+	public GridColumn(String header, String dataIndex, Integer flex, boolean shownInTtp) {
+		this.header = header;
+		this.dataIndex = dataIndex;
+		this.flex = flex;
+		this.shownInTtp = shownInTtp;
 	}
 
 	/**
@@ -264,7 +320,7 @@ public class GridColumn {
 	 * @param hideable
 	 */
 	public GridColumn(String header, String dataIndex, Integer width,
-			Integer flex, boolean sortable, boolean hideable) {
+			Integer flex, boolean sortable, boolean hideable, boolean groupable) {
 		this.header = header;
 		this.width = width;
 		this.dataIndex = dataIndex;
@@ -274,6 +330,7 @@ public class GridColumn {
 		}
 		this.sortable = sortable;
 		this.hideable = hideable;
+		this.groupable = groupable;
 	}
 	
 

@@ -9,6 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import edu.yu.einstein.wasp.grid.GridAccessException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
-import edu.yu.einstein.wasp.grid.work.WorkUnit;
+import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
 import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager.LockType;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
@@ -93,22 +94,25 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 	
 	@Override
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
-		Long stepExecutionId = context.getStepContext().getStepExecution().getId();
+		StepExecution stepExecution = context.getStepContext().getStepExecution();
+		Long stepExecutionId = stepExecution.getId();
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
-		} else if (wasWokenOnMessage(context)){
+			removeWokenOnTimeoutStatus(stepExecution);
+		} else if (wasWokenOnMessage(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
+			removeWokenOnMessageStatus(stepExecution);
 		}
 		if (!wasHibernationRequested){
-			WorkUnit w = new WorkUnit();
+			WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 			List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
 			software.add(softwarePackage);
-			w.setSoftwareDependencies(software);
-			GridWorkService gws = gridHostResolver.getGridWorkService(w);
+			c.setSoftwareDependencies(software);
+			GridWorkService gws = gridHostResolver.getGridWorkService(c);
 			GridFileService gfs = gws.getGridFileService();
 			
 			String directory = gws.getTransportConnection().getConfiguredSetting(rootDirectory);
@@ -117,7 +121,7 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 			}
 			
 			String fn = directory + getSubDirectory() + filename;
-			String host = gridHostResolver.getHostname(w);
+			String host = gridHostResolver.getHostname(c);
 			
 			if (gfs.exists(fn)) {
 				logger.info("Tasklet found file: " + host + ":" + fn);
@@ -128,7 +132,7 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 			logger.debug(e);
 			Long timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
 			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
-			addStatusMessagesToAbandonStepToContext(context, abandonTemplates);
+			addStatusMessagesToAbandonStepToContext(stepExecution, abandonTemplates);
 		} else {
 			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
 					") but we were still waiting for all steps to be ready. Going to retry request.");

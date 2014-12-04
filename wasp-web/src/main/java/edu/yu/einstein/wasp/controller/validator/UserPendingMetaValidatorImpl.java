@@ -51,11 +51,11 @@ public class UserPendingMetaValidatorImpl extends MetaValidatorImpl{
 					defaultMessage = errorMessageKey+" (no message has been defined for this property)";
 					//User primaryInvestigator = userDao.getUserByLogin(meta.getV()); //02-04-2013, replaced by next line, as the web page is now accessing the PI via his/her email address rather than login name
 					User primaryInvestigator = userDao.getUserByEmail(meta.getV());
-					if (primaryInvestigator.getUserId() == null || primaryInvestigator.getIsActive() == null){
+					if (primaryInvestigator.getId() == null || primaryInvestigator.getIsActive() == null){
 					  errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 					} else {
-						Lab lab = labDao.getLabByPrimaryUserId(primaryInvestigator.getUserId());
-						if (lab.getLabId() == null){
+						Lab lab = labDao.getLabByPrimaryUserId(primaryInvestigator.getId());
+						if (lab.getId() == null){
 							errors.rejectValue(errorFieldName, errorMessageKey, defaultMessage);
 						}
 					}

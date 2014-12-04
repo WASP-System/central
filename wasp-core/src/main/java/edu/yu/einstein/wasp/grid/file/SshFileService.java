@@ -14,6 +14,8 @@ import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jcraft.jsch.JSch;
+
 import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridTransportConnection;
 
@@ -47,6 +49,23 @@ public class SshFileService implements GridFileService {
 		this.transportConnection = transportConnection;
 		identityFile = transportConnection.getIdentityFile();
 		logger.debug("configured transport service: " + transportConnection.getUserName() + "@" + transportConnection.getHostName());
+		JSch.setLogger(new com.jcraft.jsch.Logger() {
+			
+			@Override
+			public void log(int level, String message) {
+				if (level == com.jcraft.jsch.Logger.DEBUG || level == com.jcraft.jsch.Logger.INFO) // info is still too verbose for us
+					logger.debug(message);
+				else if (level == com.jcraft.jsch.Logger.ERROR || level == com.jcraft.jsch.Logger.FATAL)
+					logger.error(message);
+				else if (level == com.jcraft.jsch.Logger.WARN)
+					logger.warn(message);
+			}
+			
+			@Override
+			public boolean isEnabled(int level) {
+				return true;
+			}
+		});
 	}
 
 	public void setUserDirIsRoot(boolean isRoot) {
@@ -271,6 +290,14 @@ public class SshFileService implements GridFileService {
 	}
 
 	private String getRemoteFileURL(String path) throws GridUnresolvableHostException {
+		if (userDirIsRoot) {
+			if (path.startsWith("$HOME/")) {
+				path = path.replaceFirst("\\$HOME/", "");
+				logger.trace("trimmed HOME from path");
+			}
+			
+		}
+		
 		String remote = "sftp://" + transportConnection.getUserName() + "@" + transportConnection.getHostName() + "/" + path;
 		logger.debug("constructed remote file string: " + remote);
 		return remote;
@@ -283,7 +310,6 @@ public class SshFileService implements GridFileService {
 		SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(opts, hostKeyChecking);
 		SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, userDirIsRoot);
 		SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, timeout);
-
 		File[] ifs = new File[1];
 		ifs[0] = identityFile.getAbsoluteFile();
 		SftpFileSystemConfigBuilder.getInstance().setIdentities(opts, ifs);
@@ -460,7 +486,7 @@ public class SshFileService implements GridFileService {
 					try {
 						Thread.sleep(delayMillis);
 					} catch (InterruptedException e1) {
-						logger.info("interrupted: " + e.toString());
+						logger.info("interrupted: " + e1.toString());
 						Thread.currentThread().interrupt();
 					}
 					// ignore exception, try again

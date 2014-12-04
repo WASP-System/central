@@ -35,6 +35,7 @@ import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleParentChildException;
 import edu.yu.einstein.wasp.exception.SampleSubtypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.model.Adaptor;
@@ -190,13 +191,6 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public String convertSampleReceivedStatusForWeb(ExitStatus internalStatus);
 	  
-	  /**
-	   * Converts sample's Receive Sample status from human-comprehensible meaning for viewing on the web to a WaspStatus
-	   * @param webStatus
-	   * @return
-	   */
-	  public WaspStatus convertSampleReceivedStatusFromWeb(String webStatus);
-
 	  /**
 	   * Gets list of Receive Sample options for web display
 	   * @param none
@@ -885,7 +879,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void setCellSequencedSuccessfully(Sample cell, boolean success) throws SampleTypeException, MetadataException;
 	  
 	  /**
-	   * get cellLibrary pre-processing status
+	   * get cellLibrary pre-processing status (returns NOOP if analysis was not selected)
 	   * @param cellLibrary
 	   * @return boolean
 	   * @throws SampleTypeException
@@ -969,9 +963,10 @@ public interface SampleService extends WaspMessageHandlingService {
 	 * gets the view link for displaying a platformunit view based on resource category.
 	 * @param platformunit
 	 * @param area
+	 * @throws WaspException
 	 * @return
 	 */
-	public String getPlatformunitViewLink(Sample platformunit);
+	public String getPlatformunitViewLink(Sample platformunit)  throws WaspException;
 	
 	public SampleSubtypeDao getSampleSubtypeDao();
 
@@ -1027,6 +1022,12 @@ public interface SampleService extends WaspMessageHandlingService {
 	   */
 	  public List<Sample> getCellsForLibrary(Sample library, Job job) throws SampleTypeException;
 
+	  /**
+	   * Returns cell library aggregation analysis status (returns NOOP if analysis was not selected)
+	   * @param cellLibrary
+	   * @return
+	   * @throws SampleTypeException
+	   */
 	public ExitStatus getCellLibraryAggregationAnalysisStatus(SampleSource cellLibrary) throws SampleTypeException;
 	
 	/**
@@ -1084,6 +1085,7 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public List<Integer> convertCellLibraryListToIdList(List<SampleSource> cellLibraryList);
 	  
 	  public void addControlLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
-
+	  public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception;
+	  public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId);
 			
 }
