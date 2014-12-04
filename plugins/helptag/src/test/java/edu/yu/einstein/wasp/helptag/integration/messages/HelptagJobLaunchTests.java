@@ -123,7 +123,7 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 			// The helptag flow doesn't actually require any job parameters but we'll add one for demonstration purposes. 
 			// Any parameters supplied to a batch job are available from within steps
 			jobParameters.put(WaspJobParameters.FILE_GROUP_ID, TEST_ID.toString());
-			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(HelptagPlugin.PREP_FLOW_NAME, jobParameters) );
+			BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate( new BatchJobLaunchContext(HelptagPlugin.PREPROCESS_ANALYSIS_JOB, jobParameters) );
 			Message<BatchJobLaunchContext> messageToSend = batchJobLaunchMessageTemplate.build();
 			logger.debug("testSuccessfulJobLaunch(): Sending message : "+messageToSend.toString());
 			Message<?> replyMessage = messagingTemplate.sendAndReceive(outboundMessageChannel, messageToSend);
@@ -151,7 +151,7 @@ public class HelptagJobLaunchTests extends AbstractTestNGSpringContextTests impl
 			
 			// get the JobExecution for the job we just executed and verify that it completed successfully.
 			// We can use the jobExplorer to get this.
-			ExitStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.PREP_FLOW_NAME)).getExitStatus();
+			ExitStatus jobExecutionStatus = jobExplorer.getMostRecentlyStartedJobExecutionInList(jobExplorer.getJobExecutions(HelptagPlugin.PREPROCESS_ANALYSIS_JOB)).getExitStatus();
 			Assert.assertTrue(jobExecutionStatus.isCompleted());
 		} catch (Exception e){
 			logger.error("Caught unexpected exception: " + e.getLocalizedMessage());

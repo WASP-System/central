@@ -17,7 +17,7 @@
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.helptag.software.Helptag</value></property>
     <property name="name" value="Helptag Pipeline" />
     <property name="description" value="Analytical pipeline tool for the HELP tagging assay" />
-    <property name="version" value="0.0.1" />
+    <property name="version" value="0.1.0" />
     <property name="area" ref="helptagPluginArea" />
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
   </bean> 
