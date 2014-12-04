@@ -5,9 +5,7 @@
 package edu.yu.einstein.wasp.helptag.software;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +54,7 @@ public class Helptag extends SoftwarePackage{
 	private GenomeService genomeService;	
 	
 	@Autowired
-	private FileType samFileType;
+	private FileType bamFileType;
 	
 	@Autowired
 	private FileType fastqFileType;
@@ -67,8 +65,6 @@ public class Helptag extends SoftwarePackage{
 	private static final long serialVersionUID = -6995954039217461596L;
 
 	public static final String HELPTAG_AREA = "helptag";
-	
-	public static final String OUTPUT_FOLDER = "helptagResults";
 
 	/**
 	 * 
@@ -78,77 +74,51 @@ public class Helptag extends SoftwarePackage{
 
 	@Transactional("entityManager")
 	public WorkUnit getHelptag(Integer cellLibraryId) {
-		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
-			
-		// require fastqc
-		List<SoftwarePackage> software = new ArrayList<SoftwarePackage>();
-		//software.add(this);
-		//software.add(samtools);
-		c.setSoftwareDependencies(software);
-		
-		// require 4GB memory
-		c.setMemoryRequirements(4);
-		
-		// require a single thread, execution mode PROCESS
-		// indicates this is a vanilla exectuion.
-		c.setProcessMode(ProcessMode.SINGLE);
-		c.setMode(ExecutionMode.PROCESS);
-		
-		// set working directory to scratch
-		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-		
-		// we aren't actually going to retain any files, so we will set the output
-		// directory to the scratch directory.  Also set "secure results" to
-		// false to indicate that we don't care about the output.
-		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-		WorkUnit w = new WorkUnit(c);
-		w.setSecureResults(false);
-		
-		
-		// set the command
-		//String cmd = "java -jar $GATK_ROOT/GenomeAnalysisTK.jar -nt 4 -I ${" + WorkUnit.INPUT_FILE + "} -R " + getGenomeIndexPath(getGenomeBuild(cellLibrary)) + "genome.fasta -T RealignerTargetCreator -o ${" + WorkUnit.JOB_NAME + "}.realign.intervals -known /cork/jcai/GATK_bundle_2.2/1000G_phase1.indels.hg19.vcf -known /cork/jcai/GATK_bundle_2.2/Mills_and_1000G_gold_standard.indels.hg19.vcf";
-//		String cmd = "/home/epigenscripts/bin/htg_aln2hcount.sh ${" + WorkUnit.INPUT_FILE + "} out.${" + WorkUnit.INPUT_FILE + "} " + getGenomeIndexPath(getGenomeBuild(cellLibrary));
-//		logger.debug("Will conduct helptag hcount generation with command: " + cmd);
-		
-		// add the files to the work unit
-		// files will be represented as bash variables in the work unit and
-		// are sorted using the FastqComparator.  For single samples (what we have here)
-		// this ensures that they will be in groups of read segments.
-		// e.g.
-		// s1.R1.001
-		// s1.R2.001
-		// s1.R1.002
-		// s1.R2.002
-		//we'll just use the forward reads for fastq_screen
-//		FileGroup fg = fileService.getFileGroupById(filegroupId);
-		
-		//FileType ft = fileService.getFileType("bam");
-		Set<FileGroup> fgSet = new HashSet<FileGroup>();
+		WorkUnit w = null;
 		SampleSource cl;
-		
 		try {
 			cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-			fgSet.addAll(fileService.getFilesForCellLibraryByType(cl, fastqFileType));
-
-			Job job = sampleService.getJobOfLibraryOnCell(cl);
-			c.setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
 		
-			List<FileHandle> files = new ArrayList<FileHandle>();
-			for(FileGroup fg : fgSet) {
-				files.addAll(fg.getFileHandles());
+			List<FileHandle> inputBamFiles = new ArrayList<FileHandle>();
+			for(FileGroup fg : fileService.getFilesForCellLibraryByType(cl, bamFileType)) {
+				inputBamFiles.addAll(fg.getFileHandles());
 			}
-			logger.info("Helptag pipeline # of input files: "+files.size());
-			for (FileHandle fh : files) {
+			logger.info("Helptag pipeline # of input files: "+inputBamFiles.size());
+			for (FileHandle fh : inputBamFiles) {
 				logger.info("Helptag pipeline input files: "+fh.getFileURI().toString());
 			}
-			//Collections.sort(files, new FastqComparator(fastqService));
-			w.setRequiredFiles(files);
+			// create work unit with preset sge params and input bam files
+			w = prepareWorkUnit(inputBamFiles);
+
+			Job job = sampleService.getJobOfLibraryOnCell(cl);
+			w.getConfiguration().setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
+			
+			StringBuilder mergeBamCmd;
+			String mergedBamFile = "";
+			if(inputBamFiles.size()==1){
+				mergedBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
+			}
+			else if(inputBamFiles.size() > 1){
+				mergedBamFile = "tmpMergedBamFile.bam";
+				
+				mergeBamCmd = new StringBuilder();
+				mergeBamCmd.append("samtools merge " + mergedBamFile + " ");
+				//tmpMergedBamFile.bam is the output of the merge; note that merge requires sorted files
+				
+				for(int i = 0; i < inputBamFiles.size(); i++){				
+					mergeBamCmd.append("${" + WorkUnit.INPUT_FILE + "["+i+"]} ");				
+				}
+
+				w.addCommand(new String(mergeBamCmd));
+			}
+			
+			// output hcount file name
+			String hcountFile = fileService.generateUniqueBaseFileName(cl) + "hcount";
 			
 			// set the command
-			String cmd = "module load helptag/0.1.0;" + 
-					"bam2hcount.pl " +
-					"-i ${" + WorkUnit.INPUT_FILE + "} " +
-					"-o ${" + WorkUnit.INPUT_FILE + "}.hcount " +
+			String cmd = "bam2hcount.pl " +
+					"-i " + mergedBamFile + " " +
+					"-o " + hcountFile + " " +
 					"-g " + getGenomeBuild(cl).getGenome().getAlias();
 			w.setCommand(cmd);
 		} catch (SampleTypeException e) {
@@ -160,9 +130,10 @@ public class Helptag extends SoftwarePackage{
 	}
 
 	
-	private WorkUnit prepareWorkUnit(FileGroup fg) {
+	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
-			
+		
+		c.setProcessMode(ProcessMode.SINGLE);
 		c.setMode(ExecutionMode.PROCESS);
 	
 		// require 4GB memory
@@ -170,9 +141,8 @@ public class Helptag extends SoftwarePackage{
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
 		sd.add(this);
 		c.setSoftwareDependencies(sd);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
 		WorkUnit w = new WorkUnit(c);
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
 		w.setRequiredFiles(fhlist);
 		w.setSecureResults(false);
 	
@@ -198,9 +168,5 @@ public class Helptag extends SoftwarePackage{
 		return build;
 	}
 	
-	private String getGenomeIndexPath(Build build) {
-		String index = genomeService.getRemoteBuildPath(build) + "gatk/";
-		return index;
-	}
 
 }
