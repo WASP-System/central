@@ -340,7 +340,7 @@ public class JobEmailServiceActivator {
 			sleepTime *= 2;
 			if (sleepTime + timeElapsed > TIMEOUT)
 				sleepTime = TIMEOUT - timeElapsed;
-			job = jobService.getJobByJobId(jobId);
+			job = jobService.getJobByJobIdInDiscreteTransaction(jobId);
 		}
 		return job;
 	}
