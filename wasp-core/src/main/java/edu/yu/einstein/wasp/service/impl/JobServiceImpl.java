@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,8 +93,6 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
-import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -398,6 +397,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public Job getJobByJobId(Integer jobId){
 		return jobDao.getJobByJobId(jobId.intValue());
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public Job getJobByJobIdInDiscreteTransaction(Integer jobId){
+		return jobDao.getJobByJobId(jobId.intValue());
+	}
+	
 	 /**
 	   * {@inheritDoc}
 	   */
