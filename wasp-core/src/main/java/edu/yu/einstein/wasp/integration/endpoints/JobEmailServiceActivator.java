@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -25,7 +26,7 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 
-@Transactional("entityManager")//must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
+@Transactional("entityManager") // MUST have this here or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session (even if on the method. Quirk of being a service activator??)
 public class JobEmailServiceActivator {
 	
 	private static int TIMEOUT = 60000; //ms
@@ -88,12 +89,20 @@ public class JobEmailServiceActivator {
 		}
 		
 		JobStatusMessageTemplate jobStatusMessageTemplate = new JobStatusMessageTemplate(jobStatusMessage);
-
-		Job job = getJob(jobStatusMessageTemplate.getJobId());
+		
+		Job job = getJobUsingMultipleAttempts(jobStatusMessageTemplate.getJobId());
 		if (job == null || job.getId() == null){
 			logger.error("Unable to obtain Job object for id=" + jobStatusMessageTemplate.getJobId()+ " within timeout period. No email will be sent in response to message: " + jobStatusMessage.toString());
 			return;
 		}
+		
+		// everything is ok, proceed with email
+		sendJobEmail(jobStatusMessageTemplate);
+	}
+	
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW) // must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
+	public void sendJobEmail(JobStatusMessageTemplate jobStatusMessageTemplate) {
+		Job job = jobService.getJobByJobId(jobStatusMessageTemplate.getJobId());
 	
 		if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.STARTED) && jobStatusMessageTemplate.getTask().equals(WaspTask.NOTIFY_STATUS)){			
 			String jobIdAsString = job.getId().toString();
@@ -312,12 +321,11 @@ public class JobEmailServiceActivator {
 			}//end if (job != null		
 		}//end if (jobStatusMessageTemplate.getStatus().equals(WaspStatus.COMPLETED) && job
 		
-		
-	}//end of method handleJobStatusMessage()
+	}
 	
-	private Job getJob(int jobId){
+	private Job getJobUsingMultipleAttempts(int jobId){
 		// transactional issue: May get here before transaction for persisting job has finished so may need to wait
-		Job job = jobService.getJobByJobIdInDiscreteTransaction(jobId);
+		Job job = jobService.getJobByJobId(jobId);
 		int timeElapsed = 0;
 		int sleepTime = 200; // ms
 		while ((job == null || job.getId() == null) && timeElapsed < TIMEOUT){
