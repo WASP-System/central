@@ -20,7 +20,7 @@
 <%-- What was used was: from http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/ --%>
 <%--Apparently need onsubmit='return false' to suppress hitting the event when the ENTER key is pressed with the cursor in the description input box --%>
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
-<c:if test="${userIsFacilityPersonel==true && currentJobStatus=='In Progress'}">
+<c:if test="${userIsFacilityPersonel==true && isJobActive==true && currentJobStatusForDisplayOnWeb=='In Progress'}">
 	<br />
 		<a class="button" id="toggleButton" href='javascript:void(0)' ><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a>
 	<br /><br />
@@ -32,9 +32,31 @@
 				<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="bioanalyzer.fileUpload_action.label"/></td>
 			</tr>
 			<tr>
-				<td class="DataTD value-centered"><c:out value="${currentJobStatus}" /></td>
+				<td class="DataTD value-centered"><c:out value="${currentJobStatusForDisplayOnWeb}" /></td>
 				<td class="DataTD value-centered"><fmt:message key="bioanalyzer.fileUpload_completedJobStatus.label"/></td>
-				<td class="DataTD value-centered"><a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="bioanalyzer.fileUpload_confirmMarkJobAsCompleted.label" />")){doGetWithAjax("<wasp:relativeUrl value="bioanalyzer/${job.getId()}/markBioanalyzerJobAsCompleted.do" />"); return false; }'><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a></td>
+				<td class="DataTD value-centered">
+					<c:choose>
+						<c:when test="${sampleReceiveTaskIncomplete==true || libraryQCTaskIncomplete==true}">
+							<c:if test="${sampleReceiveTaskIncomplete==true}">
+								<fmt:message key="bioanalyzer.sampleReceiveTaskIncomplete.label"/>
+							</c:if>
+							<c:if test="${sampleReceiveTaskIncomplete==true && libraryQCTaskIncomplete==true}">
+								<br />
+							</c:if>
+							<c:if test="${libraryQCTaskIncomplete==true}">
+								<fmt:message key="bioanalyzer.libraryQCTaskIncomplete.label"/>
+							</c:if>
+						</c:when>
+						<c:otherwise>
+							<c:if test="${atLeastOneBioanalyzerFileUploadedByFacility==false}">
+								<fmt:message key="bioanalyzer.awaitingBioanalyzerFileUpload.label"/>
+							</c:if>
+							<c:if test="${atLeastOneBioanalyzerFileUploadedByFacility==true}">
+								<a  href='javascript:void(0)' onclick = 'if(confirm("<fmt:message key="bioanalyzer.fileUpload_confirmMarkJobAsCompleted.label" />")){doGetWithAjax("<wasp:relativeUrl value="bioanalyzer/${job.getId()}/markBioanalyzerJobAsCompleted.do" />"); return false; }'><fmt:message key="bioanalyzer.fileUpload_markJobAsCompleted.label" /></a>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
+				</td>
 			</tr>
 		</table>
 	</div>	

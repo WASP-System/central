@@ -11,24 +11,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.Assert;
+import edu.yu.einstein.wasp.exception.InvalidParameterException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
+import edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.UserService;
+import edu.yu.einstein.wasp.service.impl.WaspMessageHandlingServiceImpl;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+
+import org.springframework.messaging.MessagingException;
 
 @Service
 @Transactional("entityManager")
-public class BioanalyzerServiceImpl extends WaspServiceImpl implements BioanalyzerService {
-	
+public class BioanalyzerServiceImpl extends WaspMessageHandlingServiceImpl implements BioanalyzerService {
 	
 	@Autowired
+	private Bioanalyzer bioanalyzer;
+	@Autowired
+	private FileType pdfFileType;//pdf file 
+	
+	@Autowired
+	private JobService jobService;
+	@Autowired
 	private JobDraftService jobDraftService;
+	@Autowired
+	private UserService userService;
 	
 	/**
 	 * {@inheritDoc}
@@ -106,5 +128,42 @@ public class BioanalyzerServiceImpl extends WaspServiceImpl implements Bioanalyz
 		}
 		
 		return availableBioanalyzerChips;
+	}
+	
+	public boolean atLeastOneBioanalyzerFileUploadedByFacility(Job job){
+		boolean atLeastOneBioanalyzerFileUploadedByFacility = false;		
+		List<JobFile> jobFileList = job.getJobFile();
+		for(JobFile jf : jobFileList){
+			FileGroup fileGroup = jf.getFile();
+			if(fileGroup.getFileType()!=null && fileGroup.getFileTypeId().intValue() == pdfFileType.getId().intValue()){
+				if(fileGroup.getSoftwareGeneratedById().intValue()==bioanalyzer.getId().intValue()){
+					atLeastOneBioanalyzerFileUploadedByFacility = true;
+					break;
+				}
+			}
+		}
+		return atLeastOneBioanalyzerFileUploadedByFacility;
+	}
+	
+	public void updateBioanalyzerJobStatus(Job job, WaspStatus status, String task, String comment, boolean checkForJobActive) throws WaspMessageBuildingException{
+		// TODO: Write test!!
+		Assert.assertParameterNotNull(job, "No Job provided");
+		Assert.assertParameterNotNullNotZero(job.getId(), "Invalid Job Provided");
+		Assert.assertParameterNotNull(status, "No Status provided");
+		if (status != WaspStatus.COMPLETED && status != WaspStatus.ABANDONED)
+			throw new InvalidParameterException("WaspStatus is null, or not COMPLETED or ABANDONED");
+		Assert.assertParameterNotNull(task, "No Task provided");
+		if (checkForJobActive && !jobService.isJobActive(job))
+			throw new WaspMessageBuildingException("Not going to build message because job " + job.getId() + " is not active");
+		JobStatusMessageTemplate messageTemplate = new JobStatusMessageTemplate(job.getId());
+		messageTemplate.setUserCreatingMessageFromSession(userService);
+		messageTemplate.setComment(comment);
+		messageTemplate.setTask(task);
+		messageTemplate.setStatus(status); // sample received (COMPLETED) or abandoned (ABANDONED)
+		try{
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
 	}
 }

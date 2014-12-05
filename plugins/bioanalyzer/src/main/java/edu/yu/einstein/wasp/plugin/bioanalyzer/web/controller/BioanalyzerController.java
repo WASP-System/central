@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
@@ -80,6 +82,7 @@ import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.plugin.bioanalyzer.integration.messages.BioanalyzerBatchJobTask;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer;
 import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
@@ -428,12 +431,36 @@ public class BioanalyzerController extends WaspController {
 				}
 				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
 			}
-			String currentJobStatus = jobService.getDetailedJobStatusString(job);
 			
+			List<Sample> libraryList = job.getSample();//this type of job will only have userSubmittedLibraries
+			boolean sampleReceiveTaskIncomplete = false;
+			boolean libraryQCTaskIncomplete = false;
+			for(Sample library : libraryList){
+				if(sampleService.getReceiveSampleStatus(library).isRunning()){
+					sampleReceiveTaskIncomplete = true;
+				}
+				if(sampleService.getLibraryQCStatus(library).isRunning()){
+					libraryQCTaskIncomplete = true;
+				}
+			}	
+			
+			boolean atLeastOneBioanalyzerFileUploadedByFacility = bioanalyzerService.atLeastOneBioanalyzerFileUploadedByFacility(job);
+			boolean isJobActive = jobService.isJobActive(job);
+			
+			logger.debug("for bioanalyzer jobId " + job.getId().intValue() + ":");
+			logger.debug("atLeastOneBioanalyzerFileUploadedByFacility: " + atLeastOneBioanalyzerFileUploadedByFacility);
+			logger.debug("sampleReceiveTaskIncomplete: " + sampleReceiveTaskIncomplete);
+			logger.debug("libraryQCTaskIncomplete: " + libraryQCTaskIncomplete);	
+			logger.debug("isJobActive: " + isJobActive);//status of Running	
+					
 			m.addAttribute("fileGroups", fileGroups);
 			m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 			m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
-			m.addAttribute("currentJobStatus", currentJobStatus);
+			m.addAttribute("isJobActive", isJobActive);
+			m.addAttribute("currentJobStatusForDisplayOnWeb", jobService.getDetailedJobStatusString(job));
+			m.addAttribute("atLeastOneBioanalyzerFileUploadedByFacility", atLeastOneBioanalyzerFileUploadedByFacility);
+			m.addAttribute("sampleReceiveTaskIncomplete", sampleReceiveTaskIncomplete);
+			m.addAttribute("libraryQCTaskIncomplete", libraryQCTaskIncomplete);
 	  }
 	
 	  //Remember, this is an ajax call
@@ -509,9 +536,10 @@ public class BioanalyzerController extends WaspController {
 					for(FileHandle fileHandle : fileGroup.getFileHandles()){
 						fileHandle.setFileType(pdfFileType);
 						fileService.getFileHandleDao().save(fileHandle);
+						
 					}
 					fileGroup.setFileType(pdfFileType);
-					fileGroup.setSoftwareGeneratedBy(bioanalyzer);
+					fileGroup.setSoftwareGeneratedBy(bioanalyzer);//setFileType as pdf and set softwareGeneratedBy as bioanalyzer will essentially define a facility-generated, facility-uploaded bioanalyzer file  
 					fileService.getFileGroupDao().save(fileGroup);
 				}
 				m.addAttribute("fadingSuccessMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
@@ -541,9 +569,9 @@ public class BioanalyzerController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		  }
-		  //mark it as completed and return to starting page		  
+		  //mark this bioanalyzer job as completed and return to starting page (the uploaded file page)	  
 		  try{
-			  jobService.sendNotifyJobCompleteMessage(job);
+			  bioanalyzerService.updateBioanalyzerJobStatus(job, WaspStatus.COMPLETED, BioanalyzerBatchJobTask.BIOANALYZER_JOB_COMPLETED, "", true);
 			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
 			  
 		  }catch(Exception e){
@@ -552,6 +580,12 @@ public class BioanalyzerController extends WaspController {
 		  }	  
 		  
 		  populateFileUploadPage(job, m);
+		  int i = 0;
+		  while(jobService.isJobActive(job)==true){//need a bit of a delay, since message is being send via batch; starts out as true, then set to false by this method
+			  populateFileUploadPage(job, m);
+			  i++;//ANDY has a better solution that he is going to put into wasp controller
+			  if(i>=1000000) break;
+		  }
 		  return "bioanalyzer/fileUploadManager";
 	  }
 }

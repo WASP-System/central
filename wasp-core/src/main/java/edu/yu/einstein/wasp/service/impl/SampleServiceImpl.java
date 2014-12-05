@@ -494,7 +494,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Boolean isSampleReceived(Sample sample){
+	public Boolean isSampleReceivedOrWithdrawn(Sample sample){
 		Assert.assertParameterNotNull(sample, "No Sample provided");
 		Assert.assertParameterNotNullNotZero(sample.getId(), "Invalid Sample Provided");
 		if (getReceiveSampleStatus(sample).getExitCode().equals(ExitStatus.COMPLETED.getExitCode()) || 

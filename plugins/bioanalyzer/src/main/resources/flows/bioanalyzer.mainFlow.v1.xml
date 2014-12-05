@@ -6,8 +6,7 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
 		
 	<!-- common tasklets defined in config-common-context.xml -->
-	
-		
+			
 	<!-- Define main job approval flow -->
 	<batch:job id="default.waspJob.jobflow.bioanalyzer.v1" restartable="true">
 	    <batch:step id="default.waspJob.step.started" next="default.waspJob.postSubmitApprovalTasks">
@@ -84,7 +83,7 @@
 			<batch:next on="TERMINATED" to="default.waspJob.step.rejected" />
 			<batch:fail on="*"/> <!-- catch all -->
 		</batch:split>
-		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.notifyJobComplete">
+		<batch:step id="default.waspJob.step.approved" next="default.waspJob.step.listenForBioanalyzerJobCompleted">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
@@ -110,6 +109,26 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
+		<batch:step id="default.waspJob.step.listenForBioanalyzerJobCompleted" >
+			<batch:tasklet>
+				<bean id="default.waspJob.step.bioanalyzerJobCompleted"  class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" scope="step">
+					<property name="messagesToListenFor">
+						<set>
+							<bean class="edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate" >
+								<constructor-arg  name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+								<property name="task" value="#{T(edu.yu.einstein.wasp.plugin.bioanalyzer.integration.messages.BioanalyzerBatchJobTask).BIOANALYZER_JOB_COMPLETED}" />
+								<property name="status" value="COMPLETED" />
+							</bean>							
+						</set>
+					</property>
+					<property name="failOnStatuses" value="FAILED" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="default.waspJob.step.notifyJobComplete" />
+			<batch:next on="COMPLETED" to="default.waspJob.step.notifyJobComplete" />
+			<batch:fail on="*" /> <!-- unexpected message -->
+		</batch:step>
+		
 		<batch:step id="default.waspJob.step.notifyJobComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">

@@ -161,7 +161,7 @@ public interface SampleService extends WaspMessageHandlingService {
 		 * @param sample
 		 * @return
 		 */
-		public Boolean isSampleReceived(Sample sample);
+		public Boolean isSampleReceivedOrWithdrawn(Sample sample);
 		
 		/**
 		 * Returns true if sample and no library recorded as currently being processed or successfully made 
