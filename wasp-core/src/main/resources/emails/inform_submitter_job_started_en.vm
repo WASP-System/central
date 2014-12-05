@@ -26,7 +26,8 @@ Reference Number: J${job.getJobId()}<br />
 Job Name: ${job.getName()}<br />
 Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
-Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br />
+Grant Details: ${grantDetails}<br /><br />
 
 <b>Workflow Details</b><br />
 Workflow: ${job.getWorkflow().getName()}<br />

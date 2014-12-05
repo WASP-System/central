@@ -949,6 +949,16 @@ public class JobController extends WaspController {
 		  currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
 	    }
 	    m.addAttribute("currentQuoteCost", currentQuoteCost);
+	    
+	    //added 12-5-14
+	    Lab lab = job.getLab();
+		String labDepartment = lab.getDepartment().getName();//Genetics, External, Cell Biology (External means not Einstein/Monte, and used for pricing)
+		String pricingSchedule = "Internal";
+		if(labDepartment.equalsIgnoreCase("external")){
+			pricingSchedule = "External";
+		}
+		m.addAttribute("pricingSchedule", pricingSchedule);
+	    
 		return "job/home/basic";
 	}
   

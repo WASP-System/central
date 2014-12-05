@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
@@ -55,6 +57,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -86,6 +89,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Autowired
 	private VelocityEngine velocityEngine;
 	
+	@Autowired
+	private AccountsService accountsService;
+
 	@Autowired
 	private JobService jobService;
 
@@ -740,6 +746,18 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		}
 		model.put("submittedSampleList", submittedSampleList);
 
+		//added 12-5-14
+		String grantDetails = "N/A";
+	    AcctGrant grant = accountsService.getGrantForJob(job);
+	    if (grant != null){
+		    grantDetails =  grant.getCode();
+		    if (grant.getName() != null && !grant.getName().isEmpty())
+		    	grantDetails += " (" + grant.getName() + ")";
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		    grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
+	    }
+	    model.put("grantDetails", grantDetails);
+	    
 		return model;
 	}
 	

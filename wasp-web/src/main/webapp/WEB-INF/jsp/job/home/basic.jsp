@@ -34,6 +34,7 @@
 	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
 	
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.jobGrantDetails.label" />:</td><td class="DataTD"><c:out value="${grantDetails}" /></td></tr>
+	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.pricingSchedule.label" />:</td><td class="DataTD"><c:out value="${pricingSchedule}" /></td></tr>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.Quote_Job_Price.label" />:</td><td class="DataTD"><c:out value="${currentQuoteCost}" /></td></tr>
 	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
 	
