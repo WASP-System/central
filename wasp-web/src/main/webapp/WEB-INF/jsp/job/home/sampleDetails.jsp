@@ -48,7 +48,11 @@
 							</c:if>
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 							<c:if test="${id!='organism' && id!='genome' && id!='adaptorset' && id!='adaptor'}">								
-								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label></td>
+								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label>
+									<c:if test="${not empty _meta.property.tooltip}">
+										<wasp:tooltip value="${_meta.property.tooltip}" />
+									</c:if>
+								</td>
 							</c:if>	
 						</c:if>
 					</c:forEach>
@@ -142,7 +146,11 @@
 							</c:if>
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 							<c:if test="${id!='organism' && id!='genome' && id!='adaptorset' && id!='adaptor'}">								
-								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label></td>
+								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label>
+									<c:if test="${not empty _meta.property.tooltip}">
+										<wasp:tooltip value="${_meta.property.tooltip}" />
+									</c:if>
+								</td>
 							</c:if>	
 						</c:if>
 					</c:forEach>
@@ -241,7 +249,11 @@
 							</c:if>
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
 							<c:if test="${id!='organism' && id!='genome' && id!='adaptorset' && id!='adaptor'}">								
-								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label></td>
+								<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>${labelKey}</label>
+									<c:if test="${not empty _meta.property.tooltip}">
+										<wasp:tooltip value="${_meta.property.tooltip}" />
+									</c:if>								
+								</td>
 							</c:if>	
 						</c:if>
 					</c:forEach>
