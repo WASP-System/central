@@ -22,7 +22,7 @@
          <property name="area" value="#{illuminaResourceCategory.HISEQ_2500}" />
          <property name="metaList">
          	<list>
-         		<value>allowableUiField.readLength=50:50;75:75;100:100;150:150</value>
+         		<value>allowableUiField.readLength=25:25;50:50;75:75;100:100;150:150;250:250</value>
          		<value>allowableUiField.readType=single:single;paired:paired</value>
          		<value>allowableUiField.runType=high-output:high-output;rapid-run:rapid-run</value>
 				<value>#{waspGenericInstrumentType['platformUnitSelector']}=A:A;B:B</value>
