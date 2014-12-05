@@ -693,5 +693,4 @@ public interface JobService extends WaspMessageHandlingService {
 	 */
 	public Job getJobByJobIdInDiscreteTransaction(Integer jobId);
 
-
 }

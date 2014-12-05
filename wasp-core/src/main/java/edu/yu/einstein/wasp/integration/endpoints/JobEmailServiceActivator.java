@@ -325,7 +325,7 @@ public class JobEmailServiceActivator {
 	
 	private Job getJobUsingMultipleAttempts(int jobId){
 		// transactional issue: May get here before transaction for persisting job has finished so may need to wait
-		Job job = jobService.getJobByJobId(jobId);
+		Job job = jobService.getJobByJobIdInDiscreteTransaction(jobId);
 		int timeElapsed = 0;
 		int sleepTime = 200; // ms
 		while ((job == null || job.getId() == null) && timeElapsed < TIMEOUT){
@@ -340,7 +340,7 @@ public class JobEmailServiceActivator {
 			sleepTime *= 2;
 			if (sleepTime + timeElapsed > TIMEOUT)
 				sleepTime = TIMEOUT - timeElapsed;
-			job = jobService.getJobByJobId(jobId);
+			job = jobService.getJobByJobIdInDiscreteTransaction(jobId);
 		}
 		return job;
 	}
