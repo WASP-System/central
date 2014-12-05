@@ -290,7 +290,6 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	 	//if(job is completed????){
 	 	//	commonJobDetails.add(new Phrase("Completed: " + formatter.format(get the date, ask andy how), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
 	 	//}
-	    commonJobDetailsParagraph.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
 	    String grantDetails = "N/A";
 	    AcctGrant grant = accountsService.getGrantForJob(job);
 	    if (grant != null){
@@ -309,7 +308,8 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			pricingSchedule = "External";
 		} 	 	
 		commonJobDetailsParagraph.add(new Phrase("Pricing Schedule: " + pricingSchedule, NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
-
+		commonJobDetailsParagraph.add(new Phrase("Assay: " + job.getWorkflow().getName(), NORMAL));commonJobDetailsParagraph.add(Chunk.NEWLINE);
+	    
 	    return commonJobDetailsParagraph;
 	}
 	

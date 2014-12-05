@@ -579,13 +579,12 @@ public class BioanalyzerController extends WaspController {
 			  logger.debug("error marking bioanalyzer job complete: " + e.getMessage());
 		  }	  
 		  
-		  populateFileUploadPage(job, m);
 		  int i = 0;
 		  while(jobService.isJobActive(job)==true){//need a bit of a delay, since message is being send via batch; starts out as true, then set to false by this method
-			  populateFileUploadPage(job, m);
-			  i++;//ANDY has a better solution that he is going to put into wasp controller
-			  if(i>=1000000) break;
+			  transitionDelay();//from WaspController; introduce a 2 second delay
+			  if(i++ >= 5) break;//don't let this go on forever
 		  }
+		  populateFileUploadPage(job, m);
 		  return "bioanalyzer/fileUploadManager";
 	  }
 }
