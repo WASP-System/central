@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
@@ -25,7 +26,7 @@ import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.UserService;
 
-@Transactional("entityManager")//must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
+@Transactional(value="entityManager", isolation=Isolation.READ_COMMITTED)//must have this or we get an exception in batch:  org.hibernate.LazyInitializationException: could not initialize proxy - no Session
 public class JobEmailServiceActivator {
 	
 	private static int TIMEOUT = 60000; //ms
@@ -320,7 +321,7 @@ public class JobEmailServiceActivator {
 		Job job = jobService.getJobByJobId(jobId);
 		int timeElapsed = 0;
 		int sleepTime = 200; // ms
-		while ((job == null || job.getId() == null) && timeElapsed <= TIMEOUT){
+		while ((job == null || job.getId() == null) && timeElapsed < TIMEOUT){
 			try {
 				logger.debug("Unable to obtain Job object for id="+ jobId + ". Going to try again in " + sleepTime + " ms");
 				Thread.sleep(sleepTime);

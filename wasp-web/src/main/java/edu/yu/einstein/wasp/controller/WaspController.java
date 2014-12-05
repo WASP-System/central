@@ -185,4 +185,15 @@ public class WaspController {
 	  return locales;
   }
   
+  /**
+   * Delay to allow batch transitions to complete
+   */
+  protected void transitionDelay(){
+	  //TODO:: this is a horrible thing to do. Need to figure out transaction between web and batch 
+	  // (taking into account concurrency of batch). fun fun fun!
+	  try{
+		  Thread.sleep(2000);
+	  } catch(InterruptedException e){}
+  }
+  
 }
