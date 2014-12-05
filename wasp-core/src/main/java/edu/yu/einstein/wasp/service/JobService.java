@@ -685,4 +685,10 @@ public interface JobService extends WaspMessageHandlingService {
 	public ExitStatus getJobStatus(Job job);
 	public List<String> getAllPossibleJobStatusAsString();
 
+	/**
+	 * does not extend existing transaction
+	 * @param jobId
+	 * @return
+	 */
+	public Job getJobByJobIdInDiscreteTransaction(Integer jobId);
 }

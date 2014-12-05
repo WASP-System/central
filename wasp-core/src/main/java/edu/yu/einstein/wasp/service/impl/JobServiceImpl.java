@@ -398,6 +398,15 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		return jobDao.getJobByJobId(jobId.intValue());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public Job getJobByJobIdInDiscreteTransaction(Integer jobId){
+		return jobDao.getJobByJobId(jobId.intValue());
+	}
+	
 	 /**
 	   * {@inheritDoc}
 	   */
