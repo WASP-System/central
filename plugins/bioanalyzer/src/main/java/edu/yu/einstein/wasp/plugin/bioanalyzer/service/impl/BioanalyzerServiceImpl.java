@@ -23,6 +23,7 @@ import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
@@ -30,6 +31,7 @@ import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.impl.WaspMessageHandlingServiceImpl;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
@@ -47,6 +49,8 @@ public class BioanalyzerServiceImpl extends WaspMessageHandlingServiceImpl imple
 	
 	@Autowired
 	private JobService jobService;
+	@Autowired
+	private SampleService sampleService;
 	@Autowired
 	private JobDraftService jobDraftService;
 	@Autowired
@@ -165,5 +169,36 @@ public class BioanalyzerServiceImpl extends WaspMessageHandlingServiceImpl imple
 		} catch (MessagingException e){
 			throw new WaspMessageBuildingException(e.getLocalizedMessage());
 		}
+	}
+	
+	public boolean isJobsAwaitingBioanalyzerCompleteTask(List<Job>jobList){
+		//if any job is awaiting this task, return true
+		////logger.debug("dubin 12-8-14 in isJobsAwaitingBioanalyzerCompleteTask");
+		for(Job job : jobList){
+			if(isThisJobAwaitingBioanalyzerCompleteTask(job)){//at least one is ready, so return true
+				return true;
+			}
+		}
+		return false;		
+	}
+	
+	public boolean isThisJobAwaitingBioanalyzerCompleteTask(Job job){
+		 
+		if(!job.getWorkflow().getIName().equalsIgnoreCase("bioanalyzer")){//not a bioanalyzer job, so forget this one
+			return false;
+		}
+		List<Sample> libraryList = job.getSample();//bioanalyzer job will only have userSubmittedLibraries
+		for(Sample library : libraryList){
+			if(sampleService.getReceiveSampleStatus(library).isRunning()){//not complete
+				return false;
+			}
+			if(sampleService.getLibraryQCStatus(library).isRunning()){//not complete
+				return false;
+			}
+		}		
+		if(!this.atLeastOneBioanalyzerFileUploadedByFacility(job)){
+			return false;
+		}		 
+		return true;
 	}
 }

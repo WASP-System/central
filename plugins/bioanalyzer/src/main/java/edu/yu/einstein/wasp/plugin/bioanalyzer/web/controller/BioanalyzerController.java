@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -500,16 +501,7 @@ public class BioanalyzerController extends WaspController {
 		    //if the select box containing fileIsFromBioanalyzer is not on web page, then fileIsFromBioanalyzer is null
 		    //if it's on the web page and no selection made, then its value is -1; other valid values are "yes" and "no"
 		    String fileIsFromBioanalyzer = request.getParameter("fileIsFromBioanalyzer");
-		    
-		    /* diagnostic
-		    if(fileIsFromBioanalyzer==null){//not on web page, so ignore
-		    	logger.debug("dubin 12-1-14 fileIsFromBioanalyzer: NULL");
-		    }
-		    else{
-		    	logger.debug("dubin 12-1-14   fileIsFromBioanalyzer: " + fileIsFromBioanalyzer);
-		    }	
-		    */	
-		    
+		    		    
 		    if( fileIsFromBioanalyzer!=null && fileIsFromBioanalyzer.equals("-1") ){//fileIsFromBioanalyzer is on web page, but no selection was made
 		    	String errorMessage = messageService.getMessage("bioanalyzer.fileUploadFileIsBioanalyzerFileNotSelected.error");
 		    	logger.warn(errorMessage);
@@ -571,6 +563,7 @@ public class BioanalyzerController extends WaspController {
 		  }
 		  //mark this bioanalyzer job as completed and return to starting page (the uploaded file page)	  
 		  try{
+			//will mark as complete and send email informing job submitter
 			  bioanalyzerService.updateBioanalyzerJobStatus(job, WaspStatus.COMPLETED, BioanalyzerBatchJobTask.BIOANALYZER_JOB_COMPLETED, "", true);
 			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
 			  
@@ -586,5 +579,87 @@ public class BioanalyzerController extends WaspController {
 		  }
 		  populateFileUploadPage(job, m);
 		  return "bioanalyzer/fileUploadManager";
+	  }
+	  
+	  @Transactional
+	  @RequestMapping(value="/task/bioanalyzerJobCompleteList", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+	  public String markBioanalyzerJobAsCompletedList( ModelMap m)  {
+		  populateBioanalyzerJobCompleteList(m);
+		  return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+	  }
+
+	  @Transactional
+	  @RequestMapping(value="/task/{jobId}/markBioanalyzerJobAsCompletedTask", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('fm')")
+	  public String taskMarkBioanalyzerJobAsCompleted(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		  
+		  Job job = jobService.getJobByJobId(jobId);
+		  if(job.getId()==null){
+		   	logger.warn("Bioanalyzer job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+		   	populateBioanalyzerJobCompleteList(m);
+			return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+		  }
+		  //mark this bioanalyzer job as completed and return to starting page (task list for bioanalyzer complete)	  
+		  try{
+			  //will mark as complete and send email informing job submitter
+			  bioanalyzerService.updateBioanalyzerJobStatus(job, WaspStatus.COMPLETED, BioanalyzerBatchJobTask.BIOANALYZER_JOB_COMPLETED, "", true);
+			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
+			  
+		  }catch(Exception e){
+			  m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompletedUnexpectedlyFailed.label"));
+			  logger.debug("error marking bioanalyzer job complete: " + e.getMessage());
+		  }	  
+		  
+		  int i = 0;
+		  while(jobService.isJobActive(job)==true){//need a bit of a delay, since message is being send via batch; starts out as true, then set to false by this method
+			  transitionDelay();//from WaspController; introduce a 2 second delay
+			  if(i++ >= 5) break;//don't let this go on forever
+		  }
+		  
+		  populateBioanalyzerJobCompleteList(m);
+		  return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+	  }
+	  private void populateBioanalyzerJobCompleteList(ModelMap m){
+		  List<Job> activeJobList = jobService.getActiveJobs();//running jobs as defined by batch tables
+		  List<Job> bioanalyzerJobsReadyToBeMarkedAsCompleted = new ArrayList<Job>();
+		  for(Job job : activeJobList){
+			  if(bioanalyzerService.isThisJobAwaitingBioanalyzerCompleteTask(job)){
+				  bioanalyzerJobsReadyToBeMarkedAsCompleted.add(job);
+			  }
+		  }
+		  jobService.sortJobsByJobId(bioanalyzerJobsReadyToBeMarkedAsCompleted);
+		  m.addAttribute("bioanalyzerJobsReadyToBeMarkedAsCompleted", bioanalyzerJobsReadyToBeMarkedAsCompleted);
+		 
+		  Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		  Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		  Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		  Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		  List<FileHandle> bioanalyzerFileHandleList = new ArrayList<FileHandle>();
+		  for(Job job : bioanalyzerJobsReadyToBeMarkedAsCompleted){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				sampleSpeciesMap.put(sample, sampleService.getNameOfOrganism(sample));
+			}
+			List<JobFile> jobFileList = job.getJobFile();			
+			for(JobFile jf : jobFileList){
+				FileGroup fileGroup = jf.getFile();
+				if(fileGroup.getFileType()!=null && fileGroup.getFileTypeId().intValue() == pdfFileType.getId().intValue()){
+					if(fileGroup.getSoftwareGeneratedById().intValue()==bioanalyzer.getId().intValue()){
+						bioanalyzerFileHandleList.addAll(fileGroup.getFileHandles());//there is only one file handle for each of these file groups
+					}
+				}
+			}
+		  }
+		  m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		  m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		  m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
+		  m.addAttribute("bioanalyzerFileHandleList", bioanalyzerFileHandleList);
 	  }
 }

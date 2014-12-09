@@ -38,4 +38,6 @@ public interface BioanalyzerService extends WaspMessageHandlingService {
 		public boolean atLeastOneBioanalyzerFileUploadedByFacility(Job job);
 		public void updateBioanalyzerJobStatus(Job job, WaspStatus status, String task, String comment, boolean checkForJobActive) throws WaspMessageBuildingException;
 
+		public boolean isJobsAwaitingBioanalyzerCompleteTask(List<Job>jobList);
+		public boolean isThisJobAwaitingBioanalyzerCompleteTask(Job job);
 }

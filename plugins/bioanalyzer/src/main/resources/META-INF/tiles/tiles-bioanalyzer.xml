@@ -23,6 +23,10 @@
 	<definition name="bioanalyzer/fileUploadManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/fileUploadManager.jsp" />
 	</definition>
+
+	<definition name="bioanalyzer/bioanalyzerJobCompleteTaskList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/bioanalyzerJobCompleteTaskList.jsp" />
+	</definition>
 	
 </tiles-definitions>
 
