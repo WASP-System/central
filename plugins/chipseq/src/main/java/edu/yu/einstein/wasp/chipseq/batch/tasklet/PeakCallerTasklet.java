@@ -177,7 +177,6 @@ logger.debug("in PeakCallerTasklet constructor");
 			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
 			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, job.getId().toString());
 			jobParameters.put(ChipSeqSoftwareJobParameters.PEAK_TYPE, peakType);
-			
 			requestLaunch(flowName, jobParameters);
 		}	
 		catch(Exception e){
