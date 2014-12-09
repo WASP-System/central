@@ -283,8 +283,8 @@ public class Macstwo extends SoftwarePackage{
 			dm = 1.2e8
 		 */
 		//might be interesting: http://www.nature.com/nbt/journal/v27/n1/fig_tab/nbt.1518_T1.html
-		//THIS IS IMPORTANT; you cannot simply use hs as a default genome size.
-		String retValue = "";
+		//THIS IS IMPORTANT; you cannot simply use hs as a default genome size (but we don't want MACS to fail so we will if no better option).
+		String retValue = "2.7e9"; // The default hs -- 2.7e9 is recommended for UCSC human hg18 assembly. 
 		try{
 			Build build = genomeService.getBuild(ipSample);
 			String speciesName = build.getGenome().getOrganism().getName().replaceAll("\\s+", "").toLowerCase();//Homo sapiens to Homosapiens to homosapiens			
@@ -293,6 +293,9 @@ public class Macstwo extends SoftwarePackage{
 			}
 			else if("musmusculus".equals(speciesName) || speciesName.contains("musculus")){
 				retValue = "mm";
+			}
+			else if("rattusnorvegicus".equals(speciesName) || speciesName.contains("rattus")){
+				retValue = "2.3e9"; // If genome size is 2,909,698,938, this is 80 % of that 
 			}
 			else if("caenorhabditiselegans".equals(speciesName) || speciesName.contains("elegans") ){
 				retValue = "ce";
@@ -310,7 +313,7 @@ public class Macstwo extends SoftwarePackage{
 				retValue = "6e7";  //taken from old WASP
 			}			
 		}catch(Exception e){logger.debug("exception getting build in Macstwo.java method getMappableGenomeSize()");}
-		
+		logger.debug("Returning mappable genome size of " + retValue);
 		return retValue;
 	}
 	private String getFragmentSize(Sample ipSample)  {
