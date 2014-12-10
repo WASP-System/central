@@ -43,24 +43,24 @@ public class WaspLoadServiceImpl implements WaspLoadService {
 	@Override
 	public void updateUiFields(List<UiField> uiFields) {
 		for (UiField f: safeList(uiFields)) {
+			addAsMessage(f);
 			UiField existing = uiFieldDao.get(f.getLocale(), f.getArea(), f.getName(), f.getAttrName());
 			if (existing != null) {
 				if (!existing.equals(f)) {
 					logger.trace("uifield " + f.getArea() + ":" + f.getName() + " exists but changed");
-					save(f);
+					uiFieldDao.save(f);
 				}
 			} else {
 				logger.trace("uifield " + f.getArea() + ":" + f.getName() + " is new");
-				save(f);
+				uiFieldDao.save(f);
 			}
 		}
 	}
 	
-	private void save(UiField f) {
+	private void addAsMessage(UiField f) {
 		String key = f.getArea() + "." + f.getName() + "." + f.getAttrName();
 		String lang = f.getLocale().substring(0, 2);
 		String cntry = f.getLocale().substring(3);
-		uiFieldDao.save(f); 
 		Locale locale = new Locale(lang, cntry);
 		((WaspMessageSourceImpl) messageSource).addMessage(key, locale, f.getAttrValue());
 	}

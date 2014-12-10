@@ -53,7 +53,6 @@ public class WaspJobContext {
 				ResourceType softwareType = software.getResourceType();
 				MetaHelper metaHelper = new MetaHelper(software.getIName(), JobMeta.class);  
 				List<JobMeta> defaultMetaList = metaHelper.getMasterList(JobMeta.class);
-				logger.debug("default meta list: " + defaultMetaList);
 				for (JobMeta meta : defaultMetaList)
 					meta.setV(meta.getProperty().getDefaultVal()); // set meta value to the default value found in the property attribute
 				Map<String, String> parameters = MetaHelper.getKeyValueMap(software.getIName(), defaultMetaList); // set default parameters
@@ -64,7 +63,6 @@ public class WaspJobContext {
 					logger.debug("job custom parameter list: " + jobCustomParams);
 					parameters.putAll(jobCustomParams); // override with any parameters set in job meta
 				}
-				logger.debug("consolidated parameter list for software of type " + softwareType.getIName() + " : " + parameters);
 				configuredSoftwareByType.put(softwareType, new SoftwareConfiguration(software, parameters));
 			}
 		} catch(Exception e){
