@@ -121,6 +121,7 @@ public class MacstwoTaskletModel extends WaspRemotingTasklet implements StepExec
 		}
 		if(executionContext.containsKey(MacstwoService.PREFIX_FOR_FILE_NAME)){
 			this.prefixForFileName = (String) executionContext.get(MacstwoService.PREFIX_FOR_FILE_NAME);
+			fileService.getSanitizedName(prefixForFileName);
 		}		
 		if(executionContext.containsKey(MacstwoService.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING)){
 			this.macs2AnalysisFileGroupIdAsString = (String) executionContext.get(MacstwoService.MACSTWO_ANALYSIS_FILEGROUP_ID_AS_STRING);
