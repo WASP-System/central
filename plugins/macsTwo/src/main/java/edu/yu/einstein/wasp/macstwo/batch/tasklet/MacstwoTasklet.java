@@ -34,7 +34,6 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
-import edu.yu.einstein.wasp.macstwo.integration.messages.MacstwoSoftwareJobParameters;
 import edu.yu.einstein.wasp.macstwo.service.MacstwoService;
 import edu.yu.einstein.wasp.macstwo.software.Macstwo;
 import edu.yu.einstein.wasp.model.FileGroup;
@@ -47,9 +46,6 @@ import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.plugin.mps.grid.software.Imagemagick;
-import edu.yu.einstein.wasp.plugin.mps.grid.software.R;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
@@ -279,7 +275,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Date dateNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
 	    //new
-	    String prefixForFileName = ft.format(dateNow) + "_MACS2_IP_" + testSample.getName().replaceAll("\\s+", "_");
+	    String prefixForFileName = fileService.getSanitizedName(ft.format(dateNow) + "_MACS2_IP_" + testSample.getName());
 	    if(antibodyTarget!=null && !antibodyTarget.isEmpty()){
 	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
 	    }
