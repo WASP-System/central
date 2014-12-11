@@ -211,9 +211,10 @@
 							</bean>
 						</list>
 					</constructor-arg>
+					<property name="failOnStatuses" value="FAILED" />
 				</bean>
 			</batch:tasklet>
-			<batch:fail on="FAILED" exit-code="TRIM_FAILED"/>
+			<batch:fail on="FAILED" />
 			<batch:next on="*" to="waspIlluminaHiSeq.mainFlow.notifyRunComplete" />
 		</batch:step>
 		
