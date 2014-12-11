@@ -275,20 +275,20 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		Date dateNow = new Date( );
 	    SimpleDateFormat ft = new SimpleDateFormat ("yyyyMMdd");
 	    //new
-	    String prefixForFileName = fileService.getSanitizedName(ft.format(dateNow) + "_MACS2_IP_" + testSample.getName());
+	    String prefixForFileName = ft.format(dateNow) + "_MACS2_IP_" + testSample.getName();
 	    if(antibodyTarget!=null && !antibodyTarget.isEmpty()){
-	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget.replaceAll("\\s+", "_");
+	    	prefixForFileName = prefixForFileName + "_TARGET_" + antibodyTarget;
 	    }
 	    else{
 	    	prefixForFileName = prefixForFileName + "_TARGET_unspecified";
 	    }
 	    if(controlSample != null){
-	    	prefixForFileName = prefixForFileName + "_CONTROL_" + controlSample.getName().replaceAll("\\s+", "_");
+	    	prefixForFileName = prefixForFileName + "_CONTROL_" + controlSample.getName();
 	    }
 	    else{
 	    	prefixForFileName = prefixForFileName + "_CONTROL_none";
 	    }
-	    
+	    prefixForFileName = fileService.getSanitizedName(prefixForFileName);
 		logger.debug("prefixForFileName = " + prefixForFileName);
 		logger.debug("preparing to generate workunit");
 		
