@@ -124,7 +124,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
  	    jobDetailsParagraph = addMPSDetailsToJobDetailsParagraph(job, jobDetailsParagraph);//add msp-specific info to the jobDetails paragraph
  	    document.add(jobDetailsParagraph);//add the paragraph to the document
  	    
- 	    Integer libraryConstructionTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, mpsQuote);
+ 	    Integer libraryConstructionAndAnalysisTotalCost = addSubmittedSamplesMultiplexRequestAndLibraryCostsAsTable(document, mpsQuote);
  	    Integer sequenceRunsTotalCost = addSequenceRunsAndCostAsTable(document, mpsQuote);
  	    Integer additionalTotalCost = addAdditionalCostsAsTable(document, mpsQuote);
  	    
@@ -132,8 +132,8 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
  	   
  	    List<String> costReasonList = new ArrayList<String>();
  	    Map<String, Integer> costReasonPriceMap = new HashMap<String, Integer>();
- 	    costReasonList.add("Total Library Costs");
- 	    costReasonPriceMap.put("Total Library Costs",libraryConstructionTotalCost);
+ 	    costReasonList.add("Total Library Construction & Analysis Costs");
+ 	    costReasonPriceMap.put("Total Library Construction & Analysis Costs",libraryConstructionAndAnalysisTotalCost);
  	    costReasonList.add("Total Sequencing Costs");
  	    costReasonPriceMap.put("Total Sequencing Costs",sequenceRunsTotalCost);
  	    if(additionalTotalCost>0){
@@ -408,6 +408,8 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 
 		int sampleCounter = 1;
 		int cumulativeCostForAllLibraries = 0;
+		int cumulativeCostForAllLibraryConstructions = 0;
+		int cumulativeCostForAllLibraryAnalyses = 0;
 		Map<Sample,String> coverageMap = jobService.getCoverageMap(jobService.getJobByJobId(mpsQuote.getJobId()));//a user-submitted request: which samples are to be run on which lanes 
 		String currencyIcon = mpsQuote.getLocalCurrencyIcon();
 
@@ -438,6 +440,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			if(libraryCost.getReasonForNoLibraryCost().isEmpty()){
 				Integer libCost = new Integer(libraryCost.getLibraryCost().intValue());//convert the Float to Integer
 				cumulativeCostForAllLibraries += libCost.intValue();
+				cumulativeCostForAllLibraryConstructions += libCost.intValue();
 				totalLibCost += libCost.intValue();
 				cost = new PdfPCell(new Phrase(currencyIcon+" "+libCost.toString(), NORMAL));
 			}
@@ -449,6 +452,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			
 			Integer libAnalysisCost = new Integer(libraryCost.getAnalysisCost().intValue());//convert the Float to Integer
 			cumulativeCostForAllLibraries += libAnalysisCost.intValue();
+			cumulativeCostForAllLibraryAnalyses += libAnalysisCost.intValue();
 			totalLibCost += libAnalysisCost.intValue();
 			PdfPCell analysisCost = new PdfPCell(new Phrase(currencyIcon+" "+libAnalysisCost.toString(), NORMAL));
 			analysisCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -460,11 +464,24 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			sampleCounter++;
 		}
 		
-		for(int i = 0; i < 6; i++){//6 empty cells with no border
+		for(int i = 0; i < 4; i++){//4 empty cells with no border
 			PdfPCell cell = new PdfPCell(new Phrase(""));
 			cell.setBorder(Rectangle.NO_BORDER);
 			sampleLibraryTable.addCell(cell);
 		}
+		
+		PdfPCell cumulativeLibraryConstructionCost = new PdfPCell(new Phrase(currencyIcon+" "+cumulativeCostForAllLibraryConstructions, NORMAL_BOLD));
+		cumulativeLibraryConstructionCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		cumulativeLibraryConstructionCost.setBorderWidth(2f);
+		cumulativeLibraryConstructionCost.setBorderColor(BaseColor.BLACK);
+		sampleLibraryTable.addCell(cumulativeLibraryConstructionCost);
+		
+		PdfPCell cumulativeLibraryAnalysisCost = new PdfPCell(new Phrase(currencyIcon+" "+cumulativeCostForAllLibraryAnalyses, NORMAL_BOLD));
+		cumulativeLibraryAnalysisCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		cumulativeLibraryAnalysisCost.setBorderWidth(2f);
+		cumulativeLibraryAnalysisCost.setBorderColor(BaseColor.BLACK);
+		sampleLibraryTable.addCell(cumulativeLibraryAnalysisCost);
+		
 		PdfPCell cumulativeCost = new PdfPCell(new Phrase("Total: " + currencyIcon+" "+cumulativeCostForAllLibraries, NORMAL_BOLD));
 		cumulativeCost.setHorizontalAlignment(Element.ALIGN_RIGHT);
 		cumulativeCost.setBorderWidth(2f);
@@ -528,8 +545,11 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			runTable.addCell(new Phrase(sequencingCost.getReadType(), NORMAL));
 			Integer numLanes = sequencingCost.getNumberOfLanes();
 			runTable.addCell(new Phrase(numLanes.toString(), NORMAL));
-			Integer pricePerLane = new Integer(sequencingCost.getCostPerLane().intValue());
-			runTable.addCell(new Phrase(currencyIcon + " " + pricePerLane.toString(), NORMAL));
+			Integer pricePerLane = new Integer(sequencingCost.getCostPerLane().intValue());			
+			//runTable.addCell(new Phrase(currencyIcon + " " + pricePerLane.toString(), NORMAL));
+			PdfPCell pricePerLaneCell = new PdfPCell(new Phrase(currencyIcon + " " + pricePerLane.toString(), NORMAL));
+			pricePerLaneCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			runTable.addCell(pricePerLaneCell);
 			Integer totalCostPerSequenceRun = numLanes * pricePerLane;
 			PdfPCell totalCostPerSequenceRunCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerSequenceRun.toString(), NORMAL));
 			totalCostPerSequenceRunCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -598,7 +618,10 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 			Integer units = additionalCost.getNumberOfUnits();
 			additionalCostTable.addCell(new Phrase(units.toString(), NORMAL));
 			Integer pricePerUnit = new Integer(additionalCost.getCostPerUnit().intValue());
-			additionalCostTable.addCell(new Phrase(currencyIcon + " " + pricePerUnit.toString(), NORMAL));
+			///additionalCostTable.addCell(new Phrase(currencyIcon + " " + pricePerUnit.toString(), NORMAL));
+			PdfPCell pricePerUnitCell = new PdfPCell(new Phrase(currencyIcon + " " + pricePerUnit.toString(), NORMAL));
+			pricePerUnitCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			additionalCostTable.addCell(pricePerUnitCell);			
 			Integer totalCostPerAdditionalCost = units * pricePerUnit;
 			PdfPCell totalCostPerAdditionalCostCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCostPerAdditionalCost.toString(), NORMAL));
 			totalCostPerAdditionalCostCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
