@@ -32,11 +32,14 @@ import edu.yu.einstein.wasp.model.AcctGrantjob;
 import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -67,6 +70,9 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	
 	@Autowired
 	private AdaptorService adaptorService;
+	
+	@Autowired
+	private FileService fileService;
 
 	@Autowired
 	private MessageService messageService;
@@ -191,6 +197,7 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 		acctQuoteMeta.setV("true");
 		acctQuoteMeta.setAcctQuoteId(acctQuote.getId());
 		acctQuoteMetaDao.save(acctQuoteMeta);
+		acctQuoteMetaDao.flush(acctQuoteMeta);
 	}
 	@Override
 	public boolean isQuoteEmailedToPI(AcctQuote acctQuote){
@@ -204,5 +211,30 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 			}
 		}
 		return foundIt;
+	}
+	@Override
+	public AcctQuote getAcctQuoteById(Integer id){
+		return acctQuoteDao.getById(id);
+	}
+	@Transactional
+	@Override
+	public FileHandle getFileHandleAssociatedWithThisQuote(Integer acctQuoteId){
+		FileHandle fileHandle = null;
+		for(AcctQuoteMeta acctQuoteMeta : this.getAcctQuoteById(acctQuoteId).getAcctQuoteMeta()){
+			if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
+				try{
+					FileGroup fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
+					if(fileGroup != null && fileGroup.getId()!=null){
+						List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+						if(!fileHandleList.isEmpty()){
+							fileHandle = fileHandleList.get(0);
+						}
+						break;
+					}					
+				}
+				catch(Exception e){logger.debug("unable to obtain file handle");}
+			}
+		}
+		return fileHandle;				
 	}
 }
