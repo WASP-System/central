@@ -21,7 +21,7 @@
  		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="size" />
 	          <property name="label" value="bioanalyzerLib.averageLibSize.label" /> <!-- This is asking for AVERAGE library size-->
-	          <property name="metaposition" value="10" />
+	          <property name="metaposition" value="20" />
 	          <property name="type" value="NUMBER" /> 
 	          <property name="range" value="0.0001:1000000000" /> 
 	          <property name="constraint" value="NotEmpty" />
@@ -31,7 +31,7 @@
 	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="range" />
 	          <property name="label" value="bioanalyzerLib.libraryRange.label" />
-	          <property name="metaposition" value="11" />
+	          <property name="metaposition" value="30" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="error" value="bioanalyzerLib.libraryRange.error" />
 	          <property name="tooltip" value="bioanalyzerLib.libraryRange.tt" />
@@ -40,7 +40,7 @@
 		    <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="concentration" />
 	          <property name="label" value="bioanalyzerLib.conc.label" />
-	          <property name="metaposition" value="20" />
+	          <property name="metaposition" value="40" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="error" value="bioanalyzerLibrary.concentration.error" />
 	          <property name="type" value="NUMBER" />
@@ -50,7 +50,7 @@
 	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="quantificationmethod" />
 	          <property name="label" value="bioanalyzerLib.quantificationmethod.label" />
-	          <property name="metaposition" value="30" />
+	          <property name="metaposition" value="50" />
 	          <property name="control" value="bioanalyzerLib.quantificationmethod.control" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="error" value="bioanalyzerLib.quantificationmethod.error" />
@@ -60,7 +60,7 @@
 	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="volume" />
 	          <property name="label" value="bioanalyzerLib.vol.label" />
-	          <property name="metaposition" value="40" />
+	          <property name="metaposition" value="60" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="error" value="bioanalyzerLib.vol.error" />
 	       	  <property name="type" value="NUMBER" />
@@ -70,7 +70,7 @@
 	        <bean parent="bioanalyzerLibraryUiFieldWrapper">
 	          <property name="baseName" value="buffer" />
 	          <property name="label" value="bioanalyzerLib.buffer.label" />
-	          <property name="metaposition" value="50" />
+	          <property name="metaposition" value="70" />
 	          <property name="control" value="bioanalyzerLib.buffer.control" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="error" value="bioanalyzerLib.buffer.error" />
@@ -87,6 +87,7 @@
     <property name="applicableRoles" value="lu,ft" />
     <property name="uiFieldGroupsFromWrapper">
     	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
     		<ref bean="bioanalyzerLibrarySpecificUiFields" />
     	</list>
     </property>

@@ -1,3 +1,9 @@
+<%@ page session="true"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <%-- message keys link to internationalized text. Conversions can be specified in the .properties files in /src/main/resources/i18n --%>
@@ -59,7 +65,8 @@
 	    <td class="CaptionTD"><fmt:message key="bioanalyzer.chipChoiceAndInfo_assayLibrariesAreFor.label" />:</td>
 	    <td class="DataTD" >
 	    	<input class="FormElement ui-widget-content ui-corner-all" name="assayLibrariesAreFor" value="<c:out value="${assayLibrariesAreFor}"/>">	     
-	      	<span class="requiredField">*</span>
+	      	<span class="requiredField">*</span> 
+	      	<wasp:tooltip value="${assayLibrariesAreForToolTip}" />		   
 	    </td>
 	    <td class="CaptionTD error"> <c:out value="${assayLibrariesAreForError}"/> </td>
 	 </tr>  

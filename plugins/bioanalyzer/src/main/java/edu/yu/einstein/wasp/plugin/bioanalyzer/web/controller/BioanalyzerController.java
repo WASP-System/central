@@ -8,12 +8,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,45 +31,69 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
+import edu.yu.einstein.wasp.dao.JobDraftresourcecategoryDao;
+import edu.yu.einstein.wasp.exception.FileUploadException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.resourcebundle.DBResourceBundle;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.LabService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.WorkflowService;
+import edu.yu.einstein.wasp.viewpanel.Action;
+import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
+import edu.yu.einstein.wasp.viewpanel.Action.GroupActionAlignType;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
+import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
+import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.LabUser;
+import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.Workflowresourcecategory;
+import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.plugin.bioanalyzer.integration.messages.BioanalyzerBatchJobTask;
 import edu.yu.einstein.wasp.plugin.bioanalyzer.service.BioanalyzerService;
+import edu.yu.einstein.wasp.plugin.bioanalyzer.software.Bioanalyzer;
+import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
 
 
 @Controller
 @RequestMapping("/bioanalyzer")
 public class BioanalyzerController extends WaspController {
+	@Autowired
+	protected JobDraftresourcecategoryDao jobDraftresourcecategoryDao;
 	@Autowired
 	protected AccountsService accountsService;
 	@Autowired
@@ -72,17 +101,30 @@ public class BioanalyzerController extends WaspController {
 	@Autowired
 	private BioanalyzerService bioanalyzerService;
 	@Autowired
+	private FileService fileService;
+	@Autowired
+	private JobService jobService;
+	@Autowired
 	private JobDraftService jobDraftService;
 	@Autowired
 	private LabService labService;
 	@Autowired
 	private MessageServiceWebapp messageService;
 	@Autowired
+	private ResourceService resourceService;
+	@Autowired
 	private SampleService sampleService;
 	@Autowired
 	private StrategyService strategyService;
 	@Autowired
 	private WorkflowService workflowService;
+	
+	@Autowired
+	private Bioanalyzer bioanalyzer;
+	
+	@Autowired
+	private FileType pdfFileType;//pdf file 
+	
 	
 	@RequestMapping(value="/displayDescription", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
@@ -127,448 +169,6 @@ public class BioanalyzerController extends WaspController {
 
 		return "redirect:" + targetPage;
 	}
-	/**
-	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
-	 * and the jobDraft object is not null and has a not-null jobDraftId
-	 * @param jobDraft
-	 * @return boolean
-	 */
-	protected boolean isJobDraftEditable(JobDraft jobDraft){
-		User me = authenticationService.getAuthenticatedUser();
-		return isJobDraftEditable(jobDraft, me);
-	}
-	
-	/**
-	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
-	 * and the jobDraft object is not null and has a not-null jobDraftId
-	 * @param jobDraft
-	 * @return boolean
-	 */
-	protected boolean isJobDraftEditable(JobDraft jobDraft, User me){
-		if (jobDraft == null || jobDraft.getId() == null){
-			waspErrorMessage("jobDraft.jobDraft_null.error");
-			return false;
-		}
-		
-		// check if i am the drafter
-		if (me.getId().intValue() != jobDraft.getUserId().intValue()) {
-			waspErrorMessage("jobDraft.user_incorrect.error");
-			return false;
-		}
-		
-		// check that the status is PENDING
-		if (! jobDraft.getStatus().equals("PENDING")) {
-			waspErrorMessage("jobDraft.not_pending.error");
-			return false;
-		}
-		return true;
-	}
-	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showChipChoiceAndInfoForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
-		
-		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
-		if ( ! isJobDraftEditable(jobDraft) ){
-			return "redirect:/dashboard.do";
-		}
-		m.put("jobDraft", jobDraft);
-		List<String> availableBioanalyzerChipList = new ArrayList<String>();
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
-		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
-		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
-		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));
-		m.put("pageFlowMap", getPageFlowMap(jobDraft));
-		
-		return "bioanalyzer/chipChoiceAndInfo";
-	}
-	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.POST)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String showChipChoiceAndInfoFormPost (@PathVariable("jobDraftId") Integer jobDraftId, 
-				@RequestParam(value="bioanalyzerChip") String bioanalyzerChip,			 
-				@RequestParam(value="assayLibrariesAreFor") String assayLibrariesAreFor, 
-				ModelMap m) {
-		
-		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
-		if ( ! isJobDraftEditable(jobDraft) ){
-			return "redirect:/dashboard.do";
-		}
-
-		if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1") ||assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
-			
-			if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1")){
-				m.put("chipError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_chipMissing.error"));
-			}
-			if(assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
-				m.put("assayLibrariesAreForError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayMissing.error"));
-			}
-			m.put("jobDraft", jobDraft);
-			m.put("userSelectedBioanalyzerChip", bioanalyzerChip);
-			m.put("", assayLibrariesAreFor);
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));			
-			List<String> availableBioanalyzerChipList = new ArrayList<String>();
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
-			availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
-			m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);			
-			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_errorsExist.error");
-			return "bioanalyzer/chipChoiceAndInfo";
-		}
-		
-		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta, bioanalyzerChip);
-		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta, assayLibrariesAreFor.trim());
-		
-		//have to do this next line somewhere; this is best place for it:
-		//set isAnalysisSelected to false; bioanalyzer workflow does NOT require it (default setting is true)
-		jobDraftService.setIsAnalysisSelected(jobDraft, false);
-		
-		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
-		return nextPage(jobDraft);
-	}
-	/*
-	@RequestMapping(value="/submitSampleAndUploadFiles/{jobDraftId}.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
-	public String submitSampleAndUploadFiles(@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m){
-		
-		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
-		if (! isJobDraftEditable(jobDraft))
-			return "redirect:/dashboard.do";
-		List<SampleDraft> sampleDraftList = jobDraft.getSampleDraft();
-		String[] roles = new String[1];
-		roles[0] = "lu";
-		List<SampleSubtype> sampleSubtypeList = sampleService.getSampleSubtypesForWorkflowByRole(jobDraft.getWorkflowId(), roles);
-		List<FileGroup> fileGroups = new ArrayList<FileGroup>();
-		Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
-		for(JobDraftFile jdf: jobDraft.getJobDraftFile()){
-			FileGroup fileGroup = jdf.getFileGroup();
-			fileGroups.add(fileGroup);
-			List<FileHandle> fileHandles = new ArrayList<FileHandle>();
-			for(FileHandle fh : fileGroup.getFileHandles()){
-				fileHandles.add(fh);
-			}
-			fileGroupFileHandlesMap.put(fileGroup, fileHandles);
-		}
-		m.addAttribute("jobDraft", jobDraft);
-		m.addAttribute("sampleDraftList", sampleDraftList);
-		m.addAttribute("sampleSubtypeList", sampleSubtypeList);
-		//m.addAttribute("pageFlowMap", getPageFlowMap(jobDraft));
-		m.addAttribute("fileGroups", fileGroups);
-		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
-		//m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
-		//return "jobsubmit/sample";
-		return "bioanalyzer/submitSampleAndUploadFiles";
-	}
-	*/
-	@RequestMapping(value="/create", method=RequestMethod.GET)
-	public String createNewBioanalyzerJobGet(ModelMap m){
-		/*
-		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
-		if(bioanalyzerWorkflow.getId()==null){
-			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-		*/
-		prepareCreateBioanalyzerForm(m);
-		
-		if ( ((List<Lab>)m.get("labList")).isEmpty()){
-			waspErrorMessage("bioanalyzer.create_labList.error");
-			return "redirect:/dashboard.do";
-		}
-		
-		SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeByIName("bioanalyzerLibrarySample");
-		if (sampleSubtype.getId() == null){
-			waspErrorMessage("bioanalyzer.create_sampleSubtype.error");
-			return "redirect:/dashboard.do";
-		}
-		
-		List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
-		try {
-			normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleMeta.class));
-		} catch (MetadataTypeException e) {
-			logger.warn("Could not get meta for class 'SampleMeta' with sampleSubtype of bioanalyzerLibrarySample:" + e.getMessage());
-			waspErrorMessage("bioanalyzer.create_sampleMeta.error");
-			return "redirect:/dashboard.do";
-		}
-		Sample sample = new Sample();
-		sample.setSampleMeta(normalizedMeta);
-			
-		//make web responsive to a list of samples, even though this method only sends one,
-		// because in the post to this method, we may have a list of many samples
-		List<Sample> librarySampleList = new ArrayList<Sample>();
-		librarySampleList.add(sample);		
-		m.addAttribute("librarySampleList", librarySampleList);		
-		
-		return "bioanalyzer/create";
-	}
-	
-	private void prepareCreateBioanalyzerForm(ModelMap m){
-		
-		User me = authenticationService.getAuthenticatedUser();
-
-		List <LabUser> labUserAllRoleList = me.getLabUser();
-		List <Lab> labList = new ArrayList<Lab>();
-		for (LabUser lu: labUserAllRoleList) {
-			String roleName =	lu.getRole().getRoleName();
-			if (roleName.equals("lu") || roleName.equals("lm") || roleName.equals("pi")) {
-				labList.add(lu.getLab());
-			}
-		}
-		m.put("labList", labList);
-		Map<Lab, String> labPiInstitutionMap = new HashMap<Lab, String>();
-		for(Lab lab : labList){
-			String institution = labService.getInstitutionOfLabPI(lab);
-			if(!institution.isEmpty()){
-				labPiInstitutionMap.put(lab, institution);
-			}
-		}
-		m.put("labPiInstitutionMap", labPiInstitutionMap);
-		
-		List<String> availableBioanalyzerChipList = new ArrayList<String>();
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChipHighSensitivity.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip7500.label"));
-		availableBioanalyzerChipList.add(messageService.getMessage("bioanalyzer.create_bioanalyzerChip1000.label"));
-		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
-		
-		List<Workflow> workflowList = new ArrayList<Workflow>();
-		for(Workflow workflow : workflowService.getWorkflowDao().findAll()){
-			if(!workflow.getIName().equalsIgnoreCase("bioanalyzer")){//exclude this from list
-				workflowList.add(workflow);
-			}
-		}
-		class WorkflowNameComparator implements Comparator<Workflow> {
-		    @Override
-		    public int compare(Workflow arg0, Workflow arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-		Collections.sort(workflowList, new WorkflowNameComparator());
-		m.put("workflowList", workflowList);
-	}
-	
-	@RequestMapping(value="/getGrantsForLab.do", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('lu-*')")
-	public void getGrantsForLab(HttpServletResponse response) {
-		
-		//THIS IS AN AJAX CALL FROM WEB
-		
-		Lab lab = labService.getLabByLabId(Integer.parseInt(request.getParameter("selectedLabId")));
-		List <AcctGrant> grantsForTheRequestedLab = accountsService.getNonExpiredGrantsForLab(lab);
-		Map<Integer, String> grants = new HashMap<>();
-		for (AcctGrant grant: grantsForTheRequestedLab){
-			String value = grant.getCode();
-			if (grant.getName() != null && !grant.getName().isEmpty())
-				value += " (" + grant.getName() + ")";
-			grants.put(grant.getId(), value);
-		}
-		try{
-			outputJSON(grants, response);
-		}catch(Exception e){}
-	}
-	
-	private List<AcctGrant> getGrantsForLab(Integer labId) {		
-		Lab lab = labService.getLabByLabId(labId);
-		return accountsService.getNonExpiredGrantsForLab(lab);		 
-	}
-
-	
-	@RequestMapping(value="/create", method=RequestMethod.POST)
-	
-	public String createNewBioanalyzerJobPost( @RequestParam(value="labId") Integer labId,
-			@RequestParam(value="selectGrantId") Integer grantId,
-			 @RequestParam(value="bioanalyzerChip") String bioanalyzerChip,			 
-			 @RequestParam(value="workflowIdLibrariesAreDesignedFor") Integer workflowIdLibrariesAreDesignedFor,
-			 @RequestParam(value="jobName") String jobName,
-			ModelMap m){
-		
-		//NOTE: parameter workflowIdLibrariesAreDesignedFor is the type of workflow that these libraries are for and is a jobMeta attribute. 
-		//By contrast, job.workflowId is bioanalyzer workflow
-		/*
-		Workflow bioanalyzerWorkflow = workflowService.getWorkflowDao().getWorkflowByIName("bioanalyzer");
-		if(bioanalyzerWorkflow.getId()==null){
-			waspErrorMessage("bioanalyzer.create_thisWorkflowUnexpectedlyNotFound.error");
-			return "redirect:/dashboard.do";
-		}
-		*/
-		User me = authenticationService.getAuthenticatedUser();		
-		
-		SampleSubtype sampleSubtype = sampleService.getSampleSubtypeDao().getSampleSubtypeByIName("bioanalyzerLibrarySample");		
-		if (sampleSubtype.getId() == null){
-			waspErrorMessage("bioanalyzer.create_sampleSubtype.error");
-			return "redirect:/dashboard.do";
-		}		
-		SampleType sampleType = sampleSubtype.getSampleType();		
-		
-		boolean errorsExist = false;
-		
-		logger.debug("labId: " + labId.toString());
-		if(labId == -1){
-			m.addAttribute("labError", messageService.getMessage("bioanalyzer.create_labMissing.error"));
-			errorsExist=true;
-		}
-		//confirm user is labmember of selected lab
-		if(!labService.isUserLabMember(labService.getLabByLabId(labId), me)){
-			waspErrorMessage("bioanalyzer.create_userUnexpectedlyNotMemberOfSelectedLab.error");
-			return "redirect:/dashboard.do";
-		}
-		logger.debug("grantId: " + grantId.toString());
-		if(grantId == -1 || grantId == 0){
-			m.addAttribute("grantSelectError", messageService.getMessage("bioanalyzer.create_grantMissing.error"));
-			errorsExist=true;
-		}
-		logger.debug("bioanalyzerChip: " + bioanalyzerChip);
-		if(bioanalyzerChip.equalsIgnoreCase("-1") || bioanalyzerChip.isEmpty()){
-			m.addAttribute("chipError", messageService.getMessage("bioanalyzer.create_chipMissing.error"));
-			errorsExist=true;
-		}
-		
-		logger.debug("workflowIdLibrariesAreDesignedFor: " + workflowIdLibrariesAreDesignedFor.toString());
-		if(workflowIdLibrariesAreDesignedFor == -1){
-			m.addAttribute("workflowError", messageService.getMessage("bioanalyzer.create_workflowLibrariesDesignedForMissing.error"));
-			errorsExist=true;
-		}
-		logger.debug("jobName: " + jobName);
-		if(jobName.isEmpty() || jobName.trim().isEmpty()){
-			m.addAttribute("jobNameError", messageService.getMessage("bioanalyzer.create_jobNameMissing.error"));
-			errorsExist=true;
-		}
-		
-		//deal with the new library requests
-		String[] libraryNamesAsStringArray = request.getParameterValues("sampleName");
-		
-		List<String> libraryNamesAsList = new ArrayList<String>();//used to make sure names only used once (see below)
-		
-		int counter = -1;
-		List<String> libraryErrorList = new ArrayList<String>();//errors associated with the samples (libraries) only
-		List<Sample> librarySampleList = new ArrayList<Sample>();
-		
-		for(String libraryName : libraryNamesAsStringArray){	
-			
-			counter++;			
-			String errorsForThisSample = "";			
-			Sample library = new Sample();			
-			library.setName(libraryName.trim());
-			logger.debug("libraryName: " + libraryName);
-			
-			//get sampleMeta and in process, check it for errors
-			List<SampleMeta> sampleMetaList = new ArrayList<SampleMeta>();
-			DataBinder dataBinderForMeta = new DataBinder(library, "sample");
-			BindingResult resultForMeta = dataBinderForMeta.getBindingResult();
-			try {
-				sampleMetaList.addAll(SampleAndSampleDraftMetaHelper.getValidatedMetaFromRequestAndTemplateToSubtype(request, sampleSubtype, resultForMeta, SampleMeta.class, counter));
-			} catch (MetadataTypeException e) {
-				logger.warn("Could not get meta for class 'SampleMeta' with sampleSubtype of bioanalyzerLibrarySample:" + e.getMessage());
-				
-			}
-			library.setSampleMeta(sampleMetaList);
-			//for testing only
-			logger.debug("sampleMetaList size = " + sampleMetaList.size() + " and its output follows: ");			
-			for(SampleMeta sm : sampleMetaList){
-				logger.debug(sm.getK() + ":" + sm.getV());
-			}
-			if(libraryRowIsCompletelyEmpty(library)){//sample name is absent and all the sample meta is blank; ignore this row
-				continue;
-			}
-			
-			//OK the sample row is NOT COMPLETELY EMPTY, so we have to deal with it
-			//first, deal with sample name errors
-			if(library.getName().isEmpty()){				
-				String sampleNameEmptyMessage = messageService.getMessage("bioanalyzer.create_libraryNameEmpty.error");
-				errorsForThisSample += errorsForThisSample.isEmpty()?sampleNameEmptyMessage : "; "+sampleNameEmptyMessage;
-			}
-			else{				
-				//check against the sample names on this form (not yet in database)
-				if(libraryNamesAsList.contains(library.getName())){					
-					String sampleNameAlreadyUsedOnThisForm = messageService.getMessage("bioanalyzer.create_libraryNameAlreadyUsedOnThisForm.error");
-					errorsForThisSample += errorsForThisSample.isEmpty()? sampleNameAlreadyUsedOnThisForm :"; "+sampleNameAlreadyUsedOnThisForm;
-				}				
-				libraryNamesAsList.add(library.getName()); //add to this list  if library name is NOT empty
-			}
-			
-			//second deal with sampleMeta errors, which are currently stored in resultForMeta (a BindingResult object)
-			if(resultForMeta.hasErrors()){			
-				List<FieldError> fieldErrors = resultForMeta.getFieldErrors();
-				for(FieldError fe : fieldErrors){
-					logger.debug("getCode: " + fe.getCode());//this is something like chipseqDna.fragmentSize.error
-					logger.debug("getDefaultMessage: " +fe.getDefaultMessage());//
-					logger.debug("getField: " +fe.getField());//
-					logger.debug("getObjectName: " +fe.getObjectName());//
-					String metaErrorForDisplay = fe.getCode().substring(fe.getCode().indexOf(".")+1);//something like fragmentSize.error
-					metaErrorForDisplay = metaErrorForDisplay.replace(".", " ");//something like fragmentSize error
-					errorsForThisSample += errorsForThisSample.isEmpty()?metaErrorForDisplay:"; " + metaErrorForDisplay;
-				}
-			}
-			
-			librarySampleList.add(library);
-			libraryErrorList.add(errorsForThisSample);//yes, execute this line even if no errors exist for this particular sample (add "" here even if no errors for this sample).
-			if(!errorsForThisSample.isEmpty()){
-				errorsExist = true;				
-			}			
-		}
-		
-		if(errorsExist){			
-			
-			if(librarySampleList.isEmpty()){//all library rows were empty (user filled in no info at all for any library row)
-				
-				List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
-				try {
-					normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleSubtype, SampleMeta.class));
-				} catch (MetadataTypeException e) {
-					logger.warn("Could not get meta for class 'SampleMeta' with sampleSubtype of bioanalyzerLibrarySample:" + e.getMessage());
-					waspErrorMessage("bioanalyzer.create_sampleMeta.error");
-					return "redirect:/dashboard.do";
-				}
-				Sample sample = new Sample();
-				sample.setSampleMeta(normalizedMeta);				
-				librarySampleList.add(sample);
-				//Since no sample info was provided at all for ANY sample, give error message for this empty sample saying "PLEASE COMPLETE"???
-				libraryErrorList.add(messageService.getMessage("bioanalyzer.create_libraryPleaseFillInLibraryInfo.error"));
-			}
-			
-			prepareCreateBioanalyzerForm(m);
-			m.addAttribute("userSelectedLabId", labId);//get all the labs for this user is done in prepareCreateBioanalyzerForm(); 
-			m.addAttribute("grantsAvailable", getGrantsForLab(labId));
-			m.addAttribute("userSelectedGrantId", grantId);
-			m.addAttribute("userSelectedBioanalyzerChip", bioanalyzerChip);//availableBioanalyzerChipList is filled up in prepareCreateBioanalyzerForm()
-			m.addAttribute("userSelectedWorkflowIdLibrariesAreDesignedFor", workflowIdLibrariesAreDesignedFor);//all workflows list is filled up in prepareCreateBioanalyzerForm()	
-			m.addAttribute("userSelectedJobName", jobName.trim());	
-			m.addAttribute("librarySampleList", librarySampleList);
-			m.addAttribute("libraryErrorList", libraryErrorList);
-			
-			waspErrorMessage("bioanalyzer.create_errorsExist.error");//appears, then disappears from the top of web page
-			return "bioanalyzer/create";
-			
-		}
-		
-		//no errors, so iterate through librarySampleList (which already excludes completely empty rows) and save each new library		
-		//so, first the new job
-		Job job = new Job();		
-		job.setName(jobName.trim());
-		job.setUserId(me.getId());
-		job.setLabId(labId);
-		//job.setWorkflowId(bioanalyzerWorkflow.getId());//the incoming parameter workflowId is actually the workflow that these libraries are ultimately designed for
-		
-		//second, the samples
-		waspMessage("sampleDetail.updated_success.label");
-		return "redirect:/bioanalyzer/create.do";
-	}
-
-	private boolean libraryRowIsCompletelyEmpty(Sample libraryRow){
-		
-		//checks only for sample name and all meta attributes
-		if(!libraryRow.getName().trim().isEmpty()){
-			return false;
-		}
-		for(SampleMeta sm : libraryRow.getSampleMeta()){
-			if(sm!=null && sm.getV()!=null ){
-				if(!sm.getV().trim().isEmpty()){
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
 	/**
 	 * getPageFlowMap
 	 * @param jobDraft - jobdraft (used to get workflow)
@@ -662,5 +262,404 @@ public class BioanalyzerController extends WaspController {
 		
 		return pageDef;
 	}
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft){
+		User me = authenticationService.getAuthenticatedUser();
+		return isJobDraftEditable(jobDraft, me);
+	}
+	
+	/**
+	 * Returns true if the current logged in user is the job drafter, the jobDraft status is pending
+	 * and the jobDraft object is not null and has a not-null jobDraftId
+	 * @param jobDraft
+	 * @return boolean
+	 */
+	protected boolean isJobDraftEditable(JobDraft jobDraft, User me){
+		if (jobDraft == null || jobDraft.getId() == null){
+			waspErrorMessage("jobDraft.jobDraft_null.error");
+			return false;
+		}
+		
+		// check if i am the drafter
+		if (me.getId().intValue() != jobDraft.getUserId().intValue()) {
+			waspErrorMessage("jobDraft.user_incorrect.error");
+			return false;
+		}
+		
+		// check that the status is PENDING
+		if (! jobDraft.getStatus().equals("PENDING")) {
+			waspErrorMessage("jobDraft.not_pending.error");
+			return false;
+		}
+		return true;
+	}
+	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showChipChoiceAndInfoForm (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if ( ! isJobDraftEditable(jobDraft) ){
+			return "redirect:/dashboard.do";
+		}
+		m.put("jobDraft", jobDraft);
+		
+		Workflow wf = jobDraft.getWorkflow();
+		if(!wf.getIName().equalsIgnoreCase("bioanalyzer")){
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_workflowError.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		List<String> availableBioanalyzerChipList = bioanalyzerService.getAvailableBioanalyzerChips(wf);//new ArrayList<String>();
+		m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
+		m.put("userSelectedBioanalyzerChip", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta));
+		m.put("assayLibrariesAreFor", bioanalyzerService.getMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta));
+		m.put("assayLibrariesAreForToolTip", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayLibrariesAreForToolTip.label"));
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
+		return "bioanalyzer/chipChoiceAndInfo";
+	}
+	@RequestMapping(value="/chipChoiceAndInfo/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String showChipChoiceAndInfoFormPost (@PathVariable("jobDraftId") Integer jobDraftId, 
+				@RequestParam(value="bioanalyzerChip") String bioanalyzerChip,			 
+				@RequestParam(value="assayLibrariesAreFor") String assayLibrariesAreFor, 
+				ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if ( ! isJobDraftEditable(jobDraft) ){
+			return "redirect:/dashboard.do";
+		}
+		m.put("jobDraft", jobDraft);
+		
+		Workflow wf = jobDraft.getWorkflow();
+		if(!wf.getIName().equalsIgnoreCase("bioanalyzer")){
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_workflowError.error");
+			return "redirect:/dashboard.do";
+		}
+		
+		if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1") ||assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
+			
+			if(bioanalyzerChip==null || bioanalyzerChip.isEmpty() || bioanalyzerChip.equals("-1")){
+				m.put("chipError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_chipMissing.error"));
+			}
+			if(assayLibrariesAreFor==null || assayLibrariesAreFor.trim().isEmpty()){
+				m.put("assayLibrariesAreForError", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayMissing.error"));
+			}
+			
+			List<String> availableBioanalyzerChipList = bioanalyzerService.getAvailableBioanalyzerChips(wf);			
+			m.put("availableBioanalyzerChipList", availableBioanalyzerChipList);
+			m.put("userSelectedBioanalyzerChip", bioanalyzerChip);
+			m.put("assayLibrariesAreFor", assayLibrariesAreFor);
+			m.put("assayLibrariesAreForToolTip", messageService.getMessage("bioanalyzer.chipChoiceAndInfo_assayLibrariesAreForToolTip.label"));
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));	
+			waspErrorMessage("bioanalyzer.chipChoiceAndInfo_errorsExist.error");
+			return "bioanalyzer/chipChoiceAndInfo";
+		}
+		
+		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerChipMeta, bioanalyzerChip);
+		bioanalyzerService.saveOrUpdateJobDraftMeta(jobDraft, bioanalyzerService.bioanalyzerAssayLibrariesAreForMeta, assayLibrariesAreFor.trim());
+		
+		//have to do this next line somewhere; this is best place for it:
+		//set isAnalysisSelected to false; bioanalyzer workflow does NOT require it (default setting is true)
+		jobDraftService.setIsAnalysisSelected(jobDraft, false);
+		
+		//set jobdraftresourcecategory
+		ResourceCategory bioanalyzerRC = resourceService.getResourceCategoryDao().getResourceCategoryByIName("bioanalyzer");
+		List<JobDraftresourcecategory> jdrcList = jobDraft.getJobDraftresourcecategory();
+		boolean jdrcRecorded = false;
+		for(JobDraftresourcecategory jdrc : jdrcList){
+			if(jdrc.getJobDraftId().intValue()==jobDraft.getId().intValue() && jdrc.getResourcecategoryId().intValue()==bioanalyzerRC.getId().intValue()){
+				jdrcRecorded=true;
+			}
+		}
+		if(!jdrcRecorded){
+			JobDraftresourcecategory newJdr = new JobDraftresourcecategory();
+			newJdr.setJobDraftId(jobDraftId);
+			newJdr.setResourcecategoryId(bioanalyzerRC.getId());
+			jobDraftresourcecategoryDao.save(newJdr);
+		}
+		waspMessage("bioanalyzer.chipChoiceAndInfo_updateSuccessfullyRecorded.error");
+		return nextPage(jobDraft);
+	}
+	
+	
+	
+	  @Transactional
+	  @RequestMapping(value="/job/{jobId}/fileUploadManager", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		  
+		  Job job = jobService.getJobByJobId(jobId);
+		  if(job.getId()==null){
+		   	logger.warn("Bioanalyzer job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		  }
+		  populateFileUploadPage(job, m);
+		  return "bioanalyzer/fileUploadManager";
+	  }
 
+	  @Transactional
+	  private void populateFileUploadPage(Job job, ModelMap m){
+		
+			m.addAttribute("job", job);
+			
+			m.addAttribute("userIsFacilityPersonel", false);
+			if(authenticationService.hasRole("su")||authenticationService.hasRole("fm")||authenticationService.hasRole("ft")
+				||authenticationService.hasRole("sa")||authenticationService.hasRole("ga")||authenticationService.hasRole("da")){
+				m.addAttribute("userIsFacilityPersonel", true);
+			}
+			
+			List<FileGroup> fileGroups = new ArrayList<FileGroup>();
+			Map<FileGroup, List<FileHandle>> fileGroupFileHandlesMap = new HashMap<FileGroup, List<FileHandle>>();
+			List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
+			for(JobFile jf: job.getJobFile()){
+				FileGroup fileGroup = jf.getFile();//returns a FileGroup
+				//no need to explicitly exclude quotes and invoices; as of 8/22/13 such files are stored through acctQuoteMeta or acctInvoiceMeta
+				fileGroups.add(fileGroup);
+				List<FileHandle> fileHandles = new ArrayList<FileHandle>();
+				for(FileHandle fh : fileGroup.getFileHandles()){
+					fileHandles.add(fh);
+					String mimeType = fileService.getMimeType(fh.getFileName());
+					if(!mimeType.isEmpty()){
+						fileHandlesThatCanBeViewedList.add(fh);
+					}
+				}
+				fileGroupFileHandlesMap.put(fileGroup, fileHandles);
+			}
+			
+			List<Sample> libraryList = job.getSample();//this type of job will only have userSubmittedLibraries
+			boolean sampleReceiveTaskIncomplete = false;
+			boolean libraryQCTaskIncomplete = false;
+			for(Sample library : libraryList){
+				if(sampleService.getReceiveSampleStatus(library).isRunning()){
+					sampleReceiveTaskIncomplete = true;
+				}
+				if(sampleService.getLibraryQCStatus(library).isRunning()){
+					libraryQCTaskIncomplete = true;
+				}
+			}	
+			
+			boolean atLeastOneBioanalyzerFileUploadedByFacility = bioanalyzerService.atLeastOneBioanalyzerFileUploadedByFacility(job);
+			boolean isJobActive = jobService.isJobActive(job);
+			
+			logger.debug("for bioanalyzer jobId " + job.getId().intValue() + ":");
+			logger.debug("atLeastOneBioanalyzerFileUploadedByFacility: " + atLeastOneBioanalyzerFileUploadedByFacility);
+			logger.debug("sampleReceiveTaskIncomplete: " + sampleReceiveTaskIncomplete);
+			logger.debug("libraryQCTaskIncomplete: " + libraryQCTaskIncomplete);	
+			logger.debug("isJobActive: " + isJobActive);//status of Running	
+					
+			m.addAttribute("fileGroups", fileGroups);
+			m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
+			m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
+			m.addAttribute("isJobActive", isJobActive);
+			m.addAttribute("currentJobStatusForDisplayOnWeb", jobService.getDetailedJobStatusString(job));
+			m.addAttribute("atLeastOneBioanalyzerFileUploadedByFacility", atLeastOneBioanalyzerFileUploadedByFacility);
+			m.addAttribute("sampleReceiveTaskIncomplete", sampleReceiveTaskIncomplete);
+			m.addAttribute("libraryQCTaskIncomplete", libraryQCTaskIncomplete);
+	  }
+	
+	  //Remember, this is an ajax call
+	  //Note: we use MultipartHttpServletRequest to be able to upload files using Ajax. See http://hmkcode.com/spring-mvc-upload-file-ajax-jquery-formdata/
+	  @RequestMapping(value="/job/{jobId}/fileUploadManager", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	  public String jobFileUploadPostPage(@PathVariable("jobId") final Integer jobId,
+			  final MultipartHttpServletRequest request, 
+			  final HttpServletResponse response,
+			  final ModelMap m) throws SampleTypeException {
+	
+			Job job = jobService.getJobByJobId(jobId);
+			if(job.getId()==null){
+			   	logger.debug("Bioanalyzer job unexpectedly not found");
+			   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+				return "job/home/message";
+			}
+			
+			List<String> errorMessageList = new ArrayList<String>();
+			
+			List<MultipartFile> mpFiles = request.getFiles("file_upload");
+		    if(mpFiles.isEmpty() || mpFiles.get(0) == null){
+		    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileEmpty.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);					    	
+		    }
+		    
+		   	String fileDescription = request.getParameter("file_description");
+		    fileDescription = fileDescription==null?"":fileDescription.trim();
+		    if(fileDescription.isEmpty()){
+		    	String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed_fileDescriptionEmpty.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);
+		    }
+		    
+		    //fileIsFromBioanalyzer will appear on the web page only if the web user is a facility member.
+		    //if the select box containing fileIsFromBioanalyzer is not on web page, then fileIsFromBioanalyzer is null
+		    //if it's on the web page and no selection made, then its value is -1; other valid values are "yes" and "no"
+		    String fileIsFromBioanalyzer = request.getParameter("fileIsFromBioanalyzer");
+		    		    
+		    if( fileIsFromBioanalyzer!=null && fileIsFromBioanalyzer.equals("-1") ){//fileIsFromBioanalyzer is on web page, but no selection was made
+		    	String errorMessage = messageService.getMessage("bioanalyzer.fileUploadFileIsBioanalyzerFileNotSelected.error");
+		    	logger.warn(errorMessage);
+		    	errorMessageList.add(errorMessage);
+		    }
+		    
+		    if(!errorMessageList.isEmpty()){//errors exist
+		    	m.addAttribute("errorMessageList", errorMessageList);
+		    	populateFileUploadPage(job, m);
+		    	if(fileIsFromBioanalyzer!=null){
+		    		m.addAttribute("userSelectedFileIsFromBioanalyzer", fileIsFromBioanalyzer);
+		    	}
+		    	m.addAttribute("userProvidedFileDescription", fileDescription);
+		    	m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_errorsExist.error"));
+		    	return "bioanalyzer/fileUploadManager";
+		    }		   	    
+		   			
+			Random randomNumberGenerator = new Random(System.currentTimeMillis());
+			try{
+				MultipartFile mpFile = mpFiles.get(0);
+				FileGroup fileGroup = fileService.uploadJobFile(mpFile, job, fileDescription, randomNumberGenerator);//will upload and perform all database updates
+				//if this uploaded file is a bionalayzer file, then set filetype for fileHandle AND set filetype and software for fileGroup; this will enable automatic display of the bionalayzer files on Data page - files tab
+				if( fileIsFromBioanalyzer!=null && fileIsFromBioanalyzer.equals("yes") ){
+					for(FileHandle fileHandle : fileGroup.getFileHandles()){
+						fileHandle.setFileType(pdfFileType);
+						fileService.getFileHandleDao().save(fileHandle);
+						
+					}
+					fileGroup.setFileType(pdfFileType);
+					fileGroup.setSoftwareGeneratedBy(bioanalyzer);//setFileType as pdf and set softwareGeneratedBy as bioanalyzer will essentially define a facility-generated, facility-uploaded bioanalyzer file  
+					fileService.getFileGroupDao().save(fileGroup);
+				}
+				m.addAttribute("fadingSuccessMessage", messageService.getMessage("listJobSamples.fileUploadedSuccessfully.label"));
+			} catch(FileUploadException e){
+				String errorMessage = messageService.getMessage("listJobSamples.fileUploadFailed.error");
+				logger.warn(errorMessage);
+				errorMessageList.add(errorMessage);
+				m.addAttribute("errorMessage", errorMessageList);
+				if(fileIsFromBioanalyzer!=null){
+		    		m.addAttribute("userSelectedFileIsFromBioanalyzer", fileIsFromBioanalyzer);
+		    	}
+		    	m.addAttribute("userProvidedFileDescription", fileDescription);
+		    	m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_errorsExist.error"));		    	
+			}
+			populateFileUploadPage(job, m);
+			return "bioanalyzer/fileUploadManager";		
+	  }
+	  
+	  @Transactional
+	  @RequestMapping(value="/{jobId}/markBioanalyzerJobAsCompleted", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
+	  public String markBioanalyzerJobAsCompleted(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		  
+		  Job job = jobService.getJobByJobId(jobId);
+		  if(job.getId()==null){
+		   	logger.warn("Bioanalyzer job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		  }
+		  //mark this bioanalyzer job as completed and return to starting page (the uploaded file page)	  
+		  try{
+			//will mark as complete and send email informing job submitter
+			  bioanalyzerService.updateBioanalyzerJobStatus(job, WaspStatus.COMPLETED, BioanalyzerBatchJobTask.BIOANALYZER_JOB_COMPLETED, "", true);
+			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
+			  
+		  }catch(Exception e){
+			  m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompletedUnexpectedlyFailed.label"));
+			  logger.debug("error marking bioanalyzer job complete: " + e.getMessage());
+		  }	  
+		  
+		  int i = 0;
+		  while(jobService.isJobActive(job)==true){//need a bit of a delay, since message is being send via batch; starts out as true, then set to false by this method
+			  transitionDelay();//from WaspController; introduce a 2 second delay
+			  if(i++ >= 5) break;//don't let this go on forever
+		  }
+		  populateFileUploadPage(job, m);
+		  return "bioanalyzer/fileUploadManager";
+	  }
+	  
+	  @Transactional
+	  @RequestMapping(value="/task/bioanalyzerJobCompleteList", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
+	  public String markBioanalyzerJobAsCompletedList( ModelMap m)  {
+		  populateBioanalyzerJobCompleteList(m);
+		  return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+	  }
+
+	  @Transactional
+	  @RequestMapping(value="/task/{jobId}/markBioanalyzerJobAsCompletedTask", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('fm')")
+	  public String taskMarkBioanalyzerJobAsCompleted(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		  
+		  Job job = jobService.getJobByJobId(jobId);
+		  if(job.getId()==null){
+		   	logger.warn("Bioanalyzer job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+		   	populateBioanalyzerJobCompleteList(m);
+			return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+		  }
+		  //mark this bioanalyzer job as completed and return to starting page (task list for bioanalyzer complete)	  
+		  try{
+			  //will mark as complete and send email informing job submitter
+			  bioanalyzerService.updateBioanalyzerJobStatus(job, WaspStatus.COMPLETED, BioanalyzerBatchJobTask.BIOANALYZER_JOB_COMPLETED, "", true);
+			  m.addAttribute("fadingSuccessMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompleted.label"));
+			  
+		  }catch(Exception e){
+			  m.addAttribute("fadingErrorMessage", messageService.getMessage("bioanalyzer.fileUpload_jobMarkedAsCompletedUnexpectedlyFailed.label"));
+			  logger.debug("error marking bioanalyzer job complete: " + e.getMessage());
+		  }	  
+		  
+		  int i = 0;
+		  while(jobService.isJobActive(job)==true){//need a bit of a delay, since message is being send via batch; starts out as true, then set to false by this method
+			  transitionDelay();//from WaspController; introduce a 2 second delay
+			  if(i++ >= 5) break;//don't let this go on forever
+		  }
+		  
+		  populateBioanalyzerJobCompleteList(m);
+		  return "bioanalyzer/bioanalyzerJobCompleteTaskList";
+	  }
+	  private void populateBioanalyzerJobCompleteList(ModelMap m){
+		  List<Job> activeJobList = jobService.getActiveJobs();//running jobs as defined by batch tables
+		  List<Job> bioanalyzerJobsReadyToBeMarkedAsCompleted = new ArrayList<Job>();
+		  for(Job job : activeJobList){
+			  if(bioanalyzerService.isThisJobAwaitingBioanalyzerCompleteTask(job)){
+				  bioanalyzerJobsReadyToBeMarkedAsCompleted.add(job);
+			  }
+		  }
+		  jobService.sortJobsByJobId(bioanalyzerJobsReadyToBeMarkedAsCompleted);
+		  m.addAttribute("bioanalyzerJobsReadyToBeMarkedAsCompleted", bioanalyzerJobsReadyToBeMarkedAsCompleted);
+		 
+		  Map<Job, List<Sample>> jobSubmittedSamplesMap = new HashMap<Job, List<Sample>>();
+		  Map<Job, LinkedHashMap<String,String>> jobExtraJobDetailsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		  Map<Job, LinkedHashMap<String,String>> jobApprovalsMap = new HashMap<Job, LinkedHashMap<String,String>>();
+		  Map<Sample, String> sampleSpeciesMap = new HashMap<Sample, String>();
+		  List<FileHandle> bioanalyzerFileHandleList = new ArrayList<FileHandle>();
+		  for(Job job : bioanalyzerJobsReadyToBeMarkedAsCompleted){
+			jobExtraJobDetailsMap.put(job, jobService.getExtraJobDetails(job));
+			jobApprovalsMap.put(job, jobService.getJobApprovals(job));
+			List<Sample> sampleList = jobService.getSubmittedSamples(job);
+			sampleService.sortSamplesBySampleName(sampleList);
+			jobSubmittedSamplesMap.put(job, sampleList);
+			for(Sample sample : sampleList){
+				sampleSpeciesMap.put(sample, sampleService.getNameOfOrganism(sample));
+			}
+			List<JobFile> jobFileList = job.getJobFile();			
+			for(JobFile jf : jobFileList){
+				FileGroup fileGroup = jf.getFile();
+				if(fileGroup.getFileType()!=null && fileGroup.getFileTypeId().intValue() == pdfFileType.getId().intValue()){
+					if(fileGroup.getSoftwareGeneratedById().intValue()==bioanalyzer.getId().intValue()){
+						bioanalyzerFileHandleList.addAll(fileGroup.getFileHandles());//there is only one file handle for each of these file groups
+					}
+				}
+			}
+		  }
+		  m.addAttribute("jobExtraJobDetailsMap", jobExtraJobDetailsMap);
+		  m.addAttribute("jobApprovalsMap", jobApprovalsMap);
+		  m.addAttribute("jobSubmittedSamplesMap", jobSubmittedSamplesMap);
+		  m.addAttribute("sampleSpeciesMap", sampleSpeciesMap);
+		  m.addAttribute("bioanalyzerFileHandleList", bioanalyzerFileHandleList);
+	  }
 }

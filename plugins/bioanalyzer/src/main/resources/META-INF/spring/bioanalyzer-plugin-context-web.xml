@@ -11,4 +11,10 @@
 	<!-- common definitions -->
 	<import resource="bioanalyzer-plugin-context-common.xml" />
 	
+	<bean class="edu.yu.einstein.wasp.plugin.bioanalyzer.web.taskMapping.BioanalyzerJobCompleteTaskMapping">
+		<constructor-arg name="localizedLabelKey"  value="task.bioanalyzerJobComplete.label" />
+		<constructor-arg name="targetLink" value="/bioanalyzer/task/bioanalyzerJobCompleteList.do" />
+		<constructor-arg name="permission" value="hasRole('su') or hasRole('fm') or hasRole('ft')" />
+	</bean>
+	
 </beans>

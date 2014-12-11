@@ -3,9 +3,8 @@ WASP: Job Submission Completed
 
 <p>This is to inform you that job submission J${job.getJobId()} has been completed. This job was submitted to the Genomics/Epigenomics 
 Shared Facility by ${jobSubmitter.firstName} ${jobSubmitter.lastName}, a member of the lab 
-headed by ${pi.firstName} ${pi.lastName}. To review the submission and to obtain your sequencing 
-files, <a href="${servletUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
-and click on the appropriate job number or click on View Files.</p>
+headed by ${pi.firstName} ${pi.lastName}. To review details of your submission and access any data files, <a href="${servletUrl}/auth/login.do">log into WASP</a>, select Job/My Submitted Jobs from the main menu, 
+and click on the appropriate job number.</p>
 
 <p>Should you have any further questions, please contact us using the information below.</p>
 
@@ -20,13 +19,22 @@ Reference Number: J${job.getJobId()}<br />
 Job Name: ${job.getName()}<br />
 Date Submitted: ${job.getCreated()}<br />
 Submitter: ${jobSubmitter.firstName} ${jobSubmitter.lastName} (email: ${jobSubmitter.getEmail()})<br />
-Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br /><br />
+Principal Investigator: ${pi.firstName} ${pi.lastName} (email: ${pi.getEmail()})<br />
+Grant Details: ${grantDetails}<br /><br />
 
-<b>Workflow &amp; Sequencer</b><br />
+<b>Workflow Details</b><br />
 Workflow: ${job.getWorkflow().getName()}<br />
-Sequencing Machine: ${machine}<br />
-ReadType: ${readType}<br />
-ReadLength: ${readLength} bp<br /><br />
+#set ( $bioanalyzerWorkflowIName = "bioanalyzer" )
+#set ( $thisJobWorkflowIName = $job.getWorkflow().getIName() )
+#if( $bioanalyzerWorkflowIName == $thisJobWorkflowIName )
+  Requested Machine: ${machine}<br />
+  Requested Bioanalyzer Chip: ${bioanalyzerChip}<br /><br />
+#else
+  Requested Sequencing Machine: ${machine}<br />
+  Requested ReadLength: ${readLength} bp<br />
+  Requested ReadType: ${readType}<br />  
+  Requested RunType: ${runType}<br /><br />
+#end
 
 <b>Samples</b><br />
 #foreach(${sample} in ${submittedSampleList}) ## velocityCount is the default name for a foreach counter and it begins at 1

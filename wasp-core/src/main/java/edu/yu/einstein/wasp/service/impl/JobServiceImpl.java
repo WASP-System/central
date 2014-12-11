@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,8 +93,6 @@ import edu.yu.einstein.wasp.integration.messages.tasks.WaspJobTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
-import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
-import edu.yu.einstein.wasp.interfacing.plugin.ResourceConfigurableProperties;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -398,6 +397,16 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	public Job getJobByJobId(Integer jobId){
 		return jobDao.getJobByJobId(jobId.intValue());
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(value="entityManager", propagation=Propagation.REQUIRES_NEW)
+	public Job getJobByJobIdInDiscreteTransaction(Integer jobId){
+		return jobDao.getJobByJobId(jobId.intValue());
+	}
+	
 	 /**
 	   * {@inheritDoc}
 	   */
@@ -898,7 +907,9 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 		  List<JobResourcecategory> jobResourceCategoryList = job.getJobResourcecategory();
 		  String area = null;
 		  for(JobResourcecategory jrc : jobResourceCategoryList){
-			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")){
+			  if(jrc.getResourceCategory().getResourceType().getIName().equals("mps")
+					  ||
+				 jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
 				  extraJobDetailsMap.put("jobdetail_for_import.Machine.label", jrc.getResourceCategory().getName());
 				  area = jrc.getResourceCategory().getIName();
 				  break;
@@ -908,48 +919,26 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 			String strRunType = area+".runType";
 			String strReadType = area+".readType";
 			String strReadLength = area+".readLength";
+			String bioanalyzerChip = area+".chip";
+			String bioanalyzerAssayLibrariesAreFor = area+".assayLibrariesAreFor";
+			
 			if(strRunType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Run_Type.label", jobMeta.getV());
 			}
 			else if(strReadType.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Read_Type.label", jobMeta.getV());
 			}
-			if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+			else if(strReadLength.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
 				extraJobDetailsMap.put("jobdetail_for_import.Read_Length.label", jobMeta.getV());
+			}			
+			else if(bioanalyzerChip.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Bioanalyzer_Chip.label", jobMeta.getV());
+			}			
+			else if(bioanalyzerAssayLibrariesAreFor.toLowerCase().equals(jobMeta.getK().toLowerCase().trim())){
+				extraJobDetailsMap.put("jobdetail_for_import.Bioanalyzer_AssayLibrariesAreFor.label", jobMeta.getV());
 			}
 		  }
-		  /*
-		  try {
-			  String resourceIName = job.getJobResourcecategory().get(0).getResourceCategory().getIName();
-			  logger.debug("Getting configured properties for plugin with iname=" + resourceIName);
-			  ConfigureablePropertyProviding plugin = (ConfigureablePropertyProviding) waspPluginRegistry.getPluginsHandlingArea(resourceIName, ConfigureablePropertyProviding.class).get(0);
-			  ResourceConfigurableProperties rcp = plugin.getConfiguredProperties(job, area, JobMeta.class);
-			  for (String key : rcp.keySet())
-				  extraJobDetailsMap.put(rcp.getI18nMessageKey(key), rcp.get(key).toString());
-		  } catch (Exception e) {
-			  logger.warn("Cannot get resource-configured properties: " + e.getLocalizedMessage());
-			  e.printStackTrace();
-		  }
-		 */
-		  
-		  /* replaced with code below
-		  try{
-			  Float price = new Float(job.getAcctJobquotecurrent().get(0).getAcctQuote().getAmount());
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
-		  }
-		  catch(Exception e){
-			  logger.debug("JobServiceImpl::getExtraJobDetails(): " + e);
-			  extraJobDetailsMap.put("extraJobDetails.quote.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??"); 
-		  }	
-		  */
-		  AcctQuote currentQuote = job.getCurrentQuote();
-		  if(currentQuote == null || currentQuote.getId()==null){
-			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??");
-		  }
-		  else{
-			  Float price = new Float(job.getCurrentQuote().getAmount());
-			  extraJobDetailsMap.put("jobdetail_for_import.Quote_Job_Price.label", Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price));
-		  }
+		 
 		  return extraJobDetailsMap;	  
 	  }
 
@@ -1207,17 +1196,14 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			// jobDraftFile -> jobFile
 			if (jobDraft.getJobDraftFile() != null) {
 				for (JobDraftFile jdf : jobDraft.getJobDraftFile()) {
-					FileGroup group = jdf.getFileGroup();
-	
-					JobFile jobFile = new JobFile();
-					jobFile.setJob(jobDb);
+					FileGroup group = jdf.getFileGroup();				
 					try {
-						jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+						//jobFile.setFileGroup(fileService.promoteJobDraftFileGroupToJob(jobDb, group));
+						fileService.promoteJobDraftFileGroupToJob(jobDb, group);
 					} catch (Exception e) {
 						logger.warn(e.getLocalizedMessage());
 						throw new RuntimeException(e);
-					}
-					jobFileDao.save(jobFile);
+					}					
 				}
 			}	
 			AcctGrant grant = accountsService.getGrantForJobDraft(jobDraft);
@@ -2618,4 +2604,5 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		list.add("Failed");
 		return list;		
 	}
+	
 }

@@ -617,6 +617,10 @@ public class JobController extends WaspController {
 
 		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
 		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
+		
+		//Note 11-26-14: well, actually, taking form jobcell is NOT a good idea, since bioanalyzer samples are not in the jobcell list
+		//11-26-14 So, return to using jobsample and here display ONLY those samples in which sample.getParent is null
+		/* so, as of 11-26-14, no longer used
 		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
 		Map<String, Integer> filter = new HashMap<String, Integer>();
 		filter.put("jobId", job.getJobId());
@@ -630,7 +634,16 @@ public class JobController extends WaspController {
 		List<Sample> samples = new ArrayList<Sample>();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
 		for(Sample sample : samplesAsSet){
 			samples.add(sample);
+		*/
+		List<Sample> samples = job.getSample();//ALL samples (submitted and created by facility)
+		//first remove those samples that have a parent (as they are facility created)
+		Iterator<Sample> iterator = samples.iterator();
+		while (iterator.hasNext()) {
+			if(iterator.next().getParent()!=null){
+				iterator.remove();
+			}
 		}
+		//second, order by sample name for convenience
 		class SampleNameComparator implements Comparator<Sample> {
 		    @Override
 		    public int compare(Sample arg0, Sample arg1) {
@@ -929,6 +942,23 @@ public class JobController extends WaspController {
 			grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
 		}
 	    m.addAttribute("grantDetails", grantDetails);
+	    AcctQuote currentQuote = job.getCurrentQuote();
+	    String currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??";
+	    if(currentQuote != null && currentQuote.getId()!=null){
+		  Float price = new Float(job.getCurrentQuote().getAmount());
+		  currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
+	    }
+	    m.addAttribute("currentQuoteCost", currentQuoteCost);
+	    
+	    //added 12-5-14
+	    Lab lab = job.getLab();
+		String labDepartment = lab.getDepartment().getName();//Genetics, External, Cell Biology (External means not Einstein/Monte, and used for pricing)
+		String pricingSchedule = "Internal";
+		if(labDepartment.equalsIgnoreCase("external")){
+			pricingSchedule = "External";
+		}
+		m.addAttribute("pricingSchedule", pricingSchedule);
+	    
 		return "job/home/basic";
 	}
   
@@ -1288,7 +1318,10 @@ public class JobController extends WaspController {
 		//11-6-14 additionalCostReasonsList to populate dropdown//jobHomeCreateUpdateQuote.DepartmentalCostShare.label
 		List<String> additionalCostReasonsList = new ArrayList<String>();
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonAdaptors.label"));//Adaptors
-		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		//no longer used additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonFragmentAnalysisBioanalyzer.label"));//Fragment Analysis (Bioanalyzer)
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzerHighSensitivity.label"));
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzer7500.label"));
+		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonBioanalyzer1000.label"));
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonMultiplexing.label"));//Multiplexing
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonPrimers.label"));//Primers
 		additionalCostReasonsList.add(messageService.getMessage("jobHomeCreateUpdateQuote.additionalCostReasonQuantificationQubit.label"));//Quantification (Qubit)

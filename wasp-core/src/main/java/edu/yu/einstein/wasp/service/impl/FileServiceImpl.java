@@ -262,6 +262,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		FileHandle file = new FileHandle();
 		file = fileHandleDao.save(file);
 		retGroup.addFileHandle(file);
+		retGroup.setIsActive(1);
 		retGroup = fileGroupDao.save(retGroup);
 
 		if (fileHost == null) {
@@ -955,6 +956,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 	@Override
 	public FileGroup promoteJobDraftFileGroupToJob(Job job, FileGroup filegroup) throws GridUnresolvableHostException, IOException {
+		
 		for (FileHandle fh : filegroup.getFileHandles()) {
 			URI uri = fh.getFileURI();
 			String host = uri.getHost();
@@ -984,16 +986,16 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 
 			fh.setFileURI(newUri);
 			fileHandleDao.save(fh);
-		}
-
+		}		
+		
+		filegroup.setIsActive(1);//should save automatically		
+		
 		JobFile jf = new JobFile();
 		jf.setFileGroup(filegroup);
 		jf.setIsActive(1);
-		jobFileDao.save(jf);
-		
-		job.getJobFile().add(jf);
-		jobDao.save(job);
-		
+		jf.setJob(job);
+		jobFileDao.save(jf);		
+				
 		return fileGroupDao.findById(filegroup.getId());
 	}
 
@@ -1198,12 +1200,13 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 	
 	@Override
 	@Transactional
-	public void uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
+	public FileGroup uploadJobFile(MultipartFile mpFile, Job job, String fileDescription, Random randomNumberGenerator) throws FileUploadException{
 		if (isInDemoMode)
 			throw new FileUploadException("Cannot perform this action in demo mode");
 		try{
 			FileGroup fileGroup = this.uploadFile(mpFile.getOriginalFilename(), mpFile.getInputStream(), job.getId(), fileDescription, randomNumberGenerator, "results.dir", "jobSubmissionUploads");
 			this.linkFileGroupWithJob(fileGroup, job);//this should really be in the job service, not fileservice
+			return this.getFileGroupById(fileGroup.getId());//return clean copy
 		}catch(Exception e){
 			throw new FileUploadException(e.getMessage());
 		} 
@@ -1296,6 +1299,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		FileGroup retGroup = new FileGroup();
 		retGroup.addFileHandle(file);
 		retGroup.setDescription(fileDescription);
+		retGroup.setIsActive(1);
 		retGroup = fileGroupDao.save(retGroup);	
 
 		// TODO: Determine file type and set on the group.
@@ -1329,6 +1333,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		JobFile jobFile = new JobFile();
 		jobFile.setFileGroup(filegroup);
 		jobFile.setJob(job);
+		jobFile.setIsActive(1);
 		return jobFileDao.save(jobFile);
 	}
 
@@ -1831,6 +1836,7 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 			fileGroup = new FileGroup();
 			fileGroup.addFileHandle(file);
 			fileGroup.setDescription(fileDescription);
+			fileGroup.setIsActive(1);
 			fileGroup = fileGroupDao.save(fileGroup);
 			List<FileHandle> fhs = new ArrayList<FileHandle>();
 			fhs.addAll(fileGroup.getFileHandles());

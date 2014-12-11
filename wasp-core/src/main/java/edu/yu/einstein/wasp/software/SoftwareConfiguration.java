@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.yu.einstein.wasp.model.Software;
 
 /**
@@ -12,6 +15,8 @@ import edu.yu.einstein.wasp.model.Software;
  *
  */
 public class SoftwareConfiguration implements Serializable {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SoftwareConfiguration.class);
 
 	private static final long serialVersionUID = -2582562680785424878L;
 
@@ -20,11 +25,13 @@ public class SoftwareConfiguration implements Serializable {
 	private Software software;
 	
 	public SoftwareConfiguration(Software software) {
+		logger.debug("Creating for SoftwareConfiguration for software with iname=" + software.getIName());
 		this.software = software;
 		this.parameterMap = new HashMap<String, String>();
 	}
 	
 	public SoftwareConfiguration(Software software, Map<String, String> parameterMap) {
+		logger.debug("Creating for SoftwareConfiguration for software with iname=" + software.getIName() + " and parameters: " + parameterMap );
 		this.software = software;
 		this.parameterMap = parameterMap;
 	}

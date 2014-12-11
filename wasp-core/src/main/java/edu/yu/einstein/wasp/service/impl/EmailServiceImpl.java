@@ -1,11 +1,9 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.MailPreparationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -41,10 +37,10 @@ import edu.yu.einstein.wasp.dao.RoleDao;
 import edu.yu.einstein.wasp.dao.UserDao;
 import edu.yu.einstein.wasp.dao.UserPendingDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.ConfirmEmailAuth;
 import edu.yu.einstein.wasp.model.Department;
 import edu.yu.einstein.wasp.model.DepartmentUser;
-import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
@@ -55,6 +51,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.UserPending;
 import edu.yu.einstein.wasp.model.UserPendingMeta;
+import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
@@ -86,6 +83,9 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 	@Autowired
 	private VelocityEngine velocityEngine;
 	
+	@Autowired
+	private AccountsService accountsService;
+
 	@Autowired
 	private JobService jobService;
 
@@ -676,6 +676,8 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		String machine = null;
 		String readType = null;
 		String readLength = null;
+		String runType = null;
+		String bioanalyzerChip = null;
 		/*
 		 Do NOT go through using the key for extraJobDetailsMap, as it is the value of things like "jobdetail_for_import.Read_Length.label" which can easily change
 		LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
@@ -697,6 +699,10 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 				  machine = jrc.getResourceCategory().getName();
 				  break;
 			}
+			if(jrc.getResourceCategory().getResourceType().getIName().equals("bioanalyzer")){
+				  machine = jrc.getResourceCategory().getName();
+				  break;
+			}
 		}
 		for(JobMeta jm : job.getJobMeta()){
 			if(jm.getK().toLowerCase().contains("readlength")){
@@ -705,16 +711,26 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 			if(jm.getK().toLowerCase().contains("readtype")){
 				readType = new String(jm.getV());
 			}
-			if(readType!=null && readLength!=null){
-				break;
+			if(jm.getK().toLowerCase().contains("runtype")){
+				runType = new String(jm.getV());
 			}
+			if(jm.getK().toLowerCase().equals("bioanalyzer.chip")){
+				bioanalyzerChip = new String(jm.getV());
+			}
+			////if(readType!=null && readLength!=null){
+			/////	break;
+			////}
 		}
 		if(machine==null){machine = new String("");}
 		if(readType==null){readType = new String("");}
 		if(readLength==null){readLength = new String("");}
+		if(runType==null || runType.isEmpty()){runType = new String("Standard");}
+		if(bioanalyzerChip==null){bioanalyzerChip = new String("");}
 		model.put("machine", machine);
 		model.put("readType", readType);
 		model.put("readLength", readLength);
+		model.put("runType", runType);
+		model.put("bioanalyzerChip", bioanalyzerChip);
 		
 		List<Sample> submittedSampleList = new ArrayList<Sample>();
 		for(Sample s : job.getSample()){
@@ -724,6 +740,18 @@ public class EmailServiceImpl extends WaspServiceImpl implements EmailService{
 		}
 		model.put("submittedSampleList", submittedSampleList);
 
+		//added 12-5-14
+		String grantDetails = "N/A";
+	    AcctGrant grant = accountsService.getGrantForJob(job);
+	    if (grant != null){
+		    grantDetails =  grant.getCode();
+		    if (grant.getName() != null && !grant.getName().isEmpty())
+		    	grantDetails += " (" + grant.getName() + ")";
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		    grantDetails += ", expires " + dateFormat.format(grant.getExpirationdt());
+	    }
+	    model.put("grantDetails", grantDetails);
+	    
 		return model;
 	}
 	

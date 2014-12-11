@@ -16,8 +16,16 @@
 	</definition>
 	
 	<definition name="bioanalyzer/chipChoiceAndInfo" extends="template-base">
-	<put-attribute name="head-js" value="/WEB-INF/jsp/bioanalyzer/chipChoiceAndInfo.js.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/bioanalyzer/chipChoiceAndInfo.js.jsp" />
 		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/chipChoiceAndInfo.jsp" />
+	</definition>
+
+	<definition name="bioanalyzer/fileUploadManager" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/fileUploadManager.jsp" />
+	</definition>
+
+	<definition name="bioanalyzer/bioanalyzerJobCompleteTaskList" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/bioanalyzer/bioanalyzerJobCompleteTaskList.jsp" />
 	</definition>
 	
 </tiles-definitions>
