@@ -2604,5 +2604,4 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		list.add("Failed");
 		return list;		
 	}
-	
 }

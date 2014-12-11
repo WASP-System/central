@@ -547,15 +547,16 @@ public class JobController extends WaspController {
 				AcctQuote currentQuote = job.getCurrentQuote();
 				String quoteAsString;
 				if(currentQuote == null || currentQuote.getId() == null){
-					quoteAsString = "?.??";
+					quoteAsString = "Quote Not Yet Generated";
 				}
 				else{
 					try{
 						  Float price = new Float(currentQuote.getAmount());
-						  quoteAsString = String.format("%.2f", price);
+						  quoteAsString = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
+						  //quoteAsString = String.format("%.2f", price);
 					}
 					catch(Exception e){
-						  quoteAsString = "?.??"; 
+						  quoteAsString = "Problem Getting Quote"; 
 					}					
 				}
 				
@@ -943,7 +944,7 @@ public class JobController extends WaspController {
 		}
 	    m.addAttribute("grantDetails", grantDetails);
 	    AcctQuote currentQuote = job.getCurrentQuote();
-	    String currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??";
+	    String currentQuoteCost = "Quote Not Yet Generated";//Currency.getInstance(Locale.getDefault()).getSymbol()+"?.??";
 	    if(currentQuote != null && currentQuote.getId()!=null){
 		  Float price = new Float(job.getCurrentQuote().getAmount());
 		  currentQuoteCost = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
@@ -982,7 +983,7 @@ public class JobController extends WaspController {
 	private void populateCostPage(Job job, ModelMap m){
 		
 		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
-		if(webAuthenticationService.hasRole("su") || webAuthenticationService.hasRole("ft") || webAuthenticationService.hasRole("da-*")){
+		if(webAuthenticationService.hasRole("su") || webAuthenticationService.hasRole("fm") || webAuthenticationService.hasRole("ft") || webAuthenticationService.hasRole("da-*")){
 			m.addAttribute("viewerIsFacilityStaff", true);
 		}
 		else{
@@ -994,6 +995,7 @@ public class JobController extends WaspController {
 		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
 		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
 			m.addAttribute("mostRecentQuote", mostRecentAcctQuote.getAmount());
+			m.addAttribute("mostRecentQuoteId", mostRecentAcctQuote.getId());
 		}		
  		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
 
@@ -1012,8 +1014,14 @@ public class JobController extends WaspController {
 		List<FileHandle> fileHandlesThatCanBeViewedList = new ArrayList<FileHandle>();
 		Map<AcctQuote, FileGroup> acctQuoteFileGroupMap= new HashMap<AcctQuote, FileGroup>();
 		List<AcctQuote>acctQuotesWithJsonEntry = new ArrayList<AcctQuote>();
+		Map<AcctQuote, String> acctQuoteEmailSentToPIMap= new HashMap<AcctQuote, String>();
 		
 		for(AcctQuote acctQuote : acctQuoteList){//most recent is first, least recent is last
+			if(accountsService.isQuoteEmailedToPI(acctQuote)){
+				acctQuoteEmailSentToPIMap.put(acctQuote, "yes");
+			}else{
+				acctQuoteEmailSentToPIMap.put(acctQuote, "no");
+			}
 			List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
 			for(AcctQuoteMeta acctQuoteMeta : acctQuoteMetaList){
 				if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
@@ -1023,7 +1031,7 @@ public class JobController extends WaspController {
 							acctQuoteFileGroupMap.put(acctQuote, fileGroup);
 							fileGroups.add(fileGroup);
 							List<FileHandle> fileHandles = new ArrayList<FileHandle>();
-							for(FileHandle fh : fileGroup.getFileHandles()){
+							for(FileHandle fh : fileGroup.getFileHandles()){//there is really only one fileHandle for this filegroup
 								fileHandles.add(fh);
 								String mimeType = fileService.getMimeType(fh.getFileName());
 								if(!mimeType.isEmpty()){
@@ -1038,6 +1046,9 @@ public class JobController extends WaspController {
 				if(acctQuoteMeta.getK().toLowerCase().contains("json")){
 					acctQuotesWithJsonEntry.add(acctQuote);
 				}
+				if(acctQuoteMeta.getK().toLowerCase().contains("quoteemailedtopi")){
+					acctQuotesWithJsonEntry.add(acctQuote);
+				}
 			}
 		}		
 		m.addAttribute("fileGroups", fileGroups);
@@ -1045,9 +1056,120 @@ public class JobController extends WaspController {
 		m.addAttribute("fileHandlesThatCanBeViewedList", fileHandlesThatCanBeViewedList);
 		m.addAttribute("acctQuoteList", acctQuoteList);
 		m.addAttribute("acctQuoteFileGroupMap", acctQuoteFileGroupMap);
-		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);			
+		m.addAttribute("acctQuotesWithJsonEntry", acctQuotesWithJsonEntry);	
+		m.addAttribute("acctQuoteEmailSentToPIMap", acctQuoteEmailSentToPIMap);
+		
+		int numberOfAcctQuotesWithEmailSentAtEndOfPopulateMethod = 0;
+		for(AcctQuote aQQQQ : jobService.getJobByJobId(job.getId()).getAcctQuote()){
+			if(accountsService.isQuoteEmailedToPI(aQQQQ)){
+				numberOfAcctQuotesWithEmailSentAtEndOfPopulateMethod++;
+			}
+		}
+		logger.debug("numberOfAcctQuotesWithEmailSentAtEndOfPopulateMethod = " + numberOfAcctQuotesWithEmailSentAtEndOfPopulateMethod);
+		
 	}
 	
+    @Transactional
+	@RequestMapping(value="/{jobId}/acctQuote/{quoteId}/emailQuoteToPI", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('fm') or hasRole('da-*')")
+	  public String emailQuoteToPI(@PathVariable("jobId") Integer jobId,@PathVariable("quoteId") Integer quoteId,
+			  ModelMap m) throws SampleTypeException {	
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		Set<AcctQuote> acctQuoteSet = job.getAcctQuote();
+		int numberOfAcctQuotesWithEmailSentAtBeginningOfPost = 0;
+		for(AcctQuote aQQ : acctQuoteSet){
+			if(accountsService.isQuoteEmailedToPI(aQQ)){
+				numberOfAcctQuotesWithEmailSentAtBeginningOfPost++;
+			}
+		}
+		logger.debug("numberOfAcctQuotesWithEmailSentAtBeginningOfPost = " + numberOfAcctQuotesWithEmailSentAtBeginningOfPost);
+		
+		
+		AcctQuote acctQuote = null;		
+		for(AcctQuote aQ : acctQuoteSet){
+			if(aQ.getId().intValue()==quoteId.intValue()){
+				acctQuote = aQ;
+				break;
+			}
+		}
+		if(acctQuote==null){
+			//error message
+			m.addAttribute("errorMessage", messageService.getMessage("jobHomeCostManager.emailNotSent.label")); 
+			logger.debug("acctQuote==null");
+			populateCostPage(job, m);		
+			return "job/home/costManager";
+		}
+		FileGroup fileGroup = null;
+		FileHandle fileHandle = null;
+		List<AcctQuoteMeta> acctQuoteMetaList = acctQuote.getAcctQuoteMeta();
+		for(AcctQuoteMeta acctQuoteMeta : acctQuoteMetaList){
+			if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
+				try{
+					fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
+					if(fileGroup != null){
+						List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+						if(!fileHandleList.isEmpty()){
+							fileHandle = fileHandleList.get(0);
+						}
+						break;
+					}					
+				}
+				catch(Exception e){}
+			}
+		}
+		if(fileGroup==null || fileHandle==null){
+			//error message
+			m.addAttribute("errorMessage", messageService.getMessage("jobHomeCostManager.emailNotSent.label")); 
+			logger.debug("fileGroup==null || fileHandle==null");
+			populateCostPage(job, m);		
+			return "job/home/costManager";
+		}
+		File localFile = null;
+		try{
+			localFile = fileService.copyFileHandleToLocalTempFile(fileHandle);
+			//cc email to facility manager and me
+			Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+			User me = webAuthenticationService.getAuthenticatedUser();
+			ccEmailRecipients.add(me);							
+			emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileHandle.getFileName());
+			accountsService.recordQuoteEmailedToPI(acctQuote);			
+		}catch(Exception e){
+			m.addAttribute("errorMessage", messageService.getMessage("jobHomeCostManager.emailNotSent.label")); 
+			logger.debug("localFile==null or email failed");
+			populateCostPage(job, m);		
+			return "job/home/costManager";
+		}
+		finally{
+			if(localFile!=null){
+				localFile.delete();
+			}
+		}
+		//success
+		m.addAttribute("successMessage", messageService.getMessage("jobHomeCostManager.emailSuccessfullySent.label")); 
+		logger.debug("email successfully sent");
+		//need to refresh job from database in order to obtain fact that quote was emailed was just set
+		Job job2 = jobService.getJobByJobId(jobId);
+		//while(accountsService.isQuoteEmailedToPI(acctQuote)==false){
+		//	logger.debug("oddly, still seeing that no email was sent"); 
+		//}
+		int numberOfAcctQuotesWithEmailSentAtEndOfPost = 0;
+		for(AcctQuote aQQQ : job2.getAcctQuote()){
+			if(accountsService.isQuoteEmailedToPI(aQQQ)){
+				numberOfAcctQuotesWithEmailSentAtEndOfPost++;
+			}
+		}
+		logger.debug("numberOfAcctQuotesWithEmailSentAtEndOfPost = " + numberOfAcctQuotesWithEmailSentAtEndOfPost);
+		
+		populateCostPage(job2, m);	 	
+		return "job/home/costManager";
+	}
+    
     @Transactional
 	@RequestMapping(value="/{jobId}/uploadQuoteOrInvoice", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*')")
@@ -1194,7 +1316,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		
+ 	   			
 		//list to populate dropdown
  		ResourceType resourceType = resourceService.getResourceTypeDao().getResourceTypeByIName("mps");
  		List<ResourceCategory>  sequencingMachines = new ArrayList<ResourceCategory>();
@@ -1435,19 +1557,33 @@ public class JobController extends WaspController {
 			pdfService.buildQuoteAsPDF(mpsQuote, job, outputStream);
 			
 			outputStream.close();//file has been save to local location
-			 
+logger.debug("at 1 currentquoteid = " + job.getCurrentQuote().getId().intValue());			 
 			//save the newly created local (pdf-quote) file to the remote location and create new acctQuote record (true instructs to save mpsQuote as json)
 			//as of 10-21-14, createNewQuoteAndSaveQuoteFile() will not delete the local file; it is done here, in finally clause. 
 			FileGroup fileGroup = jobService.createNewQuoteAndSaveQuoteFile(mpsQuote, localFile, new Float(mpsQuote.getTotalFinalCost()), true);
+logger.debug("at 2 currentquoteid = " + job.getCurrentQuote().getId().intValue());			 
+
 			String fileName = new ArrayList<FileHandle>(fileGroup.getFileHandles()).get(0).getFileName();
-			//cc email to facility manager and me
-			Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
-			User me = webAuthenticationService.getAuthenticatedUser();
-			ccEmailRecipients.add(me);			
-			emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileName);			
+			
+			String sendEmail = request.getParameter("sendEmail");//determined whether or not to email quote to PI 
+			String successMessage = messageService.getMessage("jobSaveQuote.quoteSaved.label");//says: Quote Saved
+			if(sendEmail!=null && !sendEmail.isEmpty() && sendEmail.equalsIgnoreCase("yes")){
+				//cc email to facility manager and me
+				Set<User> ccEmailRecipients = new HashSet<User>(userService.getFacilityManagers());
+				User me = webAuthenticationService.getAuthenticatedUser();
+				ccEmailRecipients.add(me);			
+				emailService.sendQuoteAsAttachmentToPI(job, ccEmailRecipients, localFile, fileName);				
+				//the new acctQuote just created 11 lines up (which was just saved) is now the MOST CURRENT Acct quote
+				//record the fact that an email was sent out to job's PI containing an attached copy of this newly saved quote (which is associated with the MOST CURRENT AcctQuote).
+				//since job record is now altered, refresh job to get currentQuote.
+	logger.debug("at 3 currentquoteid = " + job.getCurrentQuote().getId().intValue());
+				job = jobService.getJobByJobId(jobId);
+	logger.debug("at 4 currentquoteid = " + job.getCurrentQuote().getId().intValue());
+				accountsService.recordQuoteEmailedToPI(job.getCurrentQuote());	
+		 	   	successMessage = messageService.getMessage("jobSaveQuote.quoteSavedAndEmailSentToPI.label");//says: Quote Saved And A Copy Emailed To Lab PI
+			}			
 	 	   	response.setContentType("text/html"); 
 	 	    response.setStatus(HttpServletResponse.SC_OK);//200
-	 	   	String successMessage = messageService.getMessage("jobSaveQuote.quoteSavedAndEmailSentToPI.label");
 	 	   	logger.debug("successMessage = " + successMessage);
 	 	    response.getWriter().write(successMessage);
 	 	   	return;

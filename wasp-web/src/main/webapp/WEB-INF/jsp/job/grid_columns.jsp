@@ -12,7 +12,7 @@
 
 <wasp:field name="createts"  type="text" sortable="true" searchable="true"/>
 
-<wasp:field name="amount"  type="currency" sortable="false" searchable="false" />
+<wasp:field name="amount"  type="text" sortable="false" searchable="false" /> <!-- changed from type="currency" 12-9-14 -->
 
 <wasp:field name="currentStatus"  type="text"  sortable="false" searchable="true" />
   

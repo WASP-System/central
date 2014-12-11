@@ -38,6 +38,8 @@
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.jobQuotesInvoices.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.dateCreated.label" /></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.mostRecent.label"/></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.quoteEmailedToPI.label"/></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 					</tr>
 					<c:set value="${false}" var="headingNeedsDisplay"/>		
@@ -49,7 +51,9 @@
 			 		  		<tr>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
-			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  			
+			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  
+			 		  			<td class="DataTD value-centered"><c:if test="${mostRecentQuoteId==acctQuote.getId() }">&#10004;</c:if></td>			
+			 		  			<td class="DataTD value-centered"><c:if test='${acctQuoteEmailSentToPIMap.get(acctQuote)=="yes" }'>&#10004;</c:if></td>			 		  			
 			 		  			<td class="DataTD value-centered">
 			 		  				<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
@@ -57,6 +61,9 @@
 		 		  					</c:if>
 		 		  					<c:if test="${viewerIsFacilityStaff==true && acctQuotesWithJsonEntry.contains(acctQuote)}">
 		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.updateWithCare.label" /></a> 
+		 		  					</c:if>
+		 		  					<c:if test="${viewerIsFacilityStaff==true}">
+		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/emailQuoteToPI.do" />");' ><fmt:message key="jobHomeCostManager.emailQuoteToPI.label" /></a> 
 		 		  					</c:if>
 			 		  			</td>
 			 		  		</tr>

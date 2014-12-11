@@ -11,9 +11,11 @@
 package edu.yu.einstein.wasp.service;
 
 import java.util.List;
+
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctGrantjob;
 import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
+import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
@@ -45,4 +47,6 @@ public interface AccountsService extends WaspService{
 	 */
 	public List<AcctGrant> getNonExpiredGrantsForLab(Lab lab);
 
+	public void recordQuoteEmailedToPI(AcctQuote acctQuote);
+	public boolean isQuoteEmailedToPI(AcctQuote acctQuote);
 }

@@ -346,10 +346,10 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//macs2 will generate peaks.narrowPeak and summits.bed for punctate peaks (so we will NOT invoke --broad in the macs2 command)
 		if(this.peakType.equalsIgnoreCase("punctate")){
 			
-			FileHandle narrowPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.narrowPeak", bedFileType);
-			listOfFileHandleNames.add(narrowPeaksBedFileHandle.getFileName());
+			FileHandle narrowPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.narrowPeak.bed", bedFileType);
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.narrowPeak");//name that macstwo will generate (in database, and therefore in results directory it's _peaks.narrowPeak.bed)
 			files.add(narrowPeaksBedFileHandle);
-			FileGroup narrowPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(narrowPeaksBedFileHandle, macs2, "xxx_peaks.narrowPeak is a Macs2-generated BED6+4 format file which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
+			FileGroup narrowPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(narrowPeaksBedFileHandle, macs2, "xxx_peaks.narrowPeak.bed is a Macs2-generated BED6+4 format file which contains peak locations together with peak summit, pvalue and qvalue that can be load into UCSC genome browser");
 			macstwoEnclosedFileGroups.add(narrowPeaksBedFileGroup);
 						
 			FileHandle summitsBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_summits.bed", bedFileType);
@@ -362,16 +362,16 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
 		else{ //peakType.equals broad OR mixed
 			
-			FileHandle broadPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.broadPeak", bedFileType);
-			listOfFileHandleNames.add(broadPeaksBedFileHandle.getFileName());
+			FileHandle broadPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.broadPeak.bed", bedFileType);
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.broadPeak");//name that macstwo will generate
 			files.add(broadPeaksBedFileHandle);
-			FileGroup broadPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(broadPeaksBedFileHandle, macs2, "xxx_peaks.broadPeak is a Macs2-generated BED6+3 format file which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
+			FileGroup broadPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(broadPeaksBedFileHandle, macs2, "xxx_peaks.broadPeak.bed is a Macs2-generated BED6+3 format file which is similar to peaks.narrowPeak file, except for missing the 10th column for annotating peak summits");
 			macstwoEnclosedFileGroups.add(broadPeaksBedFileGroup);
 			
-			FileHandle gappedPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.gappedPeak", bedFileType);
-			listOfFileHandleNames.add(gappedPeaksBedFileHandle.getFileName());
+			FileHandle gappedPeaksBedFileHandle = macstwoService.createAndSaveInnerFileHandle(prefixForFileName + "_peaks.gappedPeak.bed", bedFileType);
+			listOfFileHandleNames.add(prefixForFileName + "_peaks.gappedPeak");//name that macstwo will generate
 			files.add(gappedPeaksBedFileHandle);
-			FileGroup gappedPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(gappedPeaksBedFileHandle, macs2, "xxx_peaks.gappedPeak is a Macs2-generated BED12+3 file which contains both the broad region and narrow peaks and can be loaded into the genome browser");
+			FileGroup gappedPeaksBedFileGroup = macstwoService.createAndSaveInnerFileGroup(gappedPeaksBedFileHandle, macs2, "xxx_peaks.gappedPeak.bed is a Macs2-generated BED12+3 file which contains both the broad region and narrow peaks and can be loaded into the genome browser");
 			macstwoEnclosedFileGroups.add(gappedPeaksBedFileGroup);
 		}
 				

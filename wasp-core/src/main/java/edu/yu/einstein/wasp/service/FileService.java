@@ -438,5 +438,12 @@ public interface FileService extends WaspService {
 	 * @return parentalFileGroup (entity-managed)
 	 */
 	public FileGroup addToFileGroupCollection(FileGroup parentFileGroup, Set<FileGroup> childFileGroupSet);
+	
+	/**
+	 * @throws FileUploadException 
+	 * 
+	 */
+	public File copyFileHandleToLocalTempFile(FileHandle fileHandle) throws FileUploadException, FileDownloadException, FileNotFoundException, GridException;
+		
 }
 
