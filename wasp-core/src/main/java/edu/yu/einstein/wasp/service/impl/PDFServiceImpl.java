@@ -142,9 +142,10 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
  	    //costReasonList.add("Total Library Construction & Analysis Costs");
  	    //costReasonPriceMap.put("Total Library Construction & Analysis Costs",libraryConstructionAndAnalysisTotalCost);
  	    costReasonListExcludingAnalysis.add("Library Construction");
- 	   	costReasonPriceMapExcludingAnalysis.put("Library Construction", libraryConstructionTotalCost);
-	    costReasonListExcludingAnalysis.add("Sequencing");
-	    costReasonPriceMapExcludingAnalysis.put("Sequencing",sequenceRunsTotalCost);
+ 	    costReasonPriceMapExcludingAnalysis.put("Library Construction", libraryConstructionTotalCost);
+ 	    costReasonListExcludingAnalysis.add("Sequencing");
+ 		costReasonPriceMapExcludingAnalysis.put("Sequencing",sequenceRunsTotalCost);
+ 	    
  	    if(additionalTotalCost>0){
  	    	costReasonListExcludingAnalysis.add("Additional Costs");
  	    	costReasonPriceMapExcludingAnalysis.put("Additional Costs",additionalTotalCost);
@@ -387,7 +388,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	 	Paragraph sampleLibraryTitle = new Paragraph();
 	 	sampleLibraryTitle.setSpacingBefore(5);
 	 	sampleLibraryTitle.setSpacingAfter(5);
-	 	sampleLibraryTitle.add(new Chunk("Submitted Samples, Lane/Multiplex Request & Library Construction Costs:", NORMAL_BOLD));
+	 	sampleLibraryTitle.add(new Chunk("Submitted Samples, Lane/Multiplex Request, Library Construction and Computation Costs:", NORMAL_BOLD));
 	 	document.add(sampleLibraryTitle);
 	 	
 	 	PdfPTable sampleLibraryTable = new PdfPTable(6);
@@ -723,7 +724,8 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	    costTable.getDefaultCell().setBorder(0);
 	    costTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 	    costTable.setWidthPercentage(60);
-	   
+	    
+	    int numberOfESFCosts = 0;
 	    for(String costReason : costReasonListExcludingAnalysis){
 	    	
 	    	costTable.addCell(new Phrase(costReason, NORMAL_BOLD));
@@ -733,23 +735,30 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 		    PdfPCell secondCell = new PdfPCell(new Phrase(currencyIcon + " " + thisCost, NORMAL_BOLD));
 		    secondCell.setBorder(0);
 		    secondCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(secondCell); 	 
+	 	    costTable.addCell(secondCell); 
+	 	    
+	 	    numberOfESFCosts++;
 	    }
 
 	    if(discounts.size()>0){//APPLY ANY DISCOUNT TO SUBTOTAL OF ESF subtotal (whcih excludes analysis cost)
-	 	    //blank line
-	 	    costTable.addCell(new Phrase(" ", NORMAL_BOLD));	 	   
-	 	    PdfPCell firstBlankCell = new PdfPCell(new Phrase(" ", NORMAL_BOLD));
-	 	    firstBlankCell.setBorder(0);
-	 	   	firstBlankCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(firstBlankCell);
-
-		    costTable.addCell(new Phrase("Sequencing Facility Subtotal", NORMAL_BOLD));//need subtotal only if there is/are discount(s)	 	   
-	 	    PdfPCell subtotalCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCosts, NORMAL_BOLD));
-	 	    subtotalCell.setBorder(0);
-	 	    subtotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
-	 	    costTable.addCell(subtotalCell);
-	 	  
+	 	    
+	 	    //need subtotal only if there is/are discount(s) AND if numberOfESFCosts > 1
+		    //////////costTable.addCell(new Phrase("Sequencing Facility Subtotal", NORMAL_BOLD));
+	    	if(numberOfESFCosts>1){
+			    PdfPCell leftHalfSubtotalCell = new PdfPCell(new Phrase("Sequencing Facility Subtotal", NORMAL_BOLD));
+			    leftHalfSubtotalCell.setBorder(Rectangle.TOP);
+			    leftHalfSubtotalCell.setBorderWidthTop(2f);
+			    leftHalfSubtotalCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+			    leftHalfSubtotalCell.setBorderColorTop(BaseColor.BLACK);
+		 	    costTable.addCell(leftHalfSubtotalCell);
+		 	    PdfPCell subtotalCell = new PdfPCell(new Phrase(currencyIcon + " " + totalCosts, NORMAL_BOLD));
+		 	    subtotalCell.setBorder(Rectangle.TOP);
+		 	    subtotalCell.setBorderWidthTop(2f);
+		 	    subtotalCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		 	    subtotalCell.setBorderColorTop(BaseColor.BLACK);
+		 	    costTable.addCell(subtotalCell);
+	    	}
+	    	
 	 	    //blank line
 	 	    costTable.addCell(new Phrase(" ", NORMAL_BOLD));	 	   
 	 	    PdfPCell secondBlankCell = new PdfPCell(new Phrase(" ", NORMAL_BOLD));
@@ -791,13 +800,14 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	    }
 	    
 	    //sequence analysis cost (which is the computational cost)
+	    int computationalCost = sequenceAnalysisTotalCost.intValue();
+	    
 	    if(discounts.size()>0){
-	    	costTable.addCell(new Phrase("Computational Analysis (discount not applicable)", NORMAL_BOLD)); 
+	    	costTable.addCell(new Phrase("Computational Analysis\n(discount not applicable)", NORMAL_BOLD)); 
 	    }
 	    else{
 	    	costTable.addCell(new Phrase("Computational Analysis", NORMAL_BOLD));
-	    }
-    	int computationalCost = sequenceAnalysisTotalCost.intValue();
+	    }    	
     	totalCosts += computationalCost;
 	    PdfPCell secondCellForComputationalCost = new PdfPCell(new Phrase(currencyIcon + " " + computationalCost, NORMAL_BOLD));
 	    secondCellForComputationalCost.setBorder(0);
@@ -810,6 +820,7 @@ public class PDFServiceImpl extends WaspServiceImpl implements PDFService{
 	    thirdBlankCell.setBorder(0);
 	    thirdBlankCell.setHorizontalAlignment(Element.ALIGN_RIGHT);	 		
 	    costTable.addCell(thirdBlankCell); 
+	    
 	    
 	   	totalFinalCost = totalCosts - totalDiscounts;
 	   	if(totalFinalCost < 0){
