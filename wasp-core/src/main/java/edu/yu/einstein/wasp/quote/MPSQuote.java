@@ -27,6 +27,12 @@ public class MPSQuote {
 	private List<Comment> comments;
 	private List<String> errors;
 	private Integer totalFinalCost;
+	//12/16/14
+	private Integer totalLibraryConstructionCost;
+	private Integer totalSequenceRunCost;
+	private Integer totalAdditionalCost;
+	private Integer totalComputationalCost;
+	private Integer totalDiscountCost;
 	
 	public MPSQuote(){
 		this.jobId = new Integer(0);
@@ -40,6 +46,12 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 		this.errors = new ArrayList<String>();
 		this.totalFinalCost = new Integer(0);
+		//12/16/14
+		this.totalLibraryConstructionCost = new Integer(-1);
+		this.totalSequenceRunCost = new Integer(-1);
+		this.totalAdditionalCost = new Integer(-1);
+		this.totalComputationalCost = new Integer(-1);
+		this.totalDiscountCost = new Integer(-1);
 	}
 
 	public MPSQuote(Integer jobId){
@@ -54,6 +66,12 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 		this.errors = new ArrayList<String>();
 		this.totalFinalCost = new Integer(0);
+		//12/16/14
+		this.totalLibraryConstructionCost = new Integer(-1);
+		this.totalSequenceRunCost = new Integer(-1);
+		this.totalAdditionalCost = new Integer(-1);
+		this.totalComputationalCost = new Integer(-1);
+		this.totalDiscountCost = new Integer(-1);
 	}
 	
 	public void setJobId(Integer jobId){this.jobId = jobId;}
@@ -87,6 +105,22 @@ public class MPSQuote {
 	public void setTotalFinalCost(Integer totalFinalCost){
 		this.totalFinalCost = totalFinalCost;
 	}
+	//12-16-14
+	public void setTotalLibraryConstructionCost(Integer totalLibraryConstructionCost){
+		this.totalLibraryConstructionCost = totalLibraryConstructionCost;
+	}
+	public void setTotalSequenceRunCost(Integer totalSequenceRunCost){
+		this.totalSequenceRunCost = totalSequenceRunCost;
+	}
+	public void setTotalAdditionalCost(Integer totalAdditionalCost){
+		this.totalAdditionalCost = totalAdditionalCost;
+	}
+	public void setTotalComputationalCost(Integer totalComputationalCost){
+		this.totalComputationalCost = totalComputationalCost;
+	}
+	public void setTotalDiscountCost(Integer totalDiscountCost){
+		this.totalDiscountCost = totalDiscountCost;
+	}
 	
 	public Integer getJobId(){return this.jobId;}
 	public Integer getNumberOfLibrariesExpectedToBeConstructed(){return this.numberOfLibrariesExpectedToBeConstructed;}
@@ -99,7 +133,25 @@ public class MPSQuote {
 	public List<Comment> getComments(){return this.comments;}
 	public List<String> getErrors(){return this.errors;}
 	public Integer getTotalFinalCost(){return this.totalFinalCost;}
-	
+
+	//12-16-14
+	public Integer getTotalLibraryConstructionCost(){
+		
+		if(this.totalLibraryConstructionCost.intValue() == -1){			
+			int totalLibConstructCost = 0;			
+			setTotalLibraryConstructionCost(Integer.valueOf(totalLibConstructCost));
+		}
+		return this.totalLibraryConstructionCost;
+	}
+
+	public Integer getTotalSequenceRunCost(){return this.totalSequenceRunCost;}
+
+	public Integer getTotalAdditionalCost(){return this.totalAdditionalCost;}
+
+	public Integer getTotalComputationalCost(){return this.totalComputationalCost;}
+
+	public Integer getTotalDiscountCost(){return this.totalDiscountCost;}
+
 	/**
 	* sets parameters based on JSON input
 	* @param <T>
