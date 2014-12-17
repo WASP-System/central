@@ -189,9 +189,9 @@ Ext.define('Wasp.GridPortlet', {
 			if (action.callbackFunctionType === 'DOWNLOAD') {
 				strcbfunc = '{"'
 						+ action.iconClassName
-						+ '": "function(grid, record, action, row, col){window.location = record.get(\'cb'
+						+ '": "function(grid, record, action, row, col){linktext = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
-						+ '\');}"}';
+						+ '\');window.location=linktext;window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext);}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
@@ -248,7 +248,9 @@ Ext.define('Wasp.GridPortlet', {
 					align : action.groupAlign.toLowerCase(),
 					callback : function(grid, records, groupAction, groupValue) {
 						if (records.length > 0 && groupAction in grid.groupactiondatamap)
-							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+							linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+							window.location = linktext;
+							window.prompt('Copy download link to clipboard: Ctrl+C, Enter', linktext);
 					}
 				}];
 				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
