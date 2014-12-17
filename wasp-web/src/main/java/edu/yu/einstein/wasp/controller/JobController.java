@@ -996,8 +996,23 @@ public class JobController extends WaspController {
 		
 		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
 		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
-			m.addAttribute("mostRecentQuote", mostRecentAcctQuote.getAmount());
+			m.addAttribute("mostRecentQuotedAmount", mostRecentAcctQuote.getAmount());
 			m.addAttribute("mostRecentQuoteId", mostRecentAcctQuote.getId());
+			
+			for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){
+				if(acm.getK().toLowerCase().contains("json")){
+					try{							
+						JSONObject jsonObject = new JSONObject(acm.getV());	
+						MPSQuote mostRecentMpsQuote =  MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);
+						m.addAttribute("mostRecentMpsQuote", mostRecentMpsQuote);
+					}catch(Exception e){
+						logger.debug("unable to access mspQuote via stored json; could be an uploaded file");
+						//some acctQuotes uploaded a file, so they will not have any json string in the meta!
+						//so just catch the exception and move on.
+					}
+				}
+			}
+			
 		}		
  		m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 		
 
@@ -1334,7 +1349,7 @@ public class JobController extends WaspController {
 					if(acm.getK().toLowerCase().contains("json")){
 						try{							
 								JSONObject jsonObject = new JSONObject(acm.getV());								
-								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);								
+								mpsQuote = MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);									
 						}catch(Exception e){
 							//some acctQuotes uploaded a file, so they will not have any json string in the meta!
 							//so just catch the exception and move on.

@@ -8,12 +8,20 @@
 	<br />
 	<span style="padding:3px; border: 1px solid black;">
 		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.createQuote.label" /></a>
-		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' ><fmt:message key="jobHomeCostManager.uploadQuote.label" /></a>
+		<%-- | <a  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' ><fmt:message key="jobHomeCostManager.uploadQuote.label" /></a>--%>
 	</span>
 	<br />
 </c:if>
-<c:if test="${not empty mostRecentQuote }">
-	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
+<c:if test="${not empty mostRecentQuotedAmount && not empty mostRecentMpsQuote }">
+	<!--  <br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuotedAmount}" /></h2>-->
+	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalFinalCost()}" /></h2>
+	<c:if test="${viewerIsFacilityStaff==true && not empty mostRecentMpsQuote}">
+		<h3>Initial Sequence Facility Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() }" /></h3>
+		<h3>Discount(s) On Sequence Facility Cost:  (<c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalDiscountCost()}" />)</h3>
+		<h3>Discounted Sequence Facility Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost()}" /></h3>
+		<h3>Computational Analysis Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalComputationalCost() }" /></h3>
+
+	</c:if>
 </c:if>
 <br />
 <table class="data" style="margin: 0px 0px">
