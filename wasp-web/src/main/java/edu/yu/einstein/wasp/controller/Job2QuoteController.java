@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -307,13 +309,14 @@ public class Job2QuoteController extends WaspController {
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
 			String quoteId = null;
 			if(currentQuote == null || currentQuote.getId() == null){
-				quoteAsString = "?.??";
+				quoteAsString = "Quote Not Yet Generated";
 			}
 			else{
 				quoteId = currentQuote.getId().toString();
 				try{
 					  Float price = new Float(currentQuote.getAmount());
-					  quoteAsString = String.format("%.2f", price);
+					  ////////quoteAsString = String.format("%.2f", price);
+					  quoteAsString = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
 				}
 				catch(Exception e){
 					  logger.warn("JobController: jobList : " + e);

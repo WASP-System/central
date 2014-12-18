@@ -5,7 +5,7 @@
 
 <wasp:field name="name" type="text" sortable="true" searchable="false"/>
 
-<wasp:field name="amount" type="currency" sortable="true" searchable="false"/>
+<wasp:field name="amount" type="text" sortable="true" searchable="false"/><!-- changed from type="currency" 12-18-14 -->
 
 <wasp:field name="grant_code" type="text" sortable="true" searchable="false"/>
 

@@ -12,16 +12,12 @@
 	</span>
 	<br />
 </c:if>
-<c:if test="${not empty mostRecentQuotedAmount && not empty mostRecentMpsQuote }">
-	<!--  <br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuotedAmount}" /></h2>-->
+<c:if test="${not empty mostRecentMpsQuote }">
 	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalFinalCost()}" /></h2>
-	<c:if test="${viewerIsFacilityStaff==true && not empty mostRecentMpsQuote}">
-		<h3>Initial Sequence Facility Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() }" /></h3>
-		<h3>Discount(s) On Sequence Facility Cost:  (<c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalDiscountCost()}" />)</h3>
-		<h3>Discounted Sequence Facility Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost()}" /></h3>
-		<h3>Computational Analysis Cost:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalComputationalCost() }" /></h3>
-
-	</c:if>
+	<h3><fmt:message key="jobHomeCostManager.initialSequenceFacilityCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() }" /></h3>
+	<h3><fmt:message key="jobHomeCostManager.discountOnSequenceFacilityCost.label" />:  (<c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalDiscountCost()}" />)</h3>
+	<h3><fmt:message key="jobHomeCostManager.discountedSequenceFacilityCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost()}" /></h3>
+	<h3><fmt:message key="jobHomeCostManager.computationalAnalysisCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalComputationalCost() }" /></h3>
 </c:if>
 <br />
 <table class="data" style="margin: 0px 0px">
