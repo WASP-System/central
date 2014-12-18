@@ -18,7 +18,7 @@
 <wasp:field name="quoteId" type="hidden" />
 
   
-_navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,beforeRefresh: 
+_navAttr={edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 
 		function () { 
 			<%--http://stackoverflow.com/questions/7089643/programmatically-sorting-the-jqgrid 
 			with next line, sortname is set to "" and with that sidx is also set to "" 
