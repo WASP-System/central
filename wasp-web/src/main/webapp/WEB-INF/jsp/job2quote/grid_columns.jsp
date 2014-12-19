@@ -31,7 +31,7 @@ _navAttr={edit:false,view:false,add:false,del:false,search:false,refresh:true,be
 _editAttr['beforeShowForm'] = function(formId) {
 	$('input[type="text"][name$="cost"]').val('0');
 };
---%>
+
 
 function isNonNegNumber(str) {
 	isPrice = /^\d+(\.\d{0,2})?$/;
@@ -66,3 +66,4 @@ _editAttr['afterShowForm'] = function(formId) {
 	} );
 };
 
+--%>

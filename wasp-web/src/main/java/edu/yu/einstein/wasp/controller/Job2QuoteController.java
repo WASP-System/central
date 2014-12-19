@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -36,7 +38,9 @@ import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -404,6 +408,154 @@ public class Job2QuoteController extends WaspController {
 		}	
 	}
 
+	@Transactional
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') ")
+	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {//added 12-18-14; dubin
+				
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		Job job = jobService.getJobByJobId(jobId);
+		
+		//List<JobSample> jobSampleList = job.getJobSample();//don't do it this way; dubin 2-23-12		
+	 	//ObjectMapper mapper = new ObjectMapper();//doesn't appear to be used
+
+		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
+		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
+		
+		//Note 11-26-14: well, actually, taking form jobcell is NOT a good idea, since bioanalyzer samples are not in the jobcell list
+		//11-26-14 So, return to using jobsample and here display ONLY those samples in which sample.getParent is null
+		/* so, as of 11-26-14, no longer used
+		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
+		Map<String, Integer> filter = new HashMap<String, Integer>();
+		filter.put("jobId", job.getJobId());
+		List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filter);
+		for(JobCellSelection jobCellSelection : jobCellSelections){
+			List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
+			for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelections){
+				samplesAsSet.add(sampleJobCellSelection.getSample());
+			}
+		}
+		List<Sample> samples = new ArrayList<Sample>();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
+		for(Sample sample : samplesAsSet){
+			samples.add(sample);
+		*/
+		List<Sample> samples = job.getSample();//ALL samples (submitted and created by facility)
+		//first remove those samples that have a parent (as they are facility created)
+		Iterator<Sample> iterator = samples.iterator();
+		while (iterator.hasNext()) {
+			if(iterator.next().getParent()!=null){
+				iterator.remove();
+			}
+		}
+		//second, order by sample name for convenience
+		class SampleNameComparator implements Comparator<Sample> {
+		    @Override
+		    public int compare(Sample arg0, Sample arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(samples, new SampleNameComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
+
+		MPSQuote mostRecentMpsQuote = new MPSQuote();
+		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
+		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
+			for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){
+				if(acm.getK().toLowerCase().contains("json")){
+					try{							
+						JSONObject jsonObject = new JSONObject(acm.getV());	
+						mostRecentMpsQuote =  MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);						
+					}catch(Exception e){
+						logger.debug("unable to access mspQuote via stored json; in quote subgrid");
+					}
+				}
+			}			
+		}
+		try {
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+			////for (Sample sample:samples) {
+				Map<String, Object> cell = new HashMap<String, Object>();
+				cell.put("id", job.getId());
+					 					
+				List<String> cellList = new ArrayList<String>(
+						Arrays.asList(
+								new String[] {
+										mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
+										mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
+										mostRecentMpsQuote.getTotalAdditionalCost().toString(), 
+										"dubin fake"
+								}
+						)
+				);
+					 
+				cell.put("cell", cellList);
+				rows.add(cell);
+			////}
+			 
+			jqgrid.put("rows",rows);
+			 
+			return outputJSON(jqgrid, response); 	
+			
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON " + samples, e);
+		 }
+		
+		/*
+		try {
+			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+			Map<String, Object> cell = new HashMap<String, Object>();
+			cell.put("id", job.getId());//needed here??
+			if(mostRecentMpsQuote!=null && mostRecentMpsQuote.getJobId()!=null && mostRecentMpsQuote.getJobId()!=0){
+				Integer initialSequenceFacilityTotalCost = mostRecentMpsQuote.getTotalLibraryConstructionCost() +
+							mostRecentMpsQuote.getTotalSequenceRunCost() + 
+							mostRecentMpsQuote.getTotalAdditionalCost();
+				Integer discountedSequenceFacilityTotalCost = initialSequenceFacilityTotalCost - mostRecentMpsQuote.getTotalDiscountCost();
+				
+				List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+						new String[] {
+								mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
+								mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
+								mostRecentMpsQuote.getTotalAdditionalCost().toString(),
+								initialSequenceFacilityTotalCost.toString(),
+								"("+mostRecentMpsQuote.getTotalDiscountCost().toString()+")",
+								discountedSequenceFacilityTotalCost.toString(),
+								mostRecentMpsQuote.getTotalComputationalCost().toString(),
+								mostRecentMpsQuote.getTotalFinalCost().toString()								
+						}
+					)
+				);
+					 
+				cell.put("cell", cellList);
+			}
+			else{
+				List<String> cellList = new ArrayList<String>(
+					Arrays.asList(
+						new String[] {
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",								
+						}
+					)
+				);
+				cell.put("cell", cellList);
+			}
+			
+			rows.add(cell);			 
+			jqgrid.put("rows",rows);			 
+			return outputJSON(jqgrid, response); 
+			
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON " + samples, e);
+		 }
+	*/
+	}
+	
 	/**
 	 * Creates/Updates job quote
 	 * 
