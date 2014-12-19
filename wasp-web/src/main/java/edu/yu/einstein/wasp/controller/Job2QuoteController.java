@@ -251,17 +251,15 @@ public class Job2QuoteController extends WaspController {
 
 		//orderby amount is special; must be done by comparator
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
-			
 			if(sidx.equals("amount")){
 				Collections.sort(workingJobList, new QuoteAmountComparator());	
 				if(sord.equals("desc")){
-					Collections.reverse(workingJobList);
+					Collections.reverse(workingJobList);					
 				}
 			}						
 		}
-	
-		job2quoteList.addAll(workingJobList);
 
+		job2quoteList.addAll(workingJobList);
 		
 		// index of page
 		int pageIndex = Integer.parseInt(request.getParameter("page")); 
@@ -331,9 +329,6 @@ public class Job2QuoteController extends WaspController {
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : currentQuote.getAcctQuoteMeta();
-			List<AcctQuoteMeta> syncItemMetaList = getMetaHelperWebapp().syncWithMaster(itemMetaList);
-			
 			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
 			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
@@ -347,12 +342,8 @@ public class Job2QuoteController extends WaspController {
 				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 			
 			List<String> cellList = new ArrayList<String>(
-				Arrays.asList(new String[] { 
-
-
+				Arrays.asList(new String[] {
 					"<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
-
-
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),
@@ -363,22 +354,6 @@ public class Job2QuoteController extends WaspController {
 					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 
 					quoteId//this is not needed, I don't think, since we're going to create new quotes
 				}));
-
-			for (AcctQuoteMeta meta : syncItemMetaList) {
-				if(meta.getV()==null || meta.getV()==""){
-					String str = this.messageService.getMessage("acctQuote.not_yet_set.label");
-					if(str==null || "".equals(str)){
-						meta.setV("not yet set");
-						//meta.setV("0");
-					}
-					else{
-						meta.setV(str);
-						//meta.setV("0");
-					}
-				}
-				cellList.add(meta.getV());
-				logger.debug("acctquotemeta: " + meta.getK() + ":" + meta.getV());
-			}
 
 			cell.put("cell", cellList);
 
@@ -510,12 +485,6 @@ public class Job2QuoteController extends WaspController {
 		return null;//why bother with a return value??
 	}
 	
-	class JobIdComparator implements Comparator<Job> {
-		@Override
-		public int compare(Job arg0, Job arg1) {
-			return arg0.getId().intValue() >= arg1.getId().intValue()?1:0;
-		}
-	}
 	class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
 		@Override
 		public int compare(Job arg0, Job arg1) {
@@ -533,10 +502,10 @@ public class Job2QuoteController extends WaspController {
 		public int compare(Job arg0, Job arg1) {
 			
 			AcctQuote quote0 = arg0.getCurrentQuote();
-			float amount0 = (quote0 == null || quote0.getId()==null) ? 0 : quote0.getAmount();
+			float amount0 = (quote0 == null || quote0.getId()==null) ? 0f : quote0.getAmount();
 			AcctQuote quote1 = arg1.getCurrentQuote();
-			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0 : quote1.getAmount();
-			return amount0 >= amount1 ? 1:0;
+			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0f : quote1.getAmount();
+			return amount0<amount1 ? -1: (amount0>amount1 ? 1 : 0);
 		}
 	}
 }
