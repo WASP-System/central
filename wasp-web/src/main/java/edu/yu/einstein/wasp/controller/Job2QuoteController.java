@@ -416,47 +416,6 @@ public class Job2QuoteController extends WaspController {
 		Map <String, Object> jqgrid = new HashMap<String, Object>();
 		
 		Job job = jobService.getJobByJobId(jobId);
-		
-		//List<JobSample> jobSampleList = job.getJobSample();//don't do it this way; dubin 2-23-12		
-	 	//ObjectMapper mapper = new ObjectMapper();//doesn't appear to be used
-
-		//For a list of the macromolecule and library samples initially submitted to a job, pull from table jobcell and exclude duplicates
-		//Note that table jobsample is not appropriate, as it will eventually contain records for libraries made by the facility 
-		
-		//Note 11-26-14: well, actually, taking form jobcell is NOT a good idea, since bioanalyzer samples are not in the jobcell list
-		//11-26-14 So, return to using jobsample and here display ONLY those samples in which sample.getParent is null
-		/* so, as of 11-26-14, no longer used
-		Set<Sample> samplesAsSet = new HashSet<Sample>();//used to store set of unique samples submitted by the user for a specific job
-		Map<String, Integer> filter = new HashMap<String, Integer>();
-		filter.put("jobId", job.getJobId());
-		List<JobCellSelection> jobCellSelections = jobCellSelectionDao.findByMap(filter);
-		for(JobCellSelection jobCellSelection : jobCellSelections){
-			List<SampleJobCellSelection> sampleJobCellSelections = jobCellSelection.getSampleJobCellSelection();
-			for(SampleJobCellSelection sampleJobCellSelection : sampleJobCellSelections){
-				samplesAsSet.add(sampleJobCellSelection.getSample());
-			}
-		}
-		List<Sample> samples = new ArrayList<Sample>();//this List is needed in order to be able to sort the list (so that it appears the same each time it is displayed on the web; you can't sort a set)
-		for(Sample sample : samplesAsSet){
-			samples.add(sample);
-		*/
-		List<Sample> samples = job.getSample();//ALL samples (submitted and created by facility)
-		//first remove those samples that have a parent (as they are facility created)
-		Iterator<Sample> iterator = samples.iterator();
-		while (iterator.hasNext()) {
-			if(iterator.next().getParent()!=null){
-				iterator.remove();
-			}
-		}
-		//second, order by sample name for convenience
-		class SampleNameComparator implements Comparator<Sample> {
-		    @Override
-		    public int compare(Sample arg0, Sample arg1) {
-		        return arg0.getName().compareToIgnoreCase(arg1.getName());
-		    }
-		}
-		Collections.sort(samples, new SampleNameComparator());//sort by sample's name using class SampleNameComparator immediately above this line (we needed a list, as you can't sort a set)
-
 		MPSQuote mostRecentMpsQuote = new MPSQuote();
 		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
 		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
@@ -471,89 +430,59 @@ public class Job2QuoteController extends WaspController {
 				}
 			}			
 		}
+		Integer initialSequenceFacilityTotalCost = mostRecentMpsQuote.getTotalLibraryConstructionCost() +
+				mostRecentMpsQuote.getTotalSequenceRunCost() + 
+				mostRecentMpsQuote.getTotalAdditionalCost();
+		Integer discountedSequenceFacilityTotalCost = initialSequenceFacilityTotalCost - mostRecentMpsQuote.getTotalDiscountCost();
+		String localCurrencySymbol = Currency.getInstance(Locale.getDefault()).getSymbol();
 		try {
-			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-			////for (Sample sample:samples) {
+				List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+			
 				Map<String, Object> cell = new HashMap<String, Object>();
 				cell.put("id", job.getId());
-					 					
-				List<String> cellList = new ArrayList<String>(
-						Arrays.asList(
+				List<String> cellList = null;
+				if(mostRecentMpsQuote.getJobId()==null || mostRecentMpsQuote.getJobId()==0)	 {
+					cellList = new ArrayList<String>(
+							Arrays.asList(
 								new String[] {
-										mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
-										mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
-										mostRecentMpsQuote.getTotalAdditionalCost().toString(), 
-										"dubin fake"
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
 								}
+							)
+						);
+				}
+				else{
+					cellList = new ArrayList<String>(
+						Arrays.asList(
+							new String[] {
+								localCurrencySymbol+mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalAdditionalCost().toString(), 
+								localCurrencySymbol+initialSequenceFacilityTotalCost.toString(),
+								"("+localCurrencySymbol+mostRecentMpsQuote.getTotalDiscountCost().toString()+")",
+								localCurrencySymbol+discountedSequenceFacilityTotalCost.toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalComputationalCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalFinalCost().toString()
+							}
 						)
-				);
-					 
+					);
+				}	 
 				cell.put("cell", cellList);
-				rows.add(cell);
-			////}
+				rows.add(cell);			
 			 
-			jqgrid.put("rows",rows);
+				jqgrid.put("rows",rows);
 			 
-			return outputJSON(jqgrid, response); 	
+				return outputJSON(jqgrid, response); 	
 			
 		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON " + samples, e);
+			 throw new IllegalStateException("Can't marshall to JSON for jog2quote subgrid for jobId " + job.getId(), e);
 		 }
-		
-		/*
-		try {
-			List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-			Map<String, Object> cell = new HashMap<String, Object>();
-			cell.put("id", job.getId());//needed here??
-			if(mostRecentMpsQuote!=null && mostRecentMpsQuote.getJobId()!=null && mostRecentMpsQuote.getJobId()!=0){
-				Integer initialSequenceFacilityTotalCost = mostRecentMpsQuote.getTotalLibraryConstructionCost() +
-							mostRecentMpsQuote.getTotalSequenceRunCost() + 
-							mostRecentMpsQuote.getTotalAdditionalCost();
-				Integer discountedSequenceFacilityTotalCost = initialSequenceFacilityTotalCost - mostRecentMpsQuote.getTotalDiscountCost();
-				
-				List<String> cellList = new ArrayList<String>(
-					Arrays.asList(
-						new String[] {
-								mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
-								mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
-								mostRecentMpsQuote.getTotalAdditionalCost().toString(),
-								initialSequenceFacilityTotalCost.toString(),
-								"("+mostRecentMpsQuote.getTotalDiscountCost().toString()+")",
-								discountedSequenceFacilityTotalCost.toString(),
-								mostRecentMpsQuote.getTotalComputationalCost().toString(),
-								mostRecentMpsQuote.getTotalFinalCost().toString()								
-						}
-					)
-				);
-					 
-				cell.put("cell", cellList);
-			}
-			else{
-				List<String> cellList = new ArrayList<String>(
-					Arrays.asList(
-						new String[] {
-									"",
-									"",
-									"",
-									"",
-									"",
-									"",
-									"",
-									"",								
-						}
-					)
-				);
-				cell.put("cell", cellList);
-			}
-			
-			rows.add(cell);			 
-			jqgrid.put("rows",rows);			 
-			return outputJSON(jqgrid, response); 
-			
-		 } catch (Throwable e) {
-			 throw new IllegalStateException("Can't marshall to JSON " + samples, e);
-		 }
-	*/
 	}
 	
 	/**
