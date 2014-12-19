@@ -207,7 +207,7 @@ public class Job2QuoteController extends WaspController {
 		
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(submittedOnAsDate != null){
-			dateMap.put("createts", submittedOnAsDate);
+			dateMap.put("created", submittedOnAsDate);
 		}
 		
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
@@ -225,7 +225,7 @@ public class Job2QuoteController extends WaspController {
 				orderByColumnAndDirection.add("lab.user.lastName " + sord); orderByColumnAndDirection.add("lab.user.firstName " + sord);
 			}
 			else if(sidx.equals("submitted_on")){
-				orderByColumnAndDirection.add("createts " + sord); 
+				orderByColumnAndDirection.add("created " + sord); 
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
