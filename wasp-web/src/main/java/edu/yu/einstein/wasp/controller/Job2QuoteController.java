@@ -249,7 +249,7 @@ public class Job2QuoteController extends WaspController {
 			workingJobList.retainAll(jobsToKeep);
 		}
 
-		//orderby amount is special; must be done by comparator
+		//orderby amount is special; must be done by comparator (since acctQuote can be null in a job)
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			if(sidx.equals("amount")){
 				Collections.sort(workingJobList, new QuoteAmountComparator());	
