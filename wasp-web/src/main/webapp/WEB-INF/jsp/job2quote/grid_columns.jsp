@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="jobId" type="text" sortable="true" searchable="true" editable="false"/>
-<wasp:field name="currentStatus" type="text" sortable="false" searchable="false" editable="false"/>
+<wasp:field name="currentStatus" type="text" sortable="false" searchable="true" editable="false"/>
 
 <wasp:field name="name" type="text" sortable="true" searchable="false"/>
 

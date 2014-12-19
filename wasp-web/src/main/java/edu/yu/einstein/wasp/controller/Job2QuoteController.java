@@ -90,6 +90,15 @@ public class Job2QuoteController extends WaspController {
 
 		prepareSelectListData(m);
 
+		String allJobStatusForDropDownBox = ":All";
+		List<String> jobStatusList = jobService.getAllPossibleJobStatusAsString();
+		Collections.sort(jobStatusList);
+		for(String s : jobStatusList){
+			allJobStatusForDropDownBox  += ";" + s + ":" + s;
+		}
+		logger.debug("allJobStatusForDropDownBox : " + allJobStatusForDropDownBox);
+		m.addAttribute("allJobStatusForDropDownBox", allJobStatusForDropDownBox);
+
 		return "job2quote/list";
 	}
 	
@@ -101,6 +110,15 @@ public class Job2QuoteController extends WaspController {
 		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
+
+		String allJobStatusForDropDownBox = ":All";
+		List<String> jobStatusList = jobService.getAllPossibleJobStatusAsString();
+		Collections.sort(jobStatusList);
+		for(String s : jobStatusList){
+			allJobStatusForDropDownBox  += ";" + s + ":" + s;
+		}
+		logger.debug("allJobStatusForDropDownBox : " + allJobStatusForDropDownBox);
+		m.addAttribute("allJobStatusForDropDownBox", allJobStatusForDropDownBox);
 
 		return "job2quote/list_all";
 	}
@@ -121,6 +139,7 @@ public class Job2QuoteController extends WaspController {
 		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String currentStatusAsString = request.getParameter("currentStatus")==null?null:request.getParameter("currentStatus").trim();//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
 		String submittedOnDateAsString = request.getParameter("submitted_on")==null?null:request.getParameter("submitted_on").trim();//if not passed, will be null
@@ -249,6 +268,16 @@ public class Job2QuoteController extends WaspController {
 			workingJobList.retainAll(jobsToKeep);
 		}
 
+		if(currentStatusAsString!=null && !currentStatusAsString.isEmpty()){//12-19-14
+			Iterator<Job> i = workingJobList.iterator();
+			while (i.hasNext()) {
+				String currentStatus = jobService.getDetailedJobStatusString(i.next());
+				if(!currentStatusAsString.equalsIgnoreCase(currentStatus)){
+					i.remove();
+				}
+			}
+		}
+	
 		//orderby amount is special; must be done by comparator (since acctQuote can be null in a job)
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
 			if(sidx.equals("amount")){
