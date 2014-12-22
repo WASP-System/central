@@ -36,6 +36,7 @@
 		}
 		else{
 			$( "#qualityForm").submit();
+			openWaitDialog();
 		}
 	}
 		
