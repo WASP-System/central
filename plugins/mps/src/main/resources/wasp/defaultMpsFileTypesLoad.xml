@@ -65,7 +65,7 @@
     <property name="name" value="Bed Graph" />
     <property name="area" value="bedgraph" />
     <property name="description" value="The bedGraph format allows display of continuous-valued data in track format. This display type is useful for probability scores and transcriptome data." />
-    <property name="extensions" value="bg" />
+    <property name="extensions" value="bdg" />
   </bean>
   
    <bean id="bigBedFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
