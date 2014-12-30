@@ -154,7 +154,7 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --tsize " + tagSize);//size of sequencing tags
 		}
 		
-		if( !peakType.equalsIgnoreCase("punctate") ){//not punctate, so must be broad or mixed peakType
+		if( !peakType.equalsIgnoreCase("punctate") ){//IP sample's peak type: not punctate, so must be broad or mixed peakType (mixed is no longer option as of 12-30-14)
 			tempCommand.append(" --broad --broad-cutoff 0.1");//set for broad peaks and use default cutoff of 0.1
 		}
 			

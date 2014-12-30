@@ -138,15 +138,18 @@ public class MPSQuote {
 	public List<Comment> getComments(){return this.comments;}
 	public List<String> getErrors(){return this.errors;}
 	public Integer getTotalFinalCost(){
+		/* commented out 12-30-14
 		//just for now, to deal with the old quotes; 12-17-14 since old quotes have different total
 		Integer newTotalFinalCost = this.getTotalLibraryConstructionCost() + this.getTotalSequenceRunCost() + this.getTotalAdditionalCost() 
 					+ this.getTotalComputationalCost() - this.getTotalDiscountCost();
 		this.setTotalFinalCost(newTotalFinalCost);
+		*/
 		return this.totalFinalCost;
 	}
 
 	//12-16-14
 	public Integer getTotalLibraryConstructionCost(){
+		/* commented out 12-30-14
 		if(this.totalLibraryConstructionCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
 			int cumulativeCostForAllLibraryConstructions = 0;	
 			for(LibraryCost libraryCost : this.getLibraryCosts()){
@@ -157,10 +160,12 @@ public class MPSQuote {
 			}
 			this.setTotalLibraryConstructionCost(Integer.valueOf(cumulativeCostForAllLibraryConstructions));
 		}
+		*/
 		return this.totalLibraryConstructionCost;
 	}
 
 	public Integer getTotalSequenceRunCost(){
+		/* commented out 12-30-14
 		if(this.totalSequenceRunCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from sequencingCosts list 		
 			int cumulativeCostForAllSequenceRuns = 0;
 			for(SequencingCost sequencingCost : this.getSequencingCosts()){
@@ -171,11 +176,12 @@ public class MPSQuote {
 			}
 			this.setTotalSequenceRunCost(Integer.valueOf(cumulativeCostForAllSequenceRuns));
 		}
+		*/
 		return this.totalSequenceRunCost;
 	}
 
 	public Integer getTotalAdditionalCost(){
-		
+		/* commented out 12-30-14
 		if(this.totalAdditionalCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from additionalCosts list 		
 			int cumulativeAdditionalCost = 0;
 			for(AdditionalCost additionalCost : this.getAdditionalCosts()){
@@ -186,11 +192,12 @@ public class MPSQuote {
 			}
 			this.setTotalAdditionalCost(Integer.valueOf(cumulativeAdditionalCost));
 		}
+		*/
 		return this.totalAdditionalCost;
 	}
 
 	public Integer getTotalComputationalCost(){
-		
+		/* commented out 12-30-14
 		if(this.totalComputationalCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
 			int cumulativeCostForAllLibraryComputationalAnalyses = 0;	
 			for(LibraryCost libraryCost : this.getLibraryCosts()){
@@ -199,10 +206,12 @@ public class MPSQuote {
 			}
 			this.setTotalComputationalCost(Integer.valueOf(cumulativeCostForAllLibraryComputationalAnalyses));
 		}
+		*/
 		return this.totalComputationalCost;
 	}
 
 	public Integer getTotalDiscountCost(){
+		/* commented out 12-30-14
 		if(this.totalDiscountCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
 			int cumulativeTotalDiscounts = 0;
 			DecimalFormat twoDFormat = new DecimalFormat("#.##");
@@ -220,6 +229,7 @@ public class MPSQuote {
 			}
 			this.setTotalDiscountCost(Integer.valueOf(cumulativeTotalDiscounts));
 		}
+		*/
 		return this.totalDiscountCost;
 	}
 
