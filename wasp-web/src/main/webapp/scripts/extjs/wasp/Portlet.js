@@ -12,6 +12,7 @@ Ext.define('Wasp.Portlet', {
 			closable : true,
 			collapsible : true,
 			animCollapse : true,
+			autoScroll: true,
 			draggable : {
 				moveOnDrag : false
 			},

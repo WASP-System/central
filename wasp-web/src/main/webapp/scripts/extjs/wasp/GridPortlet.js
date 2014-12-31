@@ -191,7 +191,7 @@ Ext.define('Wasp.GridPortlet', {
 						+ action.iconClassName
 						+ '": "function(grid, record, action, row, col){linktext = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
-						+ '\');window.location=linktext;window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext);}"}';
+						+ '\');if(window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext)!=null){window.location=linktext;}}"}';
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
