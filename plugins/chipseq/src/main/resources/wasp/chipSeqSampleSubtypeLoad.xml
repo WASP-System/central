@@ -61,7 +61,8 @@
 	          <property name="metaposition" value="50" />
 	          <property name="constraint" value="NotEmpty" />
 	          <property name="tooltip" value="chipSeq.peakType.tt" />
-	          <property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input/control)" />
+	          <!--<property name="control" value="select:punctate:punctate;broad:broad;mixed:mixed;none:none (if input/control)" />-->
+	          <property name="control" value="select:punctate:punctate;broad:broad;none:none (if input/control)" />	 
 	          <property name="error" value="You must provide a value" />
 	         </bean>
 	         	        

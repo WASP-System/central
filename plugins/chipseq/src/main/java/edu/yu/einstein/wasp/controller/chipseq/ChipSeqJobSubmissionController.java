@@ -685,7 +685,7 @@ public class ChipSeqJobSubmissionController extends JobSubmissionController {
 		
 		String inputOrIP = "";//should be either ip or input
 		String antibodyTarget = "";//if IP, should not be empty. For input/control, the value is NOT used, so let user do whatever they like
-		String peakType = "";//punctate, broad, mixed, none    (should be "punctate", "broad", or "mixed" if IP; should be "none" if sample is input)
+		String peakType = "";//punctate, broad, mixed [as of 12-30-14, mixed is no longer an available option], none    (should be "punctate", or "broad" if IP; should be "none" if sample is input; [note that mixed is no longer an option if IP])
 		String organism = "";//cannot be empty
 		
 		for(SampleDraftMeta sdm : sampleDraftMetaList){

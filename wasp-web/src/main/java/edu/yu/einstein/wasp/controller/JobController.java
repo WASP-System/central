@@ -55,6 +55,7 @@ import com.itextpdf.text.DocumentException;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
+import edu.yu.einstein.wasp.controller.Job2QuoteController.QuoteAmountComparator;
 import edu.yu.einstein.wasp.controller.util.JsonHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.MetaHelperWebapp;
 import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
@@ -438,7 +439,7 @@ public class JobController extends WaspController {
 		}
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(createts != null){
-			dateMap.put("createts", createts);
+			dateMap.put("created", createts);//column attribute is job.created (createts is null in all rows)
 		}
 
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
@@ -461,7 +462,7 @@ public class JobController extends WaspController {
 				orderByColumnAndDirection.add("lab.user.firstName " + sord);
 			}
 			else if(sidx.equals("createts")){
-				orderByColumnAndDirection.add("createts " + sord);
+				orderByColumnAndDirection.add("created " + sord);
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
@@ -497,6 +498,26 @@ public class JobController extends WaspController {
 					i.remove();
 				}
 			}
+		}
+		
+		//orderby amount is special; must be done by comparator (since acctQuote can be null in a job)
+		class QuoteAmountComparator implements Comparator<Job> {
+			@Override
+			public int compare(Job arg0, Job arg1) {				
+				AcctQuote quote0 = arg0.getCurrentQuote();
+				float amount0 = (quote0 == null || quote0.getId()==null) ? 0f : quote0.getAmount();
+				AcctQuote quote1 = arg1.getCurrentQuote();
+				float amount1 =  (quote1 == null || quote1.getId()==null) ? 0f : quote1.getAmount();
+				return amount0<amount1 ? -1: (amount0>amount1 ? 1 : 0);
+			}
+		}
+		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
+			if(sidx.equals("amount")){
+				Collections.sort(tempJobList, new QuoteAmountComparator());	
+				if(sord.equals("desc")){
+					Collections.reverse(tempJobList);					
+				}
+			}						
 		}
 		
 		jobList.addAll(tempJobList);

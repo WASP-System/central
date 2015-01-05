@@ -355,6 +355,7 @@ public class MacstwoTasklet extends WaspRemotingTasklet implements StepExecution
 			macstwoEnclosedFileGroups.add(summitsBedFileGroup);
 			
 		}
+		//NOTE: mixed peaks option no longer available as of 12-30-14
 		//macs2 will generate peaks.broadPeak and peaks.gappedPeaks for broad or mixed peaks (so we will invoke --broad in the macs2 command)
 		else{ //peakType.equals broad OR mixed
 			

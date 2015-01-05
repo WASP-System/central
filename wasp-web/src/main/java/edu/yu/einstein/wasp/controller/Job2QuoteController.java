@@ -7,14 +7,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -34,7 +38,9 @@ import edu.yu.einstein.wasp.model.AcctQuoteMeta;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.MetaBase;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -84,6 +90,15 @@ public class Job2QuoteController extends WaspController {
 
 		prepareSelectListData(m);
 
+		String allJobStatusForDropDownBox = ":All";
+		List<String> jobStatusList = jobService.getAllPossibleJobStatusAsString();
+		Collections.sort(jobStatusList);
+		for(String s : jobStatusList){
+			allJobStatusForDropDownBox  += ";" + s + ":" + s;
+		}
+		logger.debug("allJobStatusForDropDownBox : " + allJobStatusForDropDownBox);
+		m.addAttribute("allJobStatusForDropDownBox", allJobStatusForDropDownBox);
+
 		return "job2quote/list";
 	}
 	
@@ -95,6 +110,15 @@ public class Job2QuoteController extends WaspController {
 		m.addAttribute("_metaDataMessages", MetaHelperWebapp.getMetadataMessages(request.getSession()));
 
 		prepareSelectListData(m);
+
+		String allJobStatusForDropDownBox = ":All";
+		List<String> jobStatusList = jobService.getAllPossibleJobStatusAsString();
+		Collections.sort(jobStatusList);
+		for(String s : jobStatusList){
+			allJobStatusForDropDownBox  += ";" + s + ":" + s;
+		}
+		logger.debug("allJobStatusForDropDownBox : " + allJobStatusForDropDownBox);
+		m.addAttribute("allJobStatusForDropDownBox", allJobStatusForDropDownBox);
 
 		return "job2quote/list_all";
 	}
@@ -115,6 +139,7 @@ public class Job2QuoteController extends WaspController {
 		logger.debug("sidx = " + sidx);logger.debug("sord = " + sord);logger.debug("search = " + search);
 
 		String jobIdAsString = request.getParameter("jobId")==null?null:request.getParameter("jobId").trim();//if not passed, jobIdAsString will be null
+		String currentStatusAsString = request.getParameter("currentStatus")==null?null:request.getParameter("currentStatus").trim();//if not passed, will be null
 		String submitterNameAndLogin = request.getParameter("submitter")==null?null:request.getParameter("submitter").trim();//if not passed, will be null
 		String piNameAndLogin = request.getParameter("lab")==null?null:request.getParameter("lab").trim();//if not passed, will be null
 		String submittedOnDateAsString = request.getParameter("submitted_on")==null?null:request.getParameter("submitted_on").trim();//if not passed, will be null
@@ -201,7 +226,7 @@ public class Job2QuoteController extends WaspController {
 		
 		Map<String, Date> dateMap = new HashMap<String, Date>();
 		if(submittedOnAsDate != null){
-			dateMap.put("createts", submittedOnAsDate);
+			dateMap.put("created", submittedOnAsDate);
 		}
 		
 		List<String> orderByColumnAndDirection = new ArrayList<String>();		
@@ -219,7 +244,7 @@ public class Job2QuoteController extends WaspController {
 				orderByColumnAndDirection.add("lab.user.lastName " + sord); orderByColumnAndDirection.add("lab.user.firstName " + sord);
 			}
 			else if(sidx.equals("submitted_on")){
-				orderByColumnAndDirection.add("createts " + sord); 
+				orderByColumnAndDirection.add("created " + sord); 
 			}
 		}
 		else if(sidx==null || "".equals(sidx)){
@@ -243,19 +268,27 @@ public class Job2QuoteController extends WaspController {
 			workingJobList.retainAll(jobsToKeep);
 		}
 
-		//orderby amount is special; must be done by comparator
+		if(currentStatusAsString!=null && !currentStatusAsString.isEmpty()){//12-19-14
+			Iterator<Job> i = workingJobList.iterator();
+			while (i.hasNext()) {
+				String currentStatus = jobService.getDetailedJobStatusString(i.next());
+				if(!currentStatusAsString.equalsIgnoreCase(currentStatus)){
+					i.remove();
+				}
+			}
+		}
+	
+		//orderby amount is special; must be done by comparator (since acctQuote can be null in a job)
 		if(sidx != null && !sidx.isEmpty() && sord != null && !sord.isEmpty() ){
-			
 			if(sidx.equals("amount")){
 				Collections.sort(workingJobList, new QuoteAmountComparator());	
 				if(sord.equals("desc")){
-					Collections.reverse(workingJobList);
+					Collections.reverse(workingJobList);					
 				}
 			}						
 		}
-	
-		job2quoteList.addAll(workingJobList);
 
+		job2quoteList.addAll(workingJobList);
 		
 		// index of page
 		int pageIndex = Integer.parseInt(request.getParameter("page")); 
@@ -307,13 +340,14 @@ public class Job2QuoteController extends WaspController {
 			String quoteAsString;// = ajqcList.isEmpty() ? "?.??" : String.format("%.2f", ajqcList.get(0).getAcctQuote().getAmount());
 			String quoteId = null;
 			if(currentQuote == null || currentQuote.getId() == null){
-				quoteAsString = "?.??";
+				quoteAsString = "Quote Not Yet Generated";
 			}
 			else{
 				quoteId = currentQuote.getId().toString();
 				try{
 					  Float price = new Float(currentQuote.getAmount());
-					  quoteAsString = String.format("%.2f", price);
+					  ////////quoteAsString = String.format("%.2f", price);
+					  quoteAsString = Currency.getInstance(Locale.getDefault()).getSymbol()+String.format("%.2f", price);
 				}
 				catch(Exception e){
 					  logger.warn("JobController: jobList : " + e);
@@ -324,9 +358,6 @@ public class Job2QuoteController extends WaspController {
 				}					
 			}
 
-			List<AcctQuoteMeta> itemMetaList = (currentQuote == null || currentQuote.getId() == null) ? new ArrayList<AcctQuoteMeta>() : currentQuote.getAcctQuoteMeta();
-			List<AcctQuoteMeta> syncItemMetaList = getMetaHelperWebapp().syncWithMaster(itemMetaList);
-			
 			Format formatterForDisplay = new SimpleDateFormat("yyyy/MM/dd");
 			
 			//String noteAboutNeedingQuote =   ((currentQuote == null || currentQuote.getId() == null) && !jobService.isJobActive(item)) ? "[Job Terminated]":"";
@@ -340,12 +371,8 @@ public class Job2QuoteController extends WaspController {
 				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 			
 			List<String> cellList = new ArrayList<String>(
-				Arrays.asList(new String[] { 
-
-
+				Arrays.asList(new String[] {
 					"<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
-
-
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),
@@ -356,22 +383,6 @@ public class Job2QuoteController extends WaspController {
 					formatterForDisplay.format(item.getCreated()), //item.getLastUpdTs().toString() 
 					quoteId//this is not needed, I don't think, since we're going to create new quotes
 				}));
-
-			for (AcctQuoteMeta meta : syncItemMetaList) {
-				if(meta.getV()==null || meta.getV()==""){
-					String str = this.messageService.getMessage("acctQuote.not_yet_set.label");
-					if(str==null || "".equals(str)){
-						meta.setV("not yet set");
-						//meta.setV("0");
-					}
-					else{
-						meta.setV(str);
-						//meta.setV("0");
-					}
-				}
-				cellList.add(meta.getV());
-				logger.debug("acctquotemeta: " + meta.getK() + ":" + meta.getV());
-			}
 
 			cell.put("cell", cellList);
 
@@ -401,6 +412,83 @@ public class Job2QuoteController extends WaspController {
 		}	
 	}
 
+	@Transactional
+	@RequestMapping(value = "/subgridJSON.do", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') ")
+	public String subgridJSON(@RequestParam("id") Integer jobId,ModelMap m, HttpServletResponse response) {//added 12-18-14; dubin
+				
+		Map <String, Object> jqgrid = new HashMap<String, Object>();
+		
+		Job job = jobService.getJobByJobId(jobId);
+		MPSQuote mostRecentMpsQuote = new MPSQuote();
+		AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
+		if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
+			for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){
+				if(acm.getK().toLowerCase().contains("json")){
+					try{							
+						JSONObject jsonObject = new JSONObject(acm.getV());	
+						mostRecentMpsQuote =  MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);						
+					}catch(Exception e){
+						logger.debug("unable to access mspQuote via stored json; in quote subgrid");
+					}
+				}
+			}			
+		}
+		Integer initialSequenceFacilityTotalCost = mostRecentMpsQuote.getTotalLibraryConstructionCost() +
+				mostRecentMpsQuote.getTotalSequenceRunCost() + 
+				mostRecentMpsQuote.getTotalAdditionalCost();
+		Integer discountedSequenceFacilityTotalCost = initialSequenceFacilityTotalCost - mostRecentMpsQuote.getTotalDiscountCost();
+		String localCurrencySymbol = Currency.getInstance(Locale.getDefault()).getSymbol();
+		try {
+				List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+			
+				Map<String, Object> cell = new HashMap<String, Object>();
+				cell.put("id", job.getId());
+				List<String> cellList = null;
+				if(mostRecentMpsQuote.getJobId()==null || mostRecentMpsQuote.getJobId()==0)	 {
+					cellList = new ArrayList<String>(
+							Arrays.asList(
+								new String[] {
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
+								}
+							)
+						);
+				}
+				else{
+					cellList = new ArrayList<String>(
+						Arrays.asList(
+							new String[] {
+								localCurrencySymbol+mostRecentMpsQuote.getTotalLibraryConstructionCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalSequenceRunCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalAdditionalCost().toString(), 
+								localCurrencySymbol+initialSequenceFacilityTotalCost.toString(),
+								"("+localCurrencySymbol+mostRecentMpsQuote.getTotalDiscountCost().toString()+")",
+								localCurrencySymbol+discountedSequenceFacilityTotalCost.toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalComputationalCost().toString(),
+								localCurrencySymbol+mostRecentMpsQuote.getTotalFinalCost().toString()
+							}
+						)
+					);
+				}	 
+				cell.put("cell", cellList);
+				rows.add(cell);			
+			 
+				jqgrid.put("rows",rows);
+			 
+				return outputJSON(jqgrid, response); 	
+			
+		 } catch (Throwable e) {
+			 throw new IllegalStateException("Can't marshall to JSON for jog2quote subgrid for jobId " + job.getId(), e);
+		 }
+	}
+	
 	/**
 	 * Creates/Updates job quote
 	 * 
@@ -426,12 +514,6 @@ public class Job2QuoteController extends WaspController {
 		return null;//why bother with a return value??
 	}
 	
-	class JobIdComparator implements Comparator<Job> {
-		@Override
-		public int compare(Job arg0, Job arg1) {
-			return arg0.getId().intValue() >= arg1.getId().intValue()?1:0;
-		}
-	}
 	class SubmitterLastNameFirstNameComparator implements Comparator<Job> {
 		@Override
 		public int compare(Job arg0, Job arg1) {
@@ -449,10 +531,10 @@ public class Job2QuoteController extends WaspController {
 		public int compare(Job arg0, Job arg1) {
 			
 			AcctQuote quote0 = arg0.getCurrentQuote();
-			float amount0 = (quote0 == null || quote0.getId()==null) ? 0 : quote0.getAmount();
+			float amount0 = (quote0 == null || quote0.getId()==null) ? 0f : quote0.getAmount();
 			AcctQuote quote1 = arg1.getCurrentQuote();
-			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0 : quote1.getAmount();
-			return amount0 >= amount1 ? 1:0;
+			float amount1 =  (quote1 == null || quote1.getId()==null) ? 0f : quote1.getAmount();
+			return amount0<amount1 ? -1: (amount0>amount1 ? 1 : 0);
 		}
 	}
 }
