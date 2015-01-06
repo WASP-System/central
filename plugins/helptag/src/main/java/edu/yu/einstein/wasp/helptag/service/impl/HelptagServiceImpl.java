@@ -15,8 +15,10 @@ import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -30,6 +32,8 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	@Autowired
 	private FileTypeDao fileTypeDao;
 
+	@Autowired
+	private SampleService sampleService;
 	
 	/**
 	 * {@inheritDoc}
@@ -81,4 +85,41 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 
 		return hpaSampleDrafts;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public boolean isHpaII(Integer sampleId) {
+		Sample s = sampleService.getSampleById(sampleId);
+		try {
+			String enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
+			if (enzymeString.equals("HpaII"))
+				return true;
+		} catch (MetadataException e) {
+			// not found
+			logger.debug("Restriction Enzyme Meta is not found for Sample id = " + sampleId);
+		}
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public boolean isMspI(Integer sampleId) {
+		Sample s = sampleService.getSampleById(sampleId);
+		try {
+			String enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
+			if (enzymeString.equals("MspI"))
+				return true;
+		} catch (MetadataException e) {
+			// not found
+			logger.debug("Restriction Enzyme Meta is not found for Sample id = " + sampleId);
+		}
+		return false;
+	}
+
 }

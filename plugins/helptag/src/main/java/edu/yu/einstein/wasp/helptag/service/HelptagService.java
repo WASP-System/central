@@ -14,17 +14,22 @@ import edu.yu.einstein.wasp.service.WaspService;
  */
 public interface HelptagService extends WaspService {
 
-		/**
-		 * Perform Service
-		 * @return String
-		 */
-		public String performAction();
+	/**
+	 * Perform Service
+	 * 
+	 * @return String
+	 */
+	public String performAction();
 
-		public static final String HELPTAG_LIB_AREA = "helptagLibrary";
-		
-		public static final String RESTRICTION_ENZYME_META_KEY = "enzyme";
+	public static final String HELPTAG_LIB_AREA = "helptagLibrary";
 
-		public List<SampleDraft> getAllMspISampleDraftsFromJobDraftId(Integer id);
+	public static final String RESTRICTION_ENZYME_META_KEY = "enzyme";
 
-		public List<SampleDraft> getAllHpaIISampleDraftsFromJobDraftId(Integer id);
+	public List<SampleDraft> getAllMspISampleDraftsFromJobDraftId(Integer id);
+
+	public List<SampleDraft> getAllHpaIISampleDraftsFromJobDraftId(Integer id);
+
+	public boolean isHpaII(Integer sampleId);
+
+	public boolean isMspI(Integer sampleId);
 }

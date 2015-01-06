@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.service.SampleService;
  * @author AJ
  *
  */
-public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutionListener {
+public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecutionListener {
 
 	@Autowired
 	private FileService fileService;
@@ -48,11 +48,11 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 	/**
 	 * 
 	 */
-	public HelptagTasklet() {
+	public HpaiiCountTasklet() {
 		// proxy
 	}
 
-	public HelptagTasklet(String cellLibraryId) {
+	public HpaiiCountTasklet(String cellLibraryId) {
 		Assert.assertParameterNotNull(cellLibraryId);
 		this.cellLibraryId = Integer.valueOf(cellLibraryId);
 	}
@@ -63,7 +63,7 @@ public class HelptagTasklet extends WaspRemotingTasklet  implements StepExecutio
 	@Override
 	@Transactional("entityManager")
 	public GridResult doExecute(ChunkContext context) throws Exception {
-			WorkUnit w = helptag.getHelptag(cellLibraryId);
+			WorkUnit w = helptag.getHpaiiCount(cellLibraryId);
 			return gridHostResolver.execute(w);
 	}
 	

@@ -17,12 +17,31 @@
 			</batch:tasklet>
 		</batch:step>
 
-		<batch:step id="helptag.library.countHpaii.step.countHpaii" next="helptag.library.countHpaii.step.notifyHcountComplete">
+		<batch:step id="helptag.library.countHpaii.step.countHpaii">
 			<batch:tasklet>
-				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.HelptagTasklet" scope="step">
+				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.HpaiiCountTasklet" scope="step">
 					<constructor-arg name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}" />
 				</bean>
 			</batch:tasklet>
+			<batch:next on="FAILED" to="helptag.library.countHpaii.step.notifyHcountFailed" />
+			<batch:end on="SKIP"/>
+			<batch:next on="*" to="helptag.library.countHpaii.step.makeAngles" />
+			<batch:listeners>
+				<batch:listener>
+					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+						<property name="keys" value="scrDir,cellLibId"  />
+						<property name="statuses" value="COMPLETED,FAILED" />
+					</bean>
+				</batch:listener>
+			</batch:listeners>
+		</batch:step>
+
+		<batch:step id="helptag.library.countHpaii.step.makeAngles">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.AngleMakerTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="helptag.library.countHpaii.step.notifyHcountFailed" />
+			<batch:next on="*" to="helptag.library.countHpaii.step.notifyHcountComplete" />
 		</batch:step>
 
 		<batch:step id="helptag.library.countHpaii.step.notifyHcountComplete">
@@ -30,14 +49,31 @@
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
 					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
 					<constructor-arg name="messageTemplate">
-						<bean class="edu.yu.einstein.wasp.helptag.integration.messages.SimpleHelptagStatusMessageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+							<property name="task" value="Helptag Pipeline" />
 							<property name="status" value="COMPLETED" />
 						</bean>
 					</constructor-arg>
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-
+		
+		<batch:step id="helptag.library.countHpaii.step.notifyHcountFailed">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="cellLibraryId" value="#{jobParameters[waspJobParameters.CELL_LIBRARY_ID]}"/>
+							<property name="task" value="Helptag Pipeline" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="*" />
+		</batch:step>
 	</batch:flow>
 	
 	<batch:job id="helptag.library.preProcess.job" restartable="true" >

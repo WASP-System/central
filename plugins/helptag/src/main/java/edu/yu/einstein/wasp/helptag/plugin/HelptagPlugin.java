@@ -79,7 +79,7 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 	}
 
 	public static final String PREPROCESS_ANALYSIS_JOB = "helptag.library.preProcess.job";
-	public static final String AGREGATE_ANALYSIS_JOB = "helpta.library.aggrFlow.job";
+	public static final String AGREGATE_ANALYSIS_JOB = "helptag.library.aggrFlow.job";
 
 	public HelptagPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);

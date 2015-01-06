@@ -72,8 +72,46 @@ public class Helptag extends SoftwarePackage{
 	public Helptag() {
 	}
 
+	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+
+		c.setProcessMode(ProcessMode.SINGLE);
+		c.setMode(ExecutionMode.PROCESS);
+
+		// require 4GB memory
+		c.setMemoryRequirements(4);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		c.setSoftwareDependencies(sd);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		WorkUnit w = new WorkUnit(c);
+		w.setRequiredFiles(fhlist);
+		w.setSecureResults(false);
+
+		return w;
+	}
+
+	private Build getGenomeBuild(SampleSource cellLibrary) {
+		Build build = null;
+		try {
+			Sample library = sampleService.getLibrary(cellLibrary);
+			logger.debug("looking for genome build associated with sample: " + library.getId());
+			build = genomeService.getBuild(library);
+			if (build == null) {
+				String mess = "cell library does not have associated genome build metadata annotation";
+				logger.error(mess);
+				throw new NullResourceException(mess);
+			}
+			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+		} catch (ParameterValueRetrievalException e) {
+			logger.error(e.toString());
+			e.printStackTrace();
+		}
+		return build;
+	}
+
 	@Transactional("entityManager")
-	public WorkUnit getHelptag(Integer cellLibraryId) {
+	public WorkUnit getHpaiiCount(Integer cellLibraryId) {
 		WorkUnit w = null;
 		SampleSource cl;
 		try {
@@ -120,7 +158,7 @@ public class Helptag extends SoftwarePackage{
 					"-i " + mergedBamFile + " " +
 					"-o " + hcountFile + " " +
 					"-g " + getGenomeBuild(cl).getGenome().getAlias();
-			w.setCommand(cmd);
+			w.addCommand(cmd);
 		} catch (SampleTypeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,43 +167,56 @@ public class Helptag extends SoftwarePackage{
 		return w;
 	}
 
-	
-	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
-		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
-		
-		c.setProcessMode(ProcessMode.SINGLE);
-		c.setMode(ExecutionMode.PROCESS);
-	
-		// require 4GB memory
-		c.setMemoryRequirements(4);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		c.setSoftwareDependencies(sd);
-		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-		WorkUnit w = new WorkUnit(c);
-		w.setRequiredFiles(fhlist);
-		w.setSecureResults(false);
-	
-		return w;
-	}
-	
-	private Build getGenomeBuild(SampleSource cellLibrary) {
-		Build build = null;
+	@Transactional("entityManager")
+	public WorkUnit getAngleMaking(Integer cellLibraryId) {
+		WorkUnit w = null;
+		SampleSource cl;
 		try {
-			Sample library = sampleService.getLibrary(cellLibrary);
-			logger.debug("looking for genome build associated with sample: " + library.getId());
-			build = genomeService.getBuild(library);
-			if (build == null) {
-				String mess = "cell library does not have associated genome build metadata annotation";
-				logger.error(mess);
-				throw new NullResourceException(mess);
+			cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+
+			List<FileHandle> inputBamFiles = new ArrayList<FileHandle>();
+			for (FileGroup fg : fileService.getFilesForCellLibraryByType(cl, bamFileType)) {
+				inputBamFiles.addAll(fg.getFileHandles());
 			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
-		} catch (ParameterValueRetrievalException e) {
-			logger.error(e.toString());
+			logger.info("Helptag pipeline # of input files: " + inputBamFiles.size());
+			for (FileHandle fh : inputBamFiles) {
+				logger.info("Helptag pipeline input files: " + fh.getFileURI().toString());
+			}
+			// create work unit with preset sge params and input bam files
+			w = prepareWorkUnit(inputBamFiles);
+
+			Job job = sampleService.getJobOfLibraryOnCell(cl);
+			w.getConfiguration().setResultsDirectory(fileService.generateJobSoftwareBaseFolderName(job, this) + "/" + cellLibraryId);
+
+			StringBuilder mergeBamCmd;
+			String mergedBamFile = "";
+			if (inputBamFiles.size() == 1) {
+				mergedBamFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
+			} else if (inputBamFiles.size() > 1) {
+				mergedBamFile = "tmpMergedBamFile.bam";
+
+				mergeBamCmd = new StringBuilder();
+				mergeBamCmd.append("samtools merge " + mergedBamFile + " ");
+				// tmpMergedBamFile.bam is the output of the merge; note that merge requires sorted files
+
+				for (int i = 0; i < inputBamFiles.size(); i++) {
+					mergeBamCmd.append("${" + WorkUnit.INPUT_FILE + "[" + i + "]} ");
+				}
+
+				w.addCommand(new String(mergeBamCmd));
+			}
+
+			// output hcount file name
+			String hcountFile = fileService.generateUniqueBaseFileName(cl) + "hcount";
+
+			// set the command
+			String cmd = "bam2hcount.pl " + "-i " + mergedBamFile + " " + "-o " + hcountFile + " " + "-g " + getGenomeBuild(cl).getGenome().getAlias();
+			w.addCommand(cmd);
+		} catch (SampleTypeException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return build;
-	}
 
+		return w;
+	}
 }
