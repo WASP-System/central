@@ -21,6 +21,7 @@ public interface HelptagService extends WaspService {
 		public String performAction();
 
 		public static final String HELPTAG_LIB_AREA = "helptagLibrary";
+		public static final String HELPTAG_DNA_AREA = "helptagDNA";
 		
 		public static final String RESTRICTION_ENZYME_META_KEY = "enzyme";
 

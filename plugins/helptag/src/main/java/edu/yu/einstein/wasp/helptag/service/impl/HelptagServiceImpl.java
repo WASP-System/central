@@ -49,7 +49,12 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		String enzymeString;
 		for (SampleDraft sd : sampleDrafts) {
 			try{
-				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				if(sd.getSampleType().getIName().equalsIgnoreCase("library")){
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				}
+				else{//genomic DNA; 12-30-14
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());					
+				}
 				if (enzymeString.equals("MspI"))
 					mspSampleDrafts.add(sd);
 			} catch(MetadataException e) {
@@ -70,7 +75,12 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		String enzymeString;
 		for (SampleDraft sd : sampleDrafts) {
 			try{
-				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				if(sd.getSampleType().getIName().equalsIgnoreCase("library")){
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				}
+				else{//genomic DNA; 12-30-14
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());					
+				}
 				if (enzymeString.equals("HpaII"))
 					hpaSampleDrafts.add(sd);
 			} catch(MetadataException e) {

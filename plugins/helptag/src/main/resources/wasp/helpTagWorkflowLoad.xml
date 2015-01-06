@@ -49,6 +49,8 @@
     <property name="sampleSubtypes">
       <list>
         <ref bean="helptagLibrarySampleSubtype" />
+        <ref bean="helptagDNASampleSubtype" />
+         <ref bean="helptagFacilityLibrarySampleSubtype" />
       </list>
     </property>
     
