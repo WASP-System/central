@@ -1,11 +1,11 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
 <wasp:field name="jobId" type="text" sortable="true" searchable="true" editable="false"/>
-<wasp:field name="currentStatus" type="text" sortable="false" searchable="false" editable="false"/>
+<wasp:field name="currentStatus" type="text" sortable="false" searchable="true" editable="false"/>
 
 <wasp:field name="name" type="text" sortable="true" searchable="false"/>
 
-<wasp:field name="amount" type="currency" sortable="true" searchable="false"/>
+<wasp:field name="amount" type="text" sortable="true" searchable="false"/><!-- changed from type="currency" 12-18-14 -->
 
 <wasp:field name="grant_code" type="text" sortable="true" searchable="false"/>
 
@@ -18,7 +18,7 @@
 <wasp:field name="quoteId" type="hidden" />
 
   
-_navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,beforeRefresh: 
+_navAttr={edit:false,view:false,add:false,del:false,search:false,refresh:true,beforeRefresh: 
 		function () { 
 			<%--http://stackoverflow.com/questions/7089643/programmatically-sorting-the-jqgrid 
 			with next line, sortname is set to "" and with that sidx is also set to "" 
@@ -31,7 +31,7 @@ _navAttr={edit:true,view:true,add:false,del:false,search:false,refresh:true,befo
 _editAttr['beforeShowForm'] = function(formId) {
 	$('input[type="text"][name$="cost"]').val('0');
 };
---%>
+
 
 function isNonNegNumber(str) {
 	isPrice = /^\d+(\.\d{0,2})?$/;
@@ -66,3 +66,4 @@ _editAttr['afterShowForm'] = function(formId) {
 	} );
 };
 
+--%>

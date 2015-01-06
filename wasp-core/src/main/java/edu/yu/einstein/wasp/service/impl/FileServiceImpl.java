@@ -2078,5 +2078,78 @@ public class FileServiceImpl extends WaspServiceImpl implements FileService, Res
 		}
 		return fileGroupDao.getById(parentFileGroup.getId()); // get fresh copy to be sure children are hydrated
 	}
+	
+	@Override
+	public File copyFileHandleToLocalTempFile(FileHandle fileHandle) throws FileUploadException, FileDownloadException, FileNotFoundException, GridException{
+		
+		if(tempDir == null){
+			String mess = "Temporary directory on local host has not been configured!  Please set \"wasp.temporary.dir\" in wasp-config.";
+			logger.warn(mess);
+			throw new FileDownloadException(mess);
+		}
+
+  		URI uri = fileHandle.getFileURI();
+  		if(uri==null){
+  			String mess = "FileHandle's URI is null for fileHandleId = " + fileHandle.getId();
+  			logger.debug(mess);
+  			throw new FileDownloadException(mess);
+  		}
+  		
+		GridWorkService gws;
+		GridFileService gfs;
+		try {
+			gws = hostResolver.getGridWorkService(uri.getHost());
+			gfs = gws.getGridFileService();
+		} catch (GridUnresolvableHostException e) {
+			String mess = "Unable to resolve remote host";
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new GridException(mess);
+		}
+
+		try{
+			if(!gfs.exists(uri.getPath())){
+				String mess = "File not found on remote host";
+				logger.warn(mess);
+				throw new FileNotFoundException(mess);
+			}
+		}catch(Exception e){
+			String mess = "Unable to query remote location regarding existence of file existence on remote host";
+			logger.warn(mess);
+			throw new FileNotFoundException(mess);
+		}
+		
+		File temporaryDirectory = new File(tempDir);
+
+		if (!temporaryDirectory.exists()) {
+			try {
+				temporaryDirectory.mkdir();
+			} catch (Exception e) {
+				String mess = "FileHandle download failure trying to create '" + tempDir + "': " + e.getMessage();
+				logger.warn(mess);
+				throw new FileUploadException(mess);
+			}
+		}
+		
+		File localFile;
+		try {
+			localFile = File.createTempFile("wasp.", ".tmp", temporaryDirectory);
+		} catch (IOException e) {
+			String mess = "Unable to create local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			e.printStackTrace();
+			throw new FileUploadException(mess);
+		}
+
+		try {
+			gfs.get(uri.getPath(), localFile);//should maybe check md5??
+		}catch (IOException e) {
+			String mess = "Unable to copy remote file to local temporary file: " + e.getLocalizedMessage();
+			logger.warn(mess);
+			localFile.delete();
+			throw new FileDownloadException(mess);
+		}
+		return localFile;
+	}
 }
 

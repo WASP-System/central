@@ -3,6 +3,7 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -96,71 +97,67 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		super(iName, waspSiteProperties, channel);
 	}
 
-	/**
-	 * Methods with the signature: Message<String> methodname(Message<String> m)
-	 * are automatically accessible to execution by the command line.  Messages sent are generally
-	 * free text or JSON formatted data.  These methods should not implement their own functionality,
-	 * rather, they should either return information in a message (text) or trigger events through
-	 * integration messaging (e.g. launch a job).
-	 * 
-	 * @param m
-	 * @return
-	 */
-	public Message<String> helloWorld(Message<String> m) {
-		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help")){
-			return helloWorldHelp();
-		}
-		
-		logger.info("******************************public method: Hello World from ChipSeqPlugin!");
-			
-		return (Message<String>) MessageBuilder.withPayload("sent a Hello World message from the wasp_chip_seq_plugin").build();
-	}
-	
-	private Message<String> helloWorldHelp() {
-		String mstr = "\nthe message string set in chipseq helloWorldHelp: hello world, HELP!\n" +
-				"wasp -T chipseq -t helloWorld\n";
-		return MessageBuilder.withPayload(mstr).build();
-	}
-	
-	public Message<String> launchTestFlow(Message<String> m) {
+	public Message<String> launchPreprocessingFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
-			return launchTestFlowHelp();
+			return launchPreprocessingFlowHelp();
 		
-		logger.debug("******starting launchTestFlow in ChipSeqPlugin for job 3!");
-		//m = MessageBuilder.withPayload("{\"id\":\"14\"}").build();
+		logger.info("launching ChipSeq preprocessing flow");
+		
 		try {
-			//Integer id = getIDFromMessage(m);
-			//if (id == null){
-			//	return MessageBuilder.withPayload("Unable to determine id from message: " + m.getPayload().toString()).build();
-			//}
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine cellLibrary id from message: " + m.getPayload().toString()).build();
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
-
-			
-			//////jobParameters.put("test", new Date().toString());//used for testing only
-			
-			jobParameters.put(WaspJobParameters.JOB_ID, "3");
-			
-
-			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
-			logger.debug("**Initiating aggregate_analysis_job ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB + " on job 3");
-			return (Message<String>) MessageBuilder.withPayload("Initiating chipseq test flow: "+AGGREGATE_ANALYSIS_JOB + " for job 3").build();
+			logger.info("Sending launch message with flow " + PREPROCESS_ANALYSIS_JOB + " and cellLibrary id: " + id);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			waspMessageHandlingService.launchBatchJob(PREPROCESS_ANALYSIS_JOB, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating ChipSeq preprocessing flow on cellLibrary id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("WaspMessageBuildingException Unable to build launch batch job 3 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Unable to launch batch job  3 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
-		}catch (Exception e1) {
-			logger.warn("Exception: Unable to build launch batch job 3 from ChipSeqPlugin: " + AGGREGATE_ANALYSIS_JOB);
-			return MessageBuilder.withPayload("Exception: Unable to launch batch job 3 from ChipSeqPlugin:" + AGGREGATE_ANALYSIS_JOB).build();
+			logger.warn("unable to build message to launch batch job " + PREPROCESS_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job " + PREPROCESS_ANALYSIS_JOB).build();
 		}
 		
 	}
 	
-	private Message<String> launchTestFlowHelp() {
-		String mstr = "\ninside launchTestFlowHelp within the ChipSeqPlugin: launch the test flow.\n" +
-				"wasp -T chipseq -t launchTestFlow -m \'{id:\"14\"}\'\n";
+	private Message<String> launchPreprocessingFlowHelp() {
+		String mstr = "\nVariantcalling plugin: launch the ChipSeq preprocessing flow with provided cellLibrary id.\n" +
+				"wasp -T variantcalling -t launchPreprocessingFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
+	public Message<String> launchDiscoveryFlow(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return launchDiscoveryFlowHelp();
+		
+		logger.info("launching ChipSeq peak discovery flow");
+		
+		try {
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine job id from message: " + m.getPayload().toString()).build();
+			
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + AGGREGATE_ANALYSIS_JOB + " and job id: " + id);
+			jobParameters.put(WaspJobParameters.JOB_ID, id.toString());
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating ChipSeq peak discovery flow on job id " + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("unable to build message to launch batch job " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job " + AGGREGATE_ANALYSIS_JOB).build();
+		}
+		
+	}
+	
+	private Message<String> launchDiscoveryFlowHelp() {
+		String mstr = "\nVariantcalling plugin: launch the ChipSeq peak discovery flow with provided job id.\n" +
+				"wasp -T variantcalling -t launchDiscoveryFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+	
+	/*
 	public Message<String> launchTestOutput(Message<String> m) throws Exception{
 		String mstr = "\ninside launchTestOutput within the ChipSeqPlugin: launch the test output for job 1.\n" +
 				"wasp -T chipseq -t launchTestOutput \n";
@@ -168,6 +165,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		try{this.getViewPanelTabs(job);}catch(Exception e){mstr = mstr + e.getMessage();}
 		return MessageBuilder.withPayload(mstr).build();
 	}
+	*/
 	
 	/**
 	 * 
@@ -184,7 +182,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 				id = new Integer(jo.get("id").toString());
 			} 
 		} catch (JSONException e) {
-			logger.warn("*************unable to parse JSON");
+			logger.warn("unable to parse JSON");
 		}
 		return id;
 	}
@@ -265,4 +263,5 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			throw new PanelException(e.getMessage());
 		}				
 	}
+	
 }

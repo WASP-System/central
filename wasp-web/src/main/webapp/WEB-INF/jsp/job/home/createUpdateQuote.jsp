@@ -94,11 +94,17 @@
 		return false; // avoid 
 	}
 	
-	function saveQuote(formObjectId, theUrl) {
+	function saveQuoteAndDoNotSendEmail(formObjectId, theUrl){
+		saveQuote(formObjectId, theUrl, "no");
+	}
+	function saveQuoteAndSendEmail(formObjectId, theUrl){
+		saveQuote(formObjectId, theUrl, "yes");
+	}
+	function saveQuote(formObjectId, theUrl, sendEmail) {
 		$("#wait_dialog-modal").dialog("open");
 	   	var selectedPanel = $('#tabs').find("[aria-expanded=true]");//the div for this selected tabs panel 
 	   	var frm = $("#" + formObjectId);
-	   	theUrlWithFormAttached = theUrl+"?"+frm.serialize();
+	   	theUrlWithFormAttached = theUrl+"?"+frm.serialize()+"&sendEmail="+sendEmail;
 	   	$("#createUpdateQuoteMessageDiv").text("");   
 		$.ajax({
 	        type: "GET",
@@ -153,7 +159,8 @@
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/basic.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewBasicRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/requests.do?onlyDisplayCellsRequested=true" />");' ><fmt:message key="jobHomeCreateUpdateQuote.viewLaneRequest.label" /></a>
 				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='previewQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/previewQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.previewQuote.label" /></a>
-				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='saveQuote("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuoteAndEmailToPI.label" /></a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='saveQuoteAndDoNotSendEmail("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuote.label" /></a>
+				| <a <%-- class="button" --%> href="javascript:void(0);" onclick='saveQuoteAndSendEmail("quoteOrInvoiceFormId", "<wasp:relativeUrl value="job/${mpsQuote.getJobId()}/saveQuote.do" />");' ><fmt:message key="jobHomeCreateUpdateQuote.saveQuoteAndEmailToPI.label" /></a>
 				
 				</span>
 				<br /><br /><div id="createUpdateQuoteMessageDiv"></div><br />				

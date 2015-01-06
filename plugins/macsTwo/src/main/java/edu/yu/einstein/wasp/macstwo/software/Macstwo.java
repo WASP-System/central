@@ -154,7 +154,7 @@ public class Macstwo extends SoftwarePackage{
 			tempCommand.append(" --tsize " + tagSize);//size of sequencing tags
 		}
 		
-		if( !peakType.equalsIgnoreCase("punctate") ){//not punctate, so must be broad or mixed peakType
+		if( !peakType.equalsIgnoreCase("punctate") ){//IP sample's peak type: not punctate, so must be broad or mixed peakType (mixed is no longer option as of 12-30-14)
 			tempCommand.append(" --broad --broad-cutoff 0.1");//set for broad peaks and use default cutoff of 0.1
 		}
 			
@@ -240,7 +240,15 @@ public class Macstwo extends SoftwarePackage{
 		w.addCommand(new_command2);			
 			*/
 		
-		
+		//12-23-14: add header line to summits, narrowPeak, gappedPeak, broadPeak files (if exists). these are needed for display in ucsc genome browser (by contrast, ensemble browser appears to not require this information)
+		String sanitizedIPSampleName = fileService.getSanitizedName(ipSample.getName());
+		logger.debug("--adding track type, name, and description to macstwo summits, narrowPeak, gappedPeak, broadPeak files if any such files exist");
+		//note: for next four lines, need two backslashes in front of n in the sed command as this line is interpreted twice; example:    narrowPeak\\n/'
+		w.addCommand("[ -f " + prefixForFileName+"_peaks.narrowPeak ] && sed -i '1s/^/track type=narrowPeak name="+sanitizedIPSampleName+" description="+ prefixForFileName+"_peaks.narrowPeak\\n/' "+ prefixForFileName+"_peaks.narrowPeak");
+		w.addCommand("[ -f " + prefixForFileName+"_peaks.broadPeak ] && sed -i '1s/^/track type=broadPeak name="+sanitizedIPSampleName+" description="+ prefixForFileName+"_peaks.broadPeak\\n/' "+ prefixForFileName+"_peaks.broadPeak");
+		w.addCommand("[ -f " + prefixForFileName+"_peaks.gappedPeak ] && sed -i '1s/^/track type=gappedPeak name="+sanitizedIPSampleName+" description="+ prefixForFileName+"_peaks.gappedPeak\\n/' "+ prefixForFileName+"_peaks.gappedPeak");
+		w.addCommand("[ -f " + prefixForFileName+"_summits.bed ] && sed -i '1s/^/track name="+sanitizedIPSampleName+" description="+ prefixForFileName+"_summits.bed\\n/' "+ prefixForFileName+"_summits.bed");//this one is a simple bed file; there is no type
+		logger.debug("--just completed adding track type, name, and description to macstwo summits, narrowPeak, gappedPeak, broadPeak files if any such files exist");
 		
 		w.getConfiguration().setSoftwareDependencies(sd);
 

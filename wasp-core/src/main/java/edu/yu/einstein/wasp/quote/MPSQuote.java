@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.quote;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,10 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
 
 /**
  * 
@@ -27,6 +32,12 @@ public class MPSQuote {
 	private List<Comment> comments;
 	private List<String> errors;
 	private Integer totalFinalCost;
+	//12/16/14
+	private Integer totalLibraryConstructionCost;
+	private Integer totalSequenceRunCost;
+	private Integer totalAdditionalCost;
+	private Integer totalComputationalCost;
+	private Integer totalDiscountCost;
 	
 	public MPSQuote(){
 		this.jobId = new Integer(0);
@@ -40,6 +51,12 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 		this.errors = new ArrayList<String>();
 		this.totalFinalCost = new Integer(0);
+		//12/16/14
+		this.totalLibraryConstructionCost = new Integer(-1);
+		this.totalSequenceRunCost = new Integer(-1);
+		this.totalAdditionalCost = new Integer(-1);
+		this.totalComputationalCost = new Integer(-1);
+		this.totalDiscountCost = new Integer(-1);
 	}
 
 	public MPSQuote(Integer jobId){
@@ -54,6 +71,12 @@ public class MPSQuote {
 		this.comments = new ArrayList<Comment>();
 		this.errors = new ArrayList<String>();
 		this.totalFinalCost = new Integer(0);
+		//12/16/14
+		this.totalLibraryConstructionCost = new Integer(-1);
+		this.totalSequenceRunCost = new Integer(-1);
+		this.totalAdditionalCost = new Integer(-1);
+		this.totalComputationalCost = new Integer(-1);
+		this.totalDiscountCost = new Integer(-1);
 	}
 	
 	public void setJobId(Integer jobId){this.jobId = jobId;}
@@ -87,6 +110,22 @@ public class MPSQuote {
 	public void setTotalFinalCost(Integer totalFinalCost){
 		this.totalFinalCost = totalFinalCost;
 	}
+	//12-16-14
+	public void setTotalLibraryConstructionCost(Integer totalLibraryConstructionCost){
+		this.totalLibraryConstructionCost = totalLibraryConstructionCost;
+	}
+	public void setTotalSequenceRunCost(Integer totalSequenceRunCost){
+		this.totalSequenceRunCost = totalSequenceRunCost;
+	}
+	public void setTotalAdditionalCost(Integer totalAdditionalCost){
+		this.totalAdditionalCost = totalAdditionalCost;
+	}
+	public void setTotalComputationalCost(Integer totalComputationalCost){
+		this.totalComputationalCost = totalComputationalCost;
+	}
+	public void setTotalDiscountCost(Integer totalDiscountCost){
+		this.totalDiscountCost = totalDiscountCost;
+	}
 	
 	public Integer getJobId(){return this.jobId;}
 	public Integer getNumberOfLibrariesExpectedToBeConstructed(){return this.numberOfLibrariesExpectedToBeConstructed;}
@@ -98,8 +137,102 @@ public class MPSQuote {
 	public List<Discount> getDiscounts(){return this.discounts;}
 	public List<Comment> getComments(){return this.comments;}
 	public List<String> getErrors(){return this.errors;}
-	public Integer getTotalFinalCost(){return this.totalFinalCost;}
-	
+	public Integer getTotalFinalCost(){
+		/* commented out 12-30-14
+		//just for now, to deal with the old quotes; 12-17-14 since old quotes have different total
+		Integer newTotalFinalCost = this.getTotalLibraryConstructionCost() + this.getTotalSequenceRunCost() + this.getTotalAdditionalCost() 
+					+ this.getTotalComputationalCost() - this.getTotalDiscountCost();
+		this.setTotalFinalCost(newTotalFinalCost);
+		*/
+		return this.totalFinalCost;
+	}
+
+	//12-16-14
+	public Integer getTotalLibraryConstructionCost(){
+		/* commented out 12-30-14
+		if(this.totalLibraryConstructionCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
+			int cumulativeCostForAllLibraryConstructions = 0;	
+			for(LibraryCost libraryCost : this.getLibraryCosts()){
+				if(libraryCost.getReasonForNoLibraryCost().isEmpty()){//means there is a numeric value for this entry
+					Integer libConstructionCost = new Integer(libraryCost.getLibraryCost().intValue());//convert the Float to Integer
+					cumulativeCostForAllLibraryConstructions += libConstructionCost.intValue();
+				}
+			}
+			this.setTotalLibraryConstructionCost(Integer.valueOf(cumulativeCostForAllLibraryConstructions));
+		}
+		*/
+		return this.totalLibraryConstructionCost;
+	}
+
+	public Integer getTotalSequenceRunCost(){
+		/* commented out 12-30-14
+		if(this.totalSequenceRunCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from sequencingCosts list 		
+			int cumulativeCostForAllSequenceRuns = 0;
+			for(SequencingCost sequencingCost : this.getSequencingCosts()){
+				Integer numLanes = sequencingCost.getNumberOfLanes();
+				Integer pricePerLane = new Integer(sequencingCost.getCostPerLane().intValue());	//converting float to int to Integer
+				Integer totalCostPerSequenceRun = numLanes * pricePerLane;
+				cumulativeCostForAllSequenceRuns += totalCostPerSequenceRun.intValue();
+			}
+			this.setTotalSequenceRunCost(Integer.valueOf(cumulativeCostForAllSequenceRuns));
+		}
+		*/
+		return this.totalSequenceRunCost;
+	}
+
+	public Integer getTotalAdditionalCost(){
+		/* commented out 12-30-14
+		if(this.totalAdditionalCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from additionalCosts list 		
+			int cumulativeAdditionalCost = 0;
+			for(AdditionalCost additionalCost : this.getAdditionalCosts()){
+				Integer units = additionalCost.getNumberOfUnits();
+				Integer pricePerUnit = new Integer(additionalCost.getCostPerUnit().intValue());//convert float to into to Integer
+				Integer totalCostPerAdditionalCost = units * pricePerUnit;
+				cumulativeAdditionalCost += totalCostPerAdditionalCost.intValue();
+			}
+			this.setTotalAdditionalCost(Integer.valueOf(cumulativeAdditionalCost));
+		}
+		*/
+		return this.totalAdditionalCost;
+	}
+
+	public Integer getTotalComputationalCost(){
+		/* commented out 12-30-14
+		if(this.totalComputationalCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
+			int cumulativeCostForAllLibraryComputationalAnalyses = 0;	
+			for(LibraryCost libraryCost : this.getLibraryCosts()){
+				Integer libComputationalAnalysisCost = new Integer(libraryCost.getAnalysisCost().intValue());//convert the Float to Integer
+				cumulativeCostForAllLibraryComputationalAnalyses += libComputationalAnalysisCost.intValue();				
+			}
+			this.setTotalComputationalCost(Integer.valueOf(cumulativeCostForAllLibraryComputationalAnalyses));
+		}
+		*/
+		return this.totalComputationalCost;
+	}
+
+	public Integer getTotalDiscountCost(){
+		/* commented out 12-30-14
+		if(this.totalDiscountCost.intValue() == -1){	//for old quotes that lack this attribute in the stored json, pull this data from libraryCosts list 		
+			int cumulativeTotalDiscounts = 0;
+			DecimalFormat twoDFormat = new DecimalFormat("#.##");
+			Integer totalSequencingFacilityCost = this.getTotalLibraryConstructionCost()+this.getTotalSequenceRunCost()+this.getTotalAdditionalCost();
+			for(Discount discount : this.getDiscounts()){
+				if(discount.getType().equals("%")){
+	 	    		Double percentOff = Double.valueOf(twoDFormat.format(discount.getValue()));//it's stored as float with two fractional decimals ###.##
+	 	    		Double thisDiscount = Double.valueOf(twoDFormat.format(totalSequencingFacilityCost * percentOff / 100));
+	 	    		cumulativeTotalDiscounts += thisDiscount.intValue();	 	    		 
+	 	    	}
+	 	    	else if(discount.getType().equals(this.getLocalCurrencyIcon())){
+	 	    		int thisDiscount = discount.getValue().intValue();//it's stored as float with two fractional decimals ###.##
+	 	    		cumulativeTotalDiscounts += thisDiscount;	
+	 	    	}
+			}
+			this.setTotalDiscountCost(Integer.valueOf(cumulativeTotalDiscounts));
+		}
+		*/
+		return this.totalDiscountCost;
+	}
+
 	/**
 	* sets parameters based on JSON input
 	* @param <T>

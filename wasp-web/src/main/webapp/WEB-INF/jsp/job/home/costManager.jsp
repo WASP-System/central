@@ -8,12 +8,16 @@
 	<br />
 	<span style="padding:3px; border: 1px solid black;">
 		<a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/0/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.createQuote.label" /></a>
-		| <a <%--class="button"--%> href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' ><fmt:message key="jobHomeCostManager.uploadQuote.label" /></a>
+		<%-- | <a  href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/uploadQuoteOrInvoice.do" />");' ><fmt:message key="jobHomeCostManager.uploadQuote.label" /></a>--%>
 	</span>
 	<br />
 </c:if>
-<c:if test="${not empty mostRecentQuote }">
-	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentQuote}" /></h2>
+<c:if test="${not empty mostRecentMpsQuote }">
+	<br /><h2><fmt:message key="jobHomeCostManager.mostRecentQuote.label" />: <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalFinalCost()}" /></h2>
+	<h3><fmt:message key="jobHomeCostManager.initialSequenceFacilityCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() }" /></h3>
+	<h3><fmt:message key="jobHomeCostManager.discountOnSequenceFacilityCost.label" />:  (<c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalDiscountCost()}" />)</h3>
+	<h3><fmt:message key="jobHomeCostManager.discountedSequenceFacilityCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost()}" /></h3>
+	<h3><fmt:message key="jobHomeCostManager.computationalAnalysisCost.label" />:  <c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${mostRecentMpsQuote.getTotalComputationalCost() }" /></h3>
 </c:if>
 <br />
 <table class="data" style="margin: 0px 0px">
@@ -38,6 +42,8 @@
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.jobQuotesInvoices.label" /></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_description.label"/></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.dateCreated.label" /></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.mostRecent.label"/></td>
+						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobHomeCostManager.quoteEmailedToPI.label"/></td>
 						<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="listJobSamples.file_action.label"/></td>
 					</tr>
 					<c:set value="${false}" var="headingNeedsDisplay"/>		
@@ -49,7 +55,9 @@
 			 		  		<tr>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileHandle.getFileName()}" /></td>
 			 		  			<td class="DataTD value-centered"><c:out value="${fileGroup.getDescription()}" /></td>
-			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  			
+			 		  			<td class="DataTD value-centered"><fmt:formatDate pattern="yyyy-MM-dd" value="${acctQuote.getCreated()}" /></td>  
+			 		  			<td class="DataTD value-centered"><c:if test="${mostRecentQuoteId==acctQuote.getId() }">&#10004;</c:if></td>			
+			 		  			<td class="DataTD value-centered"><c:if test='${acctQuoteEmailSentToPIMap.get(acctQuote)=="yes" }'>&#10004;</c:if></td>			 		  			
 			 		  			<td class="DataTD value-centered">
 			 		  				<a href="<wasp:relativeUrl value="file/fileHandle/${fileHandle.getId()}/download.do" />" ><fmt:message key="listJobSamples.file_download.label"/></a> 
 			 		  				<c:if test="${fileHandlesThatCanBeViewedList.contains(fileHandle)}">
@@ -57,6 +65,9 @@
 		 		  					</c:if>
 		 		  					<c:if test="${viewerIsFacilityStaff==true && acctQuotesWithJsonEntry.contains(acctQuote)}">
 		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/createUpdateQuote.do" />");' ><fmt:message key="jobHomeCostManager.updateWithCare.label" /></a> 
+		 		  					</c:if>
+		 		  					<c:if test="${viewerIsFacilityStaff==true}">
+		 		  						| <a href="javascript:void(0);" onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/acctQuote/${acctQuote.getId()}/emailQuoteToPI.do" />");' ><fmt:message key="jobHomeCostManager.emailQuoteToPI.label" /></a> 
 		 		  					</c:if>
 			 		  			</td>
 			 		  		</tr>

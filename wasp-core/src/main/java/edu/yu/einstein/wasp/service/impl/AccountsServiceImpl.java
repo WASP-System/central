@@ -16,21 +16,30 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import edu.yu.einstein.wasp.dao.AcctGrantDao;
 import edu.yu.einstein.wasp.dao.AcctGrantjobDao;
 import edu.yu.einstein.wasp.dao.AcctGrantjobDraftDao;
+import edu.yu.einstein.wasp.dao.AcctQuoteDao;
+import edu.yu.einstein.wasp.dao.AcctQuoteMetaDao;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctGrantjob;
 import edu.yu.einstein.wasp.model.AcctGrantjobDraft;
+import edu.yu.einstein.wasp.model.AcctQuote;
+import edu.yu.einstein.wasp.model.AcctQuoteMeta;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -44,7 +53,12 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	
 	@Autowired
 	private SampleService sampleService;
-	
+
+	@Autowired
+	private AcctQuoteDao acctQuoteDao;
+	@Autowired
+	private AcctQuoteMetaDao acctQuoteMetaDao;
+
 	@Autowired
 	private AcctGrantDao acctGrantDao;
 	
@@ -56,6 +70,9 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 	
 	@Autowired
 	private AdaptorService adaptorService;
+	
+	@Autowired
+	private FileService fileService;
 
 	@Autowired
 	private MessageService messageService;
@@ -163,5 +180,61 @@ public class AccountsServiceImpl extends WaspServiceImpl implements AccountsServ
 			return jobDraftgrants.get(0);
 		return null;
 	}
-
+	@Override
+	public void recordQuoteEmailedToPI(AcctQuote acctQuote){
+		
+		AcctQuoteMeta acctQuoteMeta = null;
+		for(AcctQuoteMeta acctQuoteMetaExisting : acctQuote.getAcctQuoteMeta()){//to avoid duplicates
+			if(acctQuoteMetaExisting.getK().equals("acctQuote.quoteEmailedToPI")){
+				acctQuoteMeta = acctQuoteMetaExisting;
+				break;
+			}
+		}
+		if(acctQuoteMeta==null){
+			acctQuoteMeta = new AcctQuoteMeta();
+		}
+		acctQuoteMeta.setK("acctQuote.quoteEmailedToPI");
+		acctQuoteMeta.setV("true");
+		acctQuoteMeta.setAcctQuoteId(acctQuote.getId());
+		acctQuoteMetaDao.save(acctQuoteMeta);
+		acctQuoteMetaDao.flush(acctQuoteMeta);
+	}
+	@Override
+	public boolean isQuoteEmailedToPI(AcctQuote acctQuote){
+		boolean foundIt = false;
+		for(AcctQuoteMeta acctQuoteMeta : acctQuote.getAcctQuoteMeta()){
+			if(acctQuoteMeta.getK().equals("acctQuote.quoteEmailedToPI")){
+				if(acctQuoteMeta.getV().equals("true")){
+					foundIt = true;
+					break;
+				}
+			}
+		}
+		return foundIt;
+	}
+	@Override
+	public AcctQuote getAcctQuoteById(Integer id){
+		return acctQuoteDao.getById(id);
+	}
+	@Transactional
+	@Override
+	public FileHandle getFileHandleAssociatedWithThisQuote(Integer acctQuoteId){
+		FileHandle fileHandle = null;
+		for(AcctQuoteMeta acctQuoteMeta : this.getAcctQuoteById(acctQuoteId).getAcctQuoteMeta()){
+			if(acctQuoteMeta.getK().toLowerCase().contains("filegroupid")){
+				try{
+					FileGroup fileGroup = fileService.getFileGroupById(Integer.parseInt(acctQuoteMeta.getV()));
+					if(fileGroup != null && fileGroup.getId()!=null){
+						List<FileHandle> fileHandleList = new ArrayList<FileHandle>(fileGroup.getFileHandles());
+						if(!fileHandleList.isEmpty()){
+							fileHandle = fileHandleList.get(0);
+						}
+						break;
+					}					
+				}
+				catch(Exception e){logger.debug("unable to obtain file handle");}
+			}
+		}
+		return fileHandle;				
+	}
 }

@@ -28,6 +28,16 @@
 $(document).ready(function() { 
 //set column properties for the filterToolbar search 
 
+	jQuery("#grid_id").jqGrid('setColProp', 'currentStatus',
+		{
+			search:true,
+			sopt:['eq'],
+			editable: true, edittype: "select", stype: 'select',
+			//searchoptions: { sopt: ['eq'], value: ':<fmt:message key="run.readTypeAll.label" />;single:<fmt:message key="run.readTypeSingle.label" />;paired:<fmt:message key="run.readTypePaired.label" />' }
+			searchoptions: { sopt: ['eq'], value: "<c:out value="${allJobStatusForDropDownBox}" />" }
+
+		}); 
+		
 	jQuery("#grid_id").jqGrid('setColProp', 'submitter',
 	{
 		search:true,

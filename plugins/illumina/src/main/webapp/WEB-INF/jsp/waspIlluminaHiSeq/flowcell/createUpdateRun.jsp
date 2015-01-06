@@ -132,9 +132,9 @@
 	<tr><td colspan="3">
     	<div class="submit">
     		<c:if test="${empty(resourceNameError)}" >
-   	    		<input class="fm-button" type="button" onClick="submit();" value="<fmt:message key='runInstance.submit.label'/>" /> 
+   	    		<input class="fm-button" type="button" onClick="submit();openWaitDialog();" value="<fmt:message key='runInstance.submit.label'/>" /> 
    	    		<sec:authorize access="hasRole('su')">
-   	    			<input class="fm-button" type="button" onClick="$('#isRunStart').val('false');submit();" value="<fmt:message key='runInstance.submitNoStart.label'/>" /> 
+   	    			<input class="fm-button" type="button" onClick="$('#isRunStart').val('false');submit();openWaitDialog();" value="<fmt:message key='runInstance.submitNoStart.label'/>" /> 
    	    		</sec:authorize>
    	    	</c:if>
    	    	<c:if test="${not empty(resourceNameError)}" >

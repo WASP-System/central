@@ -146,7 +146,7 @@ public class LabController extends WaspController {
 	 * @return
 	 */
 	@RequestMapping("/list")
-	@PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga-*')")
+	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('da-*') or hasRole('ga-*')")
 	public String list(ModelMap m) {
 
 		m.addAttribute("_metaList",	getMetaHelperWebapp().getMasterList(MetaBase.class));

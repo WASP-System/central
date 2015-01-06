@@ -34,7 +34,9 @@
 			<td align="center">
 				<input type="reset" name="reset" value="<fmt:message key="listJobSamples.file_reset.label" />" />
 				<%--I don't know why, but having uploadJqueryForm("fileUploadFormId") wired through onsubmit via a regular submit button makes for Major problems!!!! use the button below --%>
-				<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("quoteOrInvoiceUploadFormId")' ><fmt:message key="jobHomeUploadQuoteOrInvoice.uploadQuoteOrInvoiceAndEmailToPI.label" /></a>
+				<input type="hidden" name="sendEmail" value="no" />
+				<a class="button" href="javascript:void(0);"  onclick='uploadJqueryForm("quoteOrInvoiceUploadFormId")' ><fmt:message key="jobHomeUploadQuoteOrInvoice.uploadQuoteOrInvoice.label" /></a>
+				<a class="button" href="javascript:void(0);"  onclick='document.getElementById("quoteOrInvoiceUploadFormId").sendEmail.value = "yes"; uploadJqueryForm("quoteOrInvoiceUploadFormId")' ><fmt:message key="jobHomeUploadQuoteOrInvoice.uploadQuoteOrInvoiceAndEmailToPI.label" /></a>
 				<a class="button" href="javascript:void(0);"  onclick='loadNewPageWithAjax("<wasp:relativeUrl value="job/${job.getId()}/costManager.do" />");' ><fmt:message key="sampledetail_rw.cancel.label" /></a>
 			</td>
 		</tr>
