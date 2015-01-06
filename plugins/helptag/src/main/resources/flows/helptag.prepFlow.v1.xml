@@ -25,7 +25,7 @@
 			</batch:tasklet>
 			<batch:next on="FAILED" to="helptag.library.countHpaii.step.notifyHcountFailed" />
 			<batch:end on="SKIP"/>
-			<batch:next on="*" to="helptag.library.countHpaii.step.makeAngles" />
+			<batch:next on="*" to="helptag.library.countHpaii.step.notifyHcountComplete" />
 			<batch:listeners>
 				<batch:listener>
 					<bean class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
@@ -35,7 +35,7 @@
 				</batch:listener>
 			</batch:listeners>
 		</batch:step>
-
+<!-- 
 		<batch:step id="helptag.library.countHpaii.step.makeAngles">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.AngleMakerTasklet" scope="step" />
@@ -43,7 +43,7 @@
 			<batch:next on="FAILED" to="helptag.library.countHpaii.step.notifyHcountFailed" />
 			<batch:next on="*" to="helptag.library.countHpaii.step.notifyHcountComplete" />
 		</batch:step>
-
+ -->
 		<batch:step id="helptag.library.countHpaii.step.notifyHcountComplete">
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
