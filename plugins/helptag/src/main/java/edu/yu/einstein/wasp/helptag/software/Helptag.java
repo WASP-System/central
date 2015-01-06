@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -50,6 +51,9 @@ public class Helptag extends SoftwarePackage{
 	@Autowired
 	SampleService sampleService;
 	
+	@Autowired
+	JobService jobService;
+
 	@Autowired
 	private GenomeService genomeService;	
 	
@@ -168,11 +172,11 @@ public class Helptag extends SoftwarePackage{
 	}
 
 	@Transactional("entityManager")
-	public WorkUnit getAngleMaking(Integer cellLibraryId) {
+	public WorkUnit getAngleMaking(Integer jobId) {
 		WorkUnit w = null;
-		SampleSource cl;
+		Job j;
 		try {
-			cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+			j = jobService.getJobByJobId(jobId);
 
 			List<FileHandle> inputBamFiles = new ArrayList<FileHandle>();
 			for (FileGroup fg : fileService.getFilesForCellLibraryByType(cl, bamFileType)) {
