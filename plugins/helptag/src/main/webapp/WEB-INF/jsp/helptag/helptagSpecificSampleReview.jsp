@@ -16,15 +16,14 @@
 	<c:when test="${fn:length(sampleDraftList)==0}">
 		<fmt:message key="${workflowIName}.helptagSpecificSampleReview_instructions_noWorkHere.label"/>
 	</c:when>
+	<c:when test="${errorsExist=='true'}">
+		<fmt:message key="${workflowIName}.helptagSpecificSampleReview_instructions_errorsExist.label"/>
+	</c:when>
+	<c:when test="${atLeastOneSampleConversionOccurred==true}">
+		<fmt:message key="${workflowIName}.helptagSpecificSampleReview_insructions_sampleConversionOccurred.label"/>
+	</c:when>
 	<c:otherwise>
-		<c:choose>
-			<c:when test="${atLeastOneSampleConversionOccurred==true}">
-				<fmt:message key="${workflowIName}.helptagSpecificSampleReview_instructions1.label"/>
-			</c:when>
-			<c:otherwise>
-		   		<fmt:message key="${workflowIName}.helptagSpecificSampleReview_instructions2.label"/>
-   			</c:otherwise>
-  		</c:choose>   		
+		<fmt:message key="${workflowIName}.helptagSpecificSampleReview_instructions1.label"/>   		
    	</c:otherwise>
   </c:choose>
 </div>
