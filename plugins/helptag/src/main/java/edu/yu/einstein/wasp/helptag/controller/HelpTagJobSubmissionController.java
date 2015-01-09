@@ -135,12 +135,9 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			return "redirect:/dashboard.do";
 		}
 		
-		//////////////////List<SampleDraft> sampleDraftsThatRequireConversionList = new ArrayList<SampleDraft>();
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
 		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
 		boolean errorsExist = false;
-		boolean atLeastOneSampleConversionCouldOccur = false;
-		/////////////boolean atLeastOneSampleConversionOccurred = false;
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
 			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want genomic DNA samples that are to be converted to help-tag libraries
@@ -160,41 +157,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 				errorsExist = true;
 			}
 			sampleDraftErrorListMap.put(sampleDraft, errorList);
-			sampleDraftList.add(sampleDraft);
-			
-			////////////List<String> librariesToCreateList = helptagService.getLibrariesToCreateList(normalizedMeta);
-			if(helptagService.getLibrariesToCreateList(normalizedMeta).size()>1){
-				atLeastOneSampleConversionCouldOccur = true;
-				//sampleDraftsThatRequireConversionList.add(sampleDraft);
-
-				////////////List<String> errorList = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta);
-				///////////////if(!errorList.isEmpty()){
-				///////////////	errorsExist = true;
-				////////////}
-				////////////////sampleDraftErrorListMap.put(sampleDraft, errorList);
-				///////////////sampleDraftList.add(sampleDraft);
-				/*
-				List<SampleDraft> newSampleDrafts = helptagService.createNewHelpDNASampleDrafts(sampleDraft, librariesToCreateList);
-				for(SampleDraft newSampleDraft : newSampleDrafts){
-					List<SampleDraftMeta> normalizedMeta2 = new ArrayList<SampleDraftMeta>();
-					try {	
-						normalizedMeta2.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(newSampleDraft.getSampleSubtype(), newSampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
-					} catch (MetadataTypeException e) {
-						logger.warn("Could not get meta into normalizedMeta2 for class 'SampleDraftMeta':" + e.getMessage());
-					}
-					newSampleDraft.setSampleDraftMeta(normalizedMeta2);
-					sampleDraftList.add(newSampleDraft);
-				}
-				atLeastOneSampleConversionOccurred = true;
-				jobDraftService.removeSampleDraftAndAllDependencies(jobDraft, sampleDraft);
-				*/
-			}
-			//else if(librariesToCreateList.size()==1){
-			//	sampleDraftList.add(sampleDraft);
-			//}
-			//else{
-			///	continue;//should not occur
-			//}							
+			sampleDraftList.add(sampleDraft);					
 		}
 	
 		m.addAttribute("jobDraft", jobDraft);
@@ -202,9 +165,6 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
 		m.addAttribute("errorsExist", errorsExist);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
-		//not used m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
-		///////////m.addAttribute("atLeastOneSampleConversionOccurred", atLeastOneSampleConversionOccurred);
-		m.addAttribute("atLeastOneSampleConversionCouldOccur", atLeastOneSampleConversionCouldOccur);		
 		if(errorsExist){waspErrorMessage("helptag.helptagSpecificSampleReview.error");}
 		return "jobsubmit/helptagSpecificSampleReview";
 	}
@@ -279,8 +239,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		if(sampleIdsAsStringArray==null){//there could be no DNA samples to deal with
 			return nextPage(jobDraft);
 		}
-		//////int numberOfIncomingRows = sampleIdsAsStringArray.length;
-
+		
 		String[] glycosylatedBeforeSubmissionValues = null;
 		String[] restrictedBeforeSubmissionValues = null;
 		String[] libraryToCreateValues = null;	
@@ -351,12 +310,11 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
 			m.addAttribute("errorsExist", errorsExist);
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			//not used m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 			waspErrorMessage("helptag.helptagSpecificSampleReview.error");
 			return "jobsubmit/helptagSpecificSampleReview";
 		}
 	
-		//no errors - so next check if we need to convert any sampleDraft to two or three samples because user asked for multiple libraries to be made
+		//no errors - so next check if we need to convert any sampleDraft to two or three samples because user asked for multiple libraries to be made; if so, do the conversion
 		for(SampleDraft sampleDraft : tempSampleDraftList){
 			List<String> librariesToCreateList = helptagService.getLibrariesToCreateList(sampleDraftSampleDraftMetaListMap.get(sampleDraft));//this will be the normalized meta from above
 			if(librariesToCreateList.size()>1){
@@ -371,7 +329,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 					newSampleDraft.setSampleDraftMeta(normalizedMeta2);
 					sampleDraftList.add(newSampleDraft);
 					
-					//acts as an assert test
+					//acts as an assert test, to make sure the system did not screw up with the conversions.
 					List<String> errorListAssert = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta2);
 					if(!errorListAssert.isEmpty()){
 						waspErrorMessage("helptag.helptagSpecificSampleReview_unexpectedProblemOccurredNewRecordHasErrors.error");						
@@ -393,8 +351,6 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			m.addAttribute("errorsExist", errorsExist);//will be false
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 			m.addAttribute("atLeastOneSampleConversionOccurred", atLeastOneSampleConversionOccurred);
-			//**MAKE A STATMENT ON waspMessage and show new instructions!!!!!!!!!!!!!			
-			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DO TYhis
 			waspMessage("helptag.helptagSpecificSampleReview_NewRecordsCreated.label");	
 			return "jobsubmit/helptagSpecificSampleReview";
 		}
