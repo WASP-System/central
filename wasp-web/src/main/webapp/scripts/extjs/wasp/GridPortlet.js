@@ -179,6 +179,7 @@ Ext.define('Wasp.GridPortlet', {
 			// window.open(record.get(grid.gblink), '_blank');
 			// }
 			},
+			callbacks2: {},
 			sortable: false,
 			keepSelection : true
 		};
@@ -191,7 +192,14 @@ Ext.define('Wasp.GridPortlet', {
 						+ action.iconClassName
 						+ '": "function(grid, record, action, row, col){linktext = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
-						+ '\');if(window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext)!=null){window.location=linktext;}}"}';
+						+ '\');window.location=linktext;}"}';
+
+				var fstr = 'function(grid, record, action, row, col){linktext = record.get(\'cb'
+						+ action.icnHashCode.toString().replace('-', '_')
+						+ '\');window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext);return false;}';
+				var configobj2 = JSON.parse('{"' + action.iconClassName + '": [] }');
+				configobj2[action.iconClassName].push({text:'Show link', handler: new Function('return ' + fstr)()});
+				Ext.apply(actioncol.callbacks2, configobj2);
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
@@ -228,6 +236,29 @@ Ext.define('Wasp.GridPortlet', {
 			// function(grid, record, action, row, col) {
 			// eval('+action.callbackContent+'); } }');
 			Ext.apply(actioncol.callbacks, configobj);
+			
+//			if (strcbfunc2) {
+//				var configobj2 = JSON.parse(strcbfunc2, function(key, value) {
+//						if (value && (typeof value === 'string')
+//								&& value.indexOf("function") === 0) {
+//							// we can only pass a function as string in JSON ==>
+//							// doing a real function
+//							// eval("var jsFunc = " + value);
+//							var jsFunc = new Function('return ' + value)();
+//							return jsFunc;
+//						}
+//
+//						return value;
+//					});
+//				actioncol.callbacks2.push(
+//					{	
+//						text: 'Show link',
+//						handler: configobj2
+//					}
+//				);
+//				Ext.apply(actioncol.callbacks2, configobj2);
+//			}
+			
 			actioncol.actions.push({
 						iconIndex : 'icon'
 								+ action.icnHashCode.toString().replace('-',
@@ -250,8 +281,17 @@ Ext.define('Wasp.GridPortlet', {
 						if (records.length > 0 && groupAction in grid.groupactiondatamap)
 							linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
 							window.location = linktext;
-							window.prompt('Copy download link to clipboard: Ctrl+C, Enter', linktext);
-					}
+							
+					},
+					callback2 : [ 
+						{
+							text: 'Show link',
+							handler: function(grid, records, groupAction, groupValue) {
+								linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+								window.prompt('Copy download link to clipboard: Ctrl+C, Enter', linktext);
+							}
+						}
+					]
 				}];
 				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
 			}
