@@ -23,6 +23,7 @@
 		<!-- <value>/jobsubmit/modifymeta/{n}</value> -->
 		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/samples/{n}</value>
+		<value>/jobsubmit/helptag/helptagSpecificSampleReview/{n}</value>
 		<value>/jobsubmit/genomes/{n}</value>
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/helptag/pair/{n}</value> 
@@ -72,6 +73,10 @@
           <property name="baseName" value="jobsubmit/samples" />
           <property name="label" value="helptag.samples.title" />
         </bean>
+        <bean parent="helptagUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/helptag/helptagSpecificSampleReview" />
+          <property name="label" value="helptag.helptagSpecificSampleReview.title" />
+        </bean>        
 		<bean parent="helptagUiFieldWrapper">
 			<property name="baseName" value="jobsubmit/genomes" />
 			<property name="label" value="helptag.genomes.title" />

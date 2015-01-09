@@ -38,6 +38,7 @@ import edu.yu.einstein.wasp.model.JobDraftCellSelection;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
@@ -592,5 +593,27 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		if (jdm != null && jdm.getV() != null)
 			return Boolean.valueOf(jdm.getV());
 		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeSampleDraftAndAllDependencies(JobDraft jobDraft, SampleDraft sampleDraft){
+		//remove lane selections
+		for (SampleDraftJobDraftCellSelection cellSelection : sampleDraft.getSampleDraftJobDraftCellSelection()){
+			sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
+		}
+		//remove replicates (currently, for chipseq only)
+		this.removeSampleDraftFromReplicates(jobDraft, sampleDraft);
+		//remove samplePairs
+		this.removeSampleDraftFromSamplePairsByJobDraft(jobDraft, sampleDraft);//removes from all samplePairs in this jobDraft
+		//remove sampleMeta
+		Map<String, Integer> query = new HashMap<String, Integer>();
+		query.put("sampleDraftId", sampleDraft.getId());
+		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
+			sampleDraftMetaDao.remove(sdm);
+		}		
+		sampleDraftDao.remove(sampleDraft);	
 	}
 }

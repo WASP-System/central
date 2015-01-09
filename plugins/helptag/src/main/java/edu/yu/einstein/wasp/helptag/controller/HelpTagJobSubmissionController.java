@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.helptag.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 
 @Controller
 @Transactional
@@ -68,7 +72,9 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 
 		// helptag specific parameters needed on the JSP form
 		m.put("m_samples", helptagService.getAllMspISampleDraftsFromJobDraftId(jobDraftId));
-		m.put("h_samples", helptagService.getAllHpaIISampleDraftsFromJobDraftId(jobDraftId));
+		//m.put("h_samples", helptagService.getAllHpaIISampleDraftsFromJobDraftId(jobDraftId));		
+		m.put("h_samples", helptagService.getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId(jobDraftId));
+		
 		m.put("samplePairStrPrefix", SAMPLE_PAIR_STR_PREFIX);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 
@@ -118,5 +124,212 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 	}
 
 
+	@RequestMapping(value="/helptagSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String helptagSpecificSampleReview (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
+		boolean errorsExist = false;
+		boolean atLeastOneSampleConversionOccurred = false;
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			
+			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want DNA samples that are to be converted to help-tag libraries
+				continue;
+			}
+			
+			List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+			try {			
+				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+			} catch (MetadataTypeException e) {
+				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+			}
+			sampleDraft.setSampleDraftMeta(normalizedMeta);
+			
+			List<String> librariesToCreateList = helptagService.getLibrariesToCreateList(normalizedMeta);
+			if(librariesToCreateList.size()>1){
+				List<SampleDraft> newSampleDrafts = helptagService.createNewHelpDNASampleDrafts(sampleDraft, librariesToCreateList);
+				for(SampleDraft newSampleDraft : newSampleDrafts){
+					List<SampleDraftMeta> normalizedMeta2 = new ArrayList<SampleDraftMeta>();
+					try {	
+						normalizedMeta2.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(newSampleDraft.getSampleSubtype(), newSampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+					} catch (MetadataTypeException e) {
+						logger.warn("Could not get meta into normalizedMeta2 for class 'SampleDraftMeta':" + e.getMessage());
+					}
+					newSampleDraft.setSampleDraftMeta(normalizedMeta2);
+					sampleDraftList.add(newSampleDraft);
+				}
+				atLeastOneSampleConversionOccurred = true;
+				jobDraftService.removeSampleDraftAndAllDependencies(jobDraft, sampleDraft);
+			}
+			else if(librariesToCreateList.size()==1){
+				sampleDraftList.add(sampleDraft);
+			}
+			else{
+				continue;//should not occur
+			}							
+		}
+	
+		for(SampleDraft sd : sampleDraftList){
+			List<String> errorList = this.checkForGlycosylatedRestrictedLibrariesToCreateError(sd.getSampleDraftMeta());
+			if(!errorList.isEmpty()){
+				errorsExist = true;
+			}
+			sampleDraftErrorListMap.put(sd, errorList);
+		}
+		
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
+		m.addAttribute("errorsExist", errorsExist);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+		m.addAttribute("atLeastOneSampleConversionOccurred", atLeastOneSampleConversionOccurred);
+		
+		if(errorsExist){waspErrorMessage("helptag.helptagSpecificSampleReview.error");}
+		//////////////////return "jobsubmit/chipSeqSpecificSampleReview";		
+		return "jobsubmit/helptagSpecificSampleReview";
+	}
+	private List<String> checkForGlycosylatedRestrictedLibrariesToCreateError(List<SampleDraftMeta> sampleDraftMetaList){
+		List<String> errorList = new ArrayList<String>();
+		
+		String glycosylatedBeforeSubmission = "";//should be either glycosylated or unglycosylated
+		String restrictedBeforeSubmission = "";//should be unrestricted or restricted
+		String libraryToCreate = "";//MspI or HpaII or beta-GT-MspI
+
+		for(SampleDraftMeta sdm : sampleDraftMetaList){
+			if(sdm.getK().endsWith("glycosylatedBeforeSubmission")){
+				glycosylatedBeforeSubmission = sdm.getV();
+			}
+			else if(sdm.getK().endsWith("restrictedBeforeSubmission")){
+				restrictedBeforeSubmission = sdm.getV();
+			}
+			else if(sdm.getK().endsWith("libraryToCreate")){
+				libraryToCreate = sdm.getV();
+			}
+		}
+		
+		if(glycosylatedBeforeSubmission.isEmpty()){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_glycosylatedEmpty.error"));
+			//errorList.add("Sample glycosylation status cannot be empty");
+		}
+		if(restrictedBeforeSubmission.isEmpty()){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_restrictionEmpty.error"));
+			//errorList.add("Sample restriction status cannot be empty");
+		}
+		if(libraryToCreate.isEmpty()){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_libraryToCreateEmpty.error"));
+			//errorList.add("Library to create cannot be empty");
+		}
+		
+		if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("unrestricted")){
+			;//NOT AN ERROR, since any library request is fine
+		}
+		else if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("MspI") && !libraryToCreate.equals("MspI")){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_unglycosylatedRestrictedMsp.error"));
+			//errorList.add("Unglycosylated/MspI-restricted DNA compatible only with MspI library");//since glycosylation must precede restriction
+		}
+		else if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("HpaII") && !libraryToCreate.equals("HpaII")){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_unglycosylatedRestrictedHpa.error"));
+			//errorList.add("Unglycosylated/HpaII-restricted DNA compatible only with HpaII library");//since glycosylation must precede restriction
+		}
+		else if(glycosylatedBeforeSubmission.equals("beta-GT") && ! libraryToCreate.equals("beta-GT-MspI")){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_glycosylatedLibrary.error"));
+			//errorList.add("Glycosylated DNA compatible only with beta-GT-MspI library");
+		}
+		return errorList;
+	}
+	@RequestMapping(value="/helptagSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String helptagSpecificSampleReviewPost (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		
+		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
+		if(sampleIdsAsStringArray==null){//there could be no DNA samples to deal with
+			return nextPage(jobDraft);
+		}
+		int numberOfIncomingRows = sampleIdsAsStringArray.length;
+
+		String[] glycosylatedBeforeSubmissionValues = null;
+		String[] restrictedBeforeSubmissionValues = null;
+		String[] libraryToCreateValues = null;	
+		
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		for (String key : parameterMap.keySet()) {
+			if(key.endsWith("glycosylatedBeforeSubmission")){
+				glycosylatedBeforeSubmissionValues = parameterMap.get(key);
+			}
+			else if(key.endsWith("restrictedBeforeSubmission")){
+				restrictedBeforeSubmissionValues = parameterMap.get(key);
+			}
+			else if(key.endsWith("libraryToCreate")){
+				libraryToCreateValues = parameterMap.get(key);
+			}
+		}
+	
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
+		boolean errorsExist = false;
+		
+		int counter = 0;
+		for(String idAsString: sampleIdsAsStringArray){
+			SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(idAsString));
+			
+			List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
+			try {			
+				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
+			} catch (MetadataTypeException e) {
+				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
+			}
+			for(SampleDraftMeta sdm : normalizedMeta){
+				if(sdm.getK().endsWith("glycosylatedBeforeSubmission")){
+					sdm.setV(glycosylatedBeforeSubmissionValues[counter]);
+				}
+				else if(sdm.getK().endsWith("restrictedBeforeSubmission")){
+					sdm.setV(restrictedBeforeSubmissionValues[counter]);
+				}
+				else if(sdm.getK().endsWith("libraryToCreate")){
+					sdm.setV(libraryToCreateValues[counter]);
+				}
+			}
+			//conscious decision by Rob: save the new meta, even if it has problems. will check below (if errorsExist==true) and return to jobsubmit/chipSeqSpecificSampleReview if errors
+			try{
+				sampleDraftMetaDao.setMeta(normalizedMeta, sampleDraft.getId());//THIS IS A SAVE COMMAND!
+			}
+			catch(Exception e){logger.debug("unable to save sampleMetaList in helptagSpecificSampleReviewPost() for sampleDraft: " + sampleDraft.getName() + ". message: " + e.getMessage());}
+			
+			sampleDraft.setSampleDraftMeta(normalizedMeta);			
+			sampleDraftList.add(sampleDraft);
+			
+			List<String> errorList = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta);
+			if(!errorList.isEmpty()){
+				errorsExist = true;
+			}
+			sampleDraftErrorListMap.put(sampleDraft, errorList);
+			
+			counter++;
+		}
+		
+		if(errorsExist){
+			m.addAttribute("jobDraft", jobDraft);
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
+			m.addAttribute("errorsExist", errorsExist);
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
+			waspErrorMessage("helptag.helptagSpecificSampleReview.error");
+			return "jobsubmit/helptagSpecificSampleReview";
+		}		
+		return nextPage(jobDraft);
+	}
 }
 
