@@ -162,4 +162,27 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return hpaAndbetaGTMspSampleDrafts;
 	}
 
+	public List<SampleDraft> getAllbetaGTMspISampleDraftsFromJobDraftId(Integer id){
+		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
+		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
+		
+		List<SampleDraft> betaGTMspSampleDrafts = new ArrayList<SampleDraft>();
+		String enzymeString;
+		for (SampleDraft sd : sampleDrafts) {
+			try{
+				if(sd.getSampleType().getIName().equalsIgnoreCase("library")){
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				}
+				else{//genomic DNA; 1-8-15; dubin
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
+				}
+				if (enzymeString.equals("beta-GT-MspI"))
+					betaGTMspSampleDrafts.add(sd);
+			} catch(MetadataException e) {
+				// not found
+				logger.debug("Restriction Enzyme Meta (and libraryToCreate meta) is not found for Sample Draft id = " + id);
+			}
+		}
+		return betaGTMspSampleDrafts;
+	}
 }

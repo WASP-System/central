@@ -33,5 +33,5 @@ public interface HelptagService extends WaspService {
 		public List<String> getLibrariesToCreateList(List<SampleDraftMeta> sampleDraftMetaList);
 		public List<SampleDraft> createNewHelpDNASampleDrafts(SampleDraft sampleDraft, List<String> librariesToCreateList);
 		public List<SampleDraft> getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId(Integer id);
-		
+		public List<SampleDraft> getAllbetaGTMspISampleDraftsFromJobDraftId(Integer id);
 }

@@ -82,6 +82,13 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
 		
+		boolean atLeastOneBetaGTMspISampleDraftPresent = false;
+		List<SampleDraft> betaGTMspISampleDraftList = helptagService.getAllbetaGTMspISampleDraftsFromJobDraftId(jobDraftId);
+		if(betaGTMspISampleDraftList.size()>0){
+			atLeastOneBetaGTMspISampleDraftPresent = true;
+		}
+		m.put("atLeastOneBetaGTMspISampleDraftPresent",atLeastOneBetaGTMspISampleDraftPresent);
+		
 		return "jobsubmit/helptagform";
 	}
 
