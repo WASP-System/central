@@ -6,9 +6,18 @@ function mergeDownloadLinks(records, linkfield) {
 
 	var links = records[0].get(linkfield);
 
-	for (var i = 1; i < records.length; i++) {
-		var uuid = records[i].get(linkfield);
-		links += "," + uuid.substring(uuid.lastIndexOf('/') + 1);
+	if (records.length > 1) {
+		// trim off the file name if any
+		var pattUUID = /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
+		var n = links.search(pattUUID);
+		links = links.substring(0,n+36);
+		
+		for (var i = 1; i < records.length; i++) {
+			var uuid = records[i].get(linkfield);
+			n = uuid.search(pattUUID);
+			links += "," + uuid.substring(n, n+36);//uuid.lastIndexOf('/') + 1);
+		}
+		links += "/FileGroup.zip";
 	}
 
 	return links;
