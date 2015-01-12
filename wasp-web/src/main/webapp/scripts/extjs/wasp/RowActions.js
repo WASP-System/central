@@ -508,7 +508,7 @@ Ext.define('Wasp.RowActions',{
 			}
 			
 			// make context menu from callback2 if any
-			if(me.callbacks2 && me.callbacks2[action]) { // && 'array' === typeof me.callbacks2[action]) {
+			if(me.callbacks2 && me.callbacks2[action] && me.callbacks2[action].constructor === Array) {
 				myContextMenu(me.menu_grid, me.callbacks2[action], e, grid, record, action, recordIndex, col);
 			}
 
@@ -558,7 +558,7 @@ Ext.define('Wasp.RowActions',{
 			me.callbacks[action](grid, records, action, currentVal);
 		}
 		// call contextmenu/rightclick callback if any
-		else if(e.type === me.actionEvent2 && me.callbacks2[action]) {
+		else if(e.type === me.actionEvent2 && me.callbacks2[action] && me.callbacks2[action].constructor === Array) {
 			myGroupContextMenu(me.menu_grid, me.callbacks2[action], e, grid, records, action, currentVal);
 		}
 
