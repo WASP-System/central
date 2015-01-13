@@ -1,5 +1,55 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<script type="text/javascript">
+	(function($){ 
+		$(document).ready(function(){
+//alert("second dubin testing alert");
+//$(".dubinclass").html("<br />the added html text<br />");
+//$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ $( this ).html("<br />the added html text agotti16 and the id is: " + $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","")); });
+
+//$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ $( this ).html("<br />the added html text agottiiasdf16 and the id is: " + $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","")); });
+
+$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ 
+	var theEle = $( this );
+	var theId = $( this ).attr("id");
+	$.ajax({
+        type: "GET",
+        url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+        async:   false, 
+        success: function (response) {
+        	//alert("success");
+        	//$( "#dubintest" ).html(response);
+        	theEle.html("myId = " + theId);
+        },
+        error: function (response) {
+        	//alert("failure");
+        	$( "#dubintest" ).html("<br />failure");
+        }
+    });
+	
+	
+});
+
+/*			
+$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){
+				$.ajax({
+			        type: "GET",
+			        url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        success: function (response) {
+			        	
+			        	$( this ).html("success");
+			        },
+			        error: function (response) {
+			        	
+			        	$( this ).html("failure");
+			        }
+			    });
+			});
+	*/		
+		});
+	})(jQuery);
+	</script>
+	
 <br />
 	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
@@ -60,6 +110,11 @@
 						</c:if>
 						<br />		  
 					</c:if>
+	<div id="displayExtraMetaForMacromoleculeSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
+	<div id="dubintest"></div>
+	
+	
+					
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
