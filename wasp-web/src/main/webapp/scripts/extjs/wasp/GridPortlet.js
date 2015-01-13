@@ -42,6 +42,11 @@ Ext.define('Wasp.GridPortlet', {
 	groupfield : '',
 	groupheader : '{name}',
 	groupactiondatamap : {},
+	
+	checkbox : false,
+	checkbox_btns : [],
+	
+	tbalign : 'center',
 
 	statusfld : null,
 
@@ -269,16 +274,9 @@ Ext.define('Wasp.GridPortlet', {
 //			}
 			
 			actioncol.actions.push({
-						iconIndex : 'icon'
-								+ action.icnHashCode.toString().replace('-',
-										'_'),
-						qtipIndex : 'tip'
-								+ action.icnHashCode.toString().replace('-',
-										'_'),
-						hideIndex : 'hide'
-								+ action.icnHashCode.toString().replace('-',
-										'_')
-
+						iconIndex : 'icon' + action.icnHashCode.toString().replace('-', '_'),
+						qtipIndex : 'tip' + action.icnHashCode.toString().replace('-', '_'),
+						hideIndex : 'hide' + action.icnHashCode.toString().replace('-', '_')
 					});
 
 			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
@@ -303,6 +301,22 @@ Ext.define('Wasp.GridPortlet', {
 					]
 				}];
 				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
+			}
+			
+			if (action.checkbox == true && action.callbackFunctionType === 'DOWNLOAD') {
+				grid.checkbox = true;
+				grid.checkbox_btns.push({
+											minWidth : 80,
+											disabled : true,
+											text : action.checkboxBtnName,
+											linkfield : 'cb' + action.icnHashCode.toString().replace('-', '_'),
+											handler : function(me, e) {
+												var records = grid.getSelectionModel().getSelection();
+												if (records.length > 0) {
+													window.location = mergeDownloadLinks(records, me.linkfield);
+												}
+											}
+										});
 			}
 		};
 
@@ -376,7 +390,7 @@ Ext.define('Wasp.GridPortlet', {
 				});
 
 		// enable selecting multiple files to download
-		if (this.dlselect && this.dllinkfld != '') {
+		if (this.checkbox && this.checkbox_btns.length>0) {
 			Ext.apply(this, {
 				selModel : Ext.create('Ext.selection.CheckboxModel', {
 							singleSelect : false,
@@ -385,12 +399,18 @@ Ext.define('Wasp.GridPortlet', {
 							mode : 'SIMPLE',
 							listeners : {
 								selectionchange : function(me, selected, eOpts) {
-									var dlbtn = grid.down('button[text="'
-											+ grid.dlbtntxt + '"]');
-									if (selected.length == 0) {
-										dlbtn.disable();
-									} else {
-										dlbtn.enable();
+									//var dlbtn = grid.down('button[text="' + grid.dlbtntxt + '"]');
+									var tb = grid.getDockedItems('toolbar[dock="bottom"]').pop();
+									if (tb && tb.items.length>0) {
+										if (selected.length == 0) {
+											for (var i=0; i<tb.items.length; i++) {
+												tb.items.get(i).disable();
+											}
+										} else {
+											for (var i=0; i<tb.items.length; i++) {
+												tb.items.get(i).enable();
+											}
+										}
 									}
 								}
 							}
@@ -400,21 +420,22 @@ Ext.define('Wasp.GridPortlet', {
 					dock : 'bottom',
 					ui : 'footer',
 					layout : {
-						pack : this.dlbtnalign
+						pack : this.tbalign
 					},
-					items : [{
-						minWidth : 80,
-						disabled : true,
-						text : this.dlbtntxt,
-						handler : function(me, e) {
-							var records = grid.getSelectionModel()
-									.getSelection();
-							if (records.length > 0) {
-								window.location = mergeDownloadLinks(records,
-										grid.dllinkfld);
-							}
-						}
-					}]
+					items : this.checkbox_btns
+//					[{
+//						minWidth : 80,
+//						disabled : true,
+//						text : this.dlbtntxt,
+//						handler : function(me, e) {
+//							var records = grid.getSelectionModel()
+//									.getSelection();
+//							if (records.length > 0) {
+//								window.location = mergeDownloadLinks(records,
+//										grid.dllinkfld);
+//							}
+//						}
+//					}]
 				}]
 			});
 		}
