@@ -28,12 +28,15 @@ public class Action {
 
 	private GroupActionAlignType groupAlign = GroupActionAlignType.RIGHT;
 
+	private boolean checkbox = false;
+
+	private String checkboxBtnName = "";
+
 	public Action() {
 		super();
 	}
 
-	public Action(String iconClassName, String tooltip,
-			CallbackFunctionType callbackFunctionType, String callbackContent) {
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent) {
 		super();
 		this.iconClassName = iconClassName;
 		this.icnHashCode = iconClassName.hashCode();
@@ -42,9 +45,20 @@ public class Action {
 		this.setCallbackContent(callbackContent);
 	}
 
-	public Action(String iconClassName, String tooltip,
-			CallbackFunctionType callbackFunctionType, String callbackContent,
-			boolean group, String groupIconClassName) {
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent, boolean checkbox,
+			String checkboxBtnName) {
+		super();
+		this.iconClassName = iconClassName;
+		this.icnHashCode = iconClassName.hashCode();
+		this.tooltip = tooltip;
+		this.callbackFunctionType = callbackFunctionType;
+		this.setCallbackContent(callbackContent);
+		this.checkbox = checkbox;
+		this.checkboxBtnName = checkboxBtnName;
+	}
+
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent, boolean group,
+			String groupIconClassName, boolean checkbox, String checkboxBtnName) {
 		super();
 		this.iconClassName = iconClassName;
 		this.icnHashCode = iconClassName.hashCode();
@@ -53,12 +67,12 @@ public class Action {
 		this.setCallbackContent(callbackContent);
 		this.group = group;
 		this.groupIconClassName = groupIconClassName;
+		this.checkbox = checkbox;
+		this.checkboxBtnName = checkboxBtnName;
 	}
 
-	public Action(String iconClassName, String tooltip,
-			CallbackFunctionType callbackFunctionType, String callbackContent,
-			boolean group, String groupIconClassName, String groupTooltip,
-			GroupActionAlignType groupAlign) {
+	public Action(String iconClassName, String tooltip, CallbackFunctionType callbackFunctionType, String callbackContent, boolean group,
+			String groupIconClassName, String groupTooltip, GroupActionAlignType groupAlign, boolean checkbox, String checkboxBtnName) {
 		super();
 		this.iconClassName = iconClassName;
 		this.icnHashCode = iconClassName.hashCode();
@@ -69,12 +83,13 @@ public class Action {
 		this.groupIconClassName = groupIconClassName;
 		this.groupTooltip = groupTooltip;
 		this.groupAlign = groupAlign;
+		this.checkbox = checkbox;
+		this.checkboxBtnName = checkboxBtnName;
 	}
 
 	/**
-	 * get icon class name specified in css somewhere e.g. '.icon-group-download
-	 * { background-image: url(ext/images/icons/fam/disk_multiple.png)
-	 * !important;}'. Defaults to empty string
+	 * get icon class name specified in css somewhere e.g. '.icon-group-download { background-image: url(ext/images/icons/fam/disk_multiple.png) !important;}'.
+	 * Defaults to empty string
 	 * 
 	 * @return
 	 */
@@ -87,9 +102,7 @@ public class Action {
 	}
 
 	/**
-	 * Set icon class name specified in css somewhere e.g. '.icon-group-download
-	 * { background-image: url(ext/images/icons/fam/disk_multiple.png)
-	 * !important;}'.
+	 * Set icon class name specified in css somewhere e.g. '.icon-group-download { background-image: url(ext/images/icons/fam/disk_multiple.png) !important;}'.
 	 * 
 	 * @param iconClassName
 	 */
@@ -117,8 +130,7 @@ public class Action {
 	}
 
 	/**
-	 * Gets callback function type, e.g. UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN,
-	 * OPEN_IN_NEW_BROWSER_WIN
+	 * Gets callback function type, e.g. UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN, OPEN_IN_NEW_BROWSER_WIN
 	 * 
 	 * @return
 	 */
@@ -127,20 +139,16 @@ public class Action {
 	}
 
 	/**
-	 * Sets callback function type, e.g. UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN,
-	 * OPEN_IN_NEW_BROWSER_WIN
+	 * Sets callback function type, e.g. UNKNOWN, DOWNLOAD, OPEN_IN_CSS_WIN, OPEN_IN_NEW_BROWSER_WIN
 	 * 
 	 * @param callbackFunctionType
 	 */
-	public void setCallbackFunctionType(
-			CallbackFunctionType callbackFunctionType) {
+	public void setCallbackFunctionType(CallbackFunctionType callbackFunctionType) {
 		this.callbackFunctionType = callbackFunctionType;
 	}
 
 	/**
-	 * Get the callback content to be handled. Handling may be dependent on
-	 * callback function type. May be a URL or HTML etc. Defaults to empty
-	 * string
+	 * Get the callback content to be handled. Handling may be dependent on callback function type. May be a URL or HTML etc. Defaults to empty string
 	 * 
 	 * @return
 	 */
@@ -149,8 +157,7 @@ public class Action {
 	}
 
 	/**
-	 * Set the callback content to be handled. Handling may be dependent on
-	 * callback function type. May be a URL or HTML etc.
+	 * Set the callback content to be handled. Handling may be dependent on callback function type. May be a URL or HTML etc.
 	 * 
 	 * @param callbackContent
 	 */
@@ -218,17 +225,44 @@ public class Action {
 		this.groupAlign = groupAlign;
 	}
 
+	/**
+	 * @return the checkbox
+	 */
+	public boolean isCheckbox() {
+		return checkbox;
+	}
+
+	/**
+	 * @param checkbox
+	 *            the checkbox to set
+	 */
+	public void setCheckbox(boolean checkbox) {
+		this.checkbox = checkbox;
+	}
+
+	/**
+	 * @return the checkboxBtnName
+	 */
+	public String getCheckboxBtnName() {
+		return checkboxBtnName;
+	}
+
+	/**
+	 * @param checkboxBtnName the checkboxBtnName to set
+	 */
+	public void setCheckboxBtnName(String checkboxBtnName) {
+		this.checkboxBtnName = checkboxBtnName;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (!this.getClass().isInstance(obj)
-				&& !obj.getClass().isInstance(this))
-			return false; // allow comparison if one class is derived from the
-							// other
-		return iconClassName.equals(((Action) obj).getIconClassName()); 
+		if (!this.getClass().isInstance(obj) && !obj.getClass().isInstance(this))
+			return false; // allow comparison if one class is derived from the other
+		return iconClassName.equals(((Action) obj).getIconClassName());
 	}
 
 	@Override
