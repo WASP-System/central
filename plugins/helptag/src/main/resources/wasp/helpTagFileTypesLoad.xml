@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+  <bean id="hcountFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="hpaII Hit Counts" />
+    <property name="area" value="hcount" />
+    <property name="description" value="Tab delimited format for storing hpaII hit counts with columns: id chrom coordinate count_total count_F_strand count_R_strand" />
+    <property name="extensions" value="hcount" />
+  </bean>
+
+</beans>
+

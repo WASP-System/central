@@ -6,17 +6,21 @@ package edu.yu.einstein.wasp.helptag.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.dao.FileTypeDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileType;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
@@ -30,11 +34,14 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	private JobDraftService jobDraftService;
 	
 	@Autowired
-	private FileTypeDao fileTypeDao;
+	private FileService fileService;
 
 	@Autowired
 	private SampleService sampleService;
 	
+	@Autowired
+	private FileType hcountFileType;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -122,4 +129,19 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public boolean confirmCellLibrariesAssociatedWithHcountFiles(List<SampleSource> cellLibraryList) {
+		for (SampleSource cellLibrary : cellLibraryList) {
+			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, hcountFileType);
+			if (fileGroupSetFromCellLibrary.isEmpty()) {
+				logger.debug("no hcount files associated with cellLibrary id: " + cellLibrary.getId());
+				return false;
+			}
+		}
+		return true;
+	}
 }

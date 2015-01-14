@@ -21,6 +21,7 @@ import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.daemon.batch.tasklets.LaunchManyJobsTasklet;
 import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
+import edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.WaspSoftwareJobParameters;
@@ -81,22 +82,18 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 	@Override
 	@Transactional("entityManager")
 	public void doExecute() {
-		//logger.debug("1	in doExecute() ");	
 		Map<String,JobParameter> jobParametersMap = getStepExecution().getJobParameters().getParameters();	
 		Integer jobIdFromJobParameter = null;
 		for (String key : getStepExecution().getJobParameters().getParameters().keySet()) {
-			//logger.debug("2	in doExecute() key: " + key);	
 			if(key.equalsIgnoreCase(WaspJobParameters.JOB_ID)){
 				JobParameter jp = jobParametersMap.get(key);
 				jobIdFromJobParameter = new Integer(jp.toString());
-				//logger.debug("3	in doExecute() jobIdFromJobParameter: " + jobIdFromJobParameter.toString());
 			}
 		}
 		
 		Assert.assertTrue(jobIdFromJobParameter>0);
 		Job job = jobService.getJobByJobId(jobIdFromJobParameter);
 		Assert.assertTrue(job.getId()>0);
-		//logger.debug("4	in doExecute()		");
 		List<SampleSource> approvedCellLibraryList = null;
 		try{
 			approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);	
@@ -104,32 +101,26 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 			logger.debug("unable to obtain approvedCellLibraryList in AngleMakerTasklet; message = " + e.getMessage());
 		}
 		Assert.assertTrue(approvedCellLibraryList != null && !approvedCellLibraryList.isEmpty());
-		Assert.assertTrue(this.sequencingService.confirmCellLibrariesAssociatedWithBamFiles(approvedCellLibraryList));
-		//logger.debug("5	in doExecute()	approvedCellLibraryList.size(): 	" + approvedCellLibraryList.size());
+		Assert.assertTrue(helptagService.confirmCellLibrariesAssociatedWithHcountFiles(approvedCellLibraryList));
+
 		Map<Sample, List<SampleSource>> approvedSampleApprovedCellLibraryListMap = sampleService.associateUppermostSampleWithCellLibraries(approvedCellLibraryList);
-		//logger.debug("6	in doExecute()	");	
 		Set<Sample> setOfApprovedSamples = new HashSet<Sample>();//for a specific job (note: this really could have been a list)
 		for (Sample approvedSample : approvedSampleApprovedCellLibraryListMap.keySet()) {
-			//logger.debug("7	in doExecute()	approved sample: " + approvedSample.getName());	
 			setOfApprovedSamples.add(approvedSample);
 		}
 		
 		Set<Sample> sampleSetOfHpaIIPairedWithMspI = new HashSet<Sample>();
 		for(Sample approvedSample : setOfApprovedSamples){
 			logger.debug("approvedSample : " + approvedSample.getName());
-			//logger.debug("8	in doExecute()	");		
 			if (helptagService.isHpaII(approvedSample.getId())) {
 				// only make angles for HpaII samples
 				List<SampleSource> cellLibraryListForHpaII = approvedSampleApprovedCellLibraryListMap.get(approvedSample);
 
 				for(SampleSource ss : sampleService.getSamplePairsByJob(job)){
-					// logger.debug("C in doExecute() ");
-    				Sample hpaSample = ss.getSample();
+					Sample hpaSample = ss.getSample();
     				Sample mspSample = ss.getSourceSample();
     				if (approvedSample.getId().intValue() == hpaSample.getId().intValue()) {
-						// logger.debug("D in doExecute() ");
 						if (setOfApprovedSamples.contains(mspSample)) {
-							//logger.debug("E	in doExecute() ");
 							Assert.assertTrue(sampleService.confirmSamplePairIsOfSameSpecies(hpaSample, mspSample));
 							List<SampleSource> cellLibraryListForMspI = approvedSampleApprovedCellLibraryListMap.get(mspSample);
 							sampleSetOfHpaIIPairedWithMspI.add(approvedSample);
@@ -163,10 +154,10 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 			Assert.assertTrue(flowName != null && !flowName.isEmpty());
 			logger.warn("Flowname : " + flowName);//for macstwo, flowname will be: edu.yu.einstein.wasp.macstwo.mainFlow
 			Map<String, String> jobParameters = softwareConfig.getParameters();
-			jobParameters.put(ChipSeqSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(testCellLibraryIdList));
-			jobParameters.put(ChipSeqSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
-			jobParameters.put(ChipSeqSoftwareJobParameters.JOB_ID, job.getId().toString());
-			jobParameters.put(ChipSeqSoftwareJobParameters.PEAK_TYPE, peakType);
+			jobParameters.put(HelptagSoftwareJobParameters.TEST_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(testCellLibraryIdList));
+			jobParameters.put(HelptagSoftwareJobParameters.CONTROL_LIBRARY_CELL_ID_LIST, WaspSoftwareJobParameters.getCellLibraryListAsParameterValue(controlCellLibraryIdList));
+			jobParameters.put(HelptagSoftwareJobParameters.JOB_ID, job.getId().toString());
+			// jobParameters.put(HelptagSoftwareJobParameters.PEAK_TYPE, peakType);
 			
 			requestLaunch(flowName, jobParameters);
 		}	

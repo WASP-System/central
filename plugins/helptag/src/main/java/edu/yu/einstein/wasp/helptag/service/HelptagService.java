@@ -7,6 +7,7 @@ package edu.yu.einstein.wasp.helptag.service;
 import java.util.List;
 
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.WaspService;
 
 /**
@@ -32,4 +33,7 @@ public interface HelptagService extends WaspService {
 	public boolean isHpaII(Integer sampleId);
 
 	public boolean isMspI(Integer sampleId);
+
+	public boolean confirmCellLibrariesAssociatedWithHcountFiles(List<SampleSource> cellLibraryList);
+
 }
