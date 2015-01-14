@@ -116,7 +116,7 @@ public class BioanalyzerJobLaunchTests extends AbstractTestNGSpringContextTests 
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
 	 */
-	@Test (groups = "bioanalyzer-tests")
+	//@Test (groups = "bioanalyzer-tests")
 	public void testSuccessfulBioanalyzerJobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
