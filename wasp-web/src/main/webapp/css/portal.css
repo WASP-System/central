@@ -92,11 +92,13 @@ div.tooltip {
 .multilineColumn .x-grid-cell-inner {
 	white-space: normal;
 }
-
+/* auto-bold on mouse over event */
+/*
 .x-grid-row-over .x-grid-cell-inner {
 	font-weight: bold;
 	white-space: normal;
 }
+*/
 
 /* Added by AJ: for proper display of the toolbar fields of PDF Portlet */
 .x-form-item-input-row .x-form-item-body {
