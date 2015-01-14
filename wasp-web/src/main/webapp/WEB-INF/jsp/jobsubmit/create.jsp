@@ -54,6 +54,7 @@
 	  		</tr>
 	  	</c:when>
 	  	<c:otherwise>
+	  	    <%-- this actually never appears to be called, due to a javascript call in document.ready --%>
 		    <tr id="workflowRowId" class="FormData" >
 			    <td class="CaptionTD"><fmt:message key="jobDraft.workflowId.label"/>:</td>
 			    <td class="DataTD">
