@@ -7,29 +7,43 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-	<bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="username" value="${testDb.jdbc.user}" />
+	<bean id="batchDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="user" value="${testDb.jdbc.user}" />
 		<property name="password" value="${testDb.jdbc.password}" />
-		<property name="driverClassName" value="${testDb.jdbc.driver}" />
-		<property name="url" value="${testDb.jdbc.url}" />
+		<property name="driverClass" value="${testDb.jdbc.driver}" />
+		<property name="jdbcUrl" value="${testDb.jdbc.url}" />
+		<property name="maxPoolSize" value="1000" />
+		
 	</bean>
-
-	<jdbc:initialize-database data-source="batchDataSource" >
-		<jdbc:script location="${testDb.resetSchema.script}" />
-		<jdbc:script location="${testDb.schema.script}" />
-	</jdbc:initialize-database>
 	
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="waspPU" />
+		<property name="dataSource" ref="batchDataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="database"><value>${testDb.jdbc.database}</value></property>
+				<property name="showSql"><value>${testDb.jdbc.show_sql}</value></property>
+				<property name="generateDdl"><value>${testDb.jdbc.hbm2ddl_auto}</value></property>
+			</bean>
+		</property>   
+		<property name="packagesToScan" value="edu.yu.einstein.wasp.model" />
+	</bean>
+	
+	<!-- Enable @Transactional support -->
+	<tx:annotation-driven />
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" /> 
+
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="batchDataSource" />
 	</bean>
 	
 	
-	<!-- need to use qualifier 'entityManager' for WaspJobSoftwareLaunchTasklet  -->
-	<!-- to make test work simply use the 'batchDataSource' (even though this is a hack)  -->
-	<bean id="transactionManagerEM" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
-		<property name="dataSource" ref="batchDataSource" />
+	<!-- need to use qualifier 'entityManager' for WaspJobSoftwareLanuchTasklet  -->
+	<bean id="transactionManagerEM" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" >
 		<qualifier value="entityManager" />
 	</bean>
+	
+	
 	
 	<!-- Enable @Transactional support -->
 	<tx:annotation-driven />
