@@ -524,7 +524,7 @@ public class ResultViewController extends WaspController {
 			try {
 				resolvedURL = fileUrlResolver.getURL(fg).toString();
 				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL, true, "icon-group-download", "Download All",
-										  GroupActionAlignType.RIGHT));
+										  GroupActionAlignType.RIGHT, true, "Download Selected"));
 			} catch (Exception e) {
 				logger.debug("UNABLE TO RESOLVE URL for file group: " + fg.getDescription());
 			}

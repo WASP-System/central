@@ -18,7 +18,7 @@
    
   <bean id="helptagLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
   	<property name="area" ref="helptagTrueSeqIndexedLibraryArea" />
-  	<property name="name" value="HELP-tag Library" />
+  	<property name="name" value="HELP-tag TruSEQ INDEXED DNA" />
   	<property name="sampleType" ref="librarySampleType" />
   	<property name="indexingStrategy" value="TRUSEQ" />
   	<property name="compatibleResources">

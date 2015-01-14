@@ -18,7 +18,7 @@
    
   <bean id="helptag5PrimeIndexedLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
   	<property name="area" ref="helptag5PrimeIndexedLibraryArea" />
-  	<property name="name" value="HELP-tag 5' Indexed Library" />
+  	<property name="name" value="HELP-tag 5' INDEXED DNA" />
   	<property name="sampleType" ref="librarySampleType" />
   	<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.mps.MpsIndexingStrategy).FIVE_PRIME }" />
   	<property name="compatibleResources">

@@ -4,8 +4,6 @@
 package edu.yu.einstein.wasp.file.web.controller;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,22 +35,62 @@ public class FileController {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/file/{uuid:.+}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/file/{uuid:[a-fA-F0-9-,]+}")
 	public void getFile(@PathVariable("uuid") String uuid, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			logger.debug("Req UUID: " + uuid);
-			if (uuid.indexOf(",")>0) {
-				wfService.processMultipleFileDownloadRequest(uuid, true, request, response);
+			if (uuid.indexOf(",") > 0) {
+				wfService.processMultipleFileDownloadRequest(uuid, "", true, request, response);
 			} else {
-				String adjExtension = "";
-				Matcher adjm = Pattern.compile("^([a-fA-F0-9-]+)(\\..+)$").matcher(uuid);
-				if (adjm.find()) {
-					adjExtension = adjm.group(2);
-					uuid = adjm.group(1);
-					logger.debug("Adj ext: " + adjExtension);
-				}
+				// String adjExtension = "";
+				// Matcher adjm = Pattern.compile("^([a-fA-F0-9-]+)(\\..+)$").matcher(uuid);
+				// if (adjm.find()) {
+				// adjExtension = adjm.group(2);
+				// uuid = adjm.group(1);
+				// logger.debug("Adj ext: " + adjExtension);
+				// }
+
+				wfService.processFileRequest(uuid, "", request, response);
+			}
+
+		} catch (IOException ex) {
+			if (ex.toString().contains("ClientAbortException")) {
+				logger.warn("Client abort when downloading file " + uuid.toString() + ". This may be intentional (e.g. may be caused by closing stream early)");
+			} else {
+				logger.warn("Error writing file " + uuid.toString() + " to output stream.");
+				ex.printStackTrace();
+			}
+		} catch (WaspException e) {
+			logger.warn("unable to deliver file: " + uuid.toString());
+			e.printStackTrace();
+			try {
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/file/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	public void getFileWithName(@PathVariable("uuid") String uuid, @PathVariable("filename") String reqfn, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			logger.debug("Req UUID: " + uuid);
+			logger.debug("Req filename: " + reqfn);
+			if (uuid.indexOf(",")>0) {
+				wfService.processMultipleFileDownloadRequest(uuid, reqfn, true, request, response);
+			} else {
+				// String adjExtension = "";
+				// Matcher adjm = Pattern.compile("^([a-fA-F0-9-]+)(\\..+)$").matcher(uuid);
+				// if (adjm.find()) {
+				// adjExtension = adjm.group(2);
+				// uuid = adjm.group(1);
+				// logger.debug("Adj ext: " + adjExtension);
+				// }
 			
-				wfService.processFileRequest(uuid, adjExtension, request, response);
+				wfService.processFileRequest(uuid, reqfn, request, response);
 			}
 			
 		} catch (IOException ex) {
@@ -75,10 +113,10 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/files/{uuid:.+}")
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/files/{uuid:[a-fA-F0-9-,]+}")
 	public void getMultipleFiles(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			wfService.processMultipleFileDownloadRequest(uuids, true, request, response);
+			wfService.processMultipleFileDownloadRequest(uuids, "", true, request, response);
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {
@@ -99,10 +137,60 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroup/{uuid:.+}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/files/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	public void getMultipleFilesWithName(@PathVariable("uuid") String uuids, @PathVariable("filename") String reqfn, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			wfService.processMultipleFileDownloadRequest(uuids, reqfn, true, request, response);
+
+		} catch (IOException ex) {
+			if (ex.toString().contains("ClientAbortException")) {
+				logger.warn("Client abort when downloading files(" + uuids + ")");
+			} else {
+				logger.warn("Error writing files(" + uuids + ") to output stream.");
+				ex.printStackTrace();
+			}
+		} catch (WaspException e) {
+			logger.warn("unable to deliver files(" + uuids + ")");
+			try {
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	@RequestMapping(method = {RequestMethod.GET, RequestMethod.HEAD}, value = "/get/filegroup/{uuid:[a-fA-F0-9-,]+}")
 	public void getFileGroup(@PathVariable("uuid") String uuids, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			wfService.processMultipleFileDownloadRequest(uuids, false, request, response);
+			wfService.processMultipleFileDownloadRequest(uuids, "", false, request, response);
+
+		} catch (IOException ex) {
+			if (ex.toString().contains("ClientAbortException")) {
+				logger.warn("Client abort when downloading filegroups(" + uuids + ")");
+			} else {
+				logger.warn("Error writing filegroups(" + uuids + ") to output stream.");
+				ex.printStackTrace();
+			}
+		} catch (WaspException e) {
+			logger.warn("unable to deliver filegroups(" + uuids + ")");
+			try {
+				if (!response.isCommitted())
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/filegroup/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	public void getFileGroupWithName(@PathVariable("uuid") String uuids, @PathVariable("filename") String reqfn, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			wfService.processMultipleFileDownloadRequest(uuids, reqfn, false, request, response);
 			
 		} catch (IOException ex) {
 			if (ex.toString().contains("ClientAbortException")) {

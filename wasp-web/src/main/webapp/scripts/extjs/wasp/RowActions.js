@@ -44,6 +44,43 @@ if('function' !== typeof RegExp.escape) {
 	};
 }
 
+// show customized context menu
+function myContextMenu(menu, items, event, grid, record, action, recordIndex, col) {
+	menu = new Ext.menu.Menu({ items: [] });
+
+	items.forEach(function(menu_item){
+		menu.add(
+			{	text: menu_item.text,
+				handler: function() {
+					menu_item.handler(grid, record, action, recordIndex, col);
+				}
+			}
+		);
+	});
+	
+	var position = event.getXY();
+	event.stopEvent();
+	menu.showAt(position);
+}
+// show customized context menu for group
+function myGroupContextMenu(menu, items, event, grid, records, action, val) {
+	menu = new Ext.menu.Menu({ items: [] });
+
+	items.forEach(function(menu_item){
+		menu.add(
+			{	text: menu_item.text,
+				handler: function() {
+					menu_item.handler(grid, records, action, val);
+				}
+			}
+		);
+	});
+	
+	var position = event.getXY();
+	event.stopEvent();
+	menu.showAt(position);
+}
+
 /**
  * Creates new RowActions plugin
  * @constructor
@@ -173,6 +210,8 @@ Ext.define('Wasp.RowActions',{
 	 * @cfg {String} actionEvent Event to trigger actions, e.g. click, dblclick, mouseover (defaults to 'click')
 	 */
 	 actionEvent:'click'
+	,actionEvent2:'contextmenu'
+	,menu_grid: null
 
 	/**
 	 * @cfg {Boolean} autoWidth true to calculate field width for iconic actions only (defaults to true).
@@ -321,6 +360,17 @@ Ext.define('Wasp.RowActions',{
 						return true;
 					}
 				});
+			// overwrite the right click event handler on the group action button
+			me.grid.view.on('groupcontextmenu', 
+				function(view,group,idx,e,options){
+					//return !e.getTarget('.ux-grow-action-item');
+					if (e.getTarget('.ux-grow-action-item')) {
+						me.onContainerEvent(view,group,idx,e,options);
+						return false;
+					} else {
+						return true;
+					}
+				});
 			//me.grid.view.on('container' + me.actionEvent, me.onContainerEvent, me);
 
 			groupFeature.groupHeaderTpl = 
@@ -374,10 +424,15 @@ Ext.define('Wasp.RowActions',{
 
 		// actions loop
 		Ext.each(actions, function(a, i) {
-			// save callback
+			// save callback for group actions
 			if(a.iconCls && 'function' === typeof (a.callback || a.cb)) {
 				me.callbacks = me.callbacks || {};
 				me.callbacks[a.iconCls] = a.callback || a.cb;
+			}
+			// save contextmenu callback for group actions
+			if(a.iconCls && 'object' === typeof (a.callback2 || a.cb2)) {
+				me.callbacks2 = me.callbacks2 || {};
+				me.callbacks2[a.iconCls] = a.callback2 || a.cb2;
 			}
 
 			// data for intermediate template
@@ -421,6 +476,8 @@ Ext.define('Wasp.RowActions',{
 	 * @private
 	 */
 	,processEvent : function(type, view, cell, recordIndex, cellIndex, e){
+		//console.log(type);
+		
 		var me   = this,
 	    	grid = me.grid,
 	    	col = (cell)?cell.cellIndex:false,
@@ -438,6 +495,21 @@ Ext.define('Wasp.RowActions',{
 			// call callback if any
 			if(me.callbacks && 'function' === typeof me.callbacks[action]) {
 				me.callbacks[action](grid, record, action, recordIndex, col);
+			}
+
+			me.fireEvent('action', grid, record, action, recordIndex, col, e, target);
+
+		} else if (false !== recordIndex && false !== col && false !== action && type === me.actionEvent2) {
+			var record = grid.store.getAt(recordIndex);
+
+			// fire events
+			if(true !== me.eventsSuspended && false === me.fireEvent('beforeaction', grid, record, action, recordIndex, col, e, target)) {
+				return;
+			}
+			
+			// make context menu from callback2 if any
+			if(me.callbacks2 && me.callbacks2[action] && me.callbacks2[action].constructor === Array) {
+				myContextMenu(me.menu_grid, me.callbacks2[action], e, grid, record, action, recordIndex, col);
 			}
 
 			me.fireEvent('action', grid, record, action, recordIndex, col, e, target);
@@ -482,8 +554,12 @@ Ext.define('Wasp.RowActions',{
 		}
 		
 		// call callback if any
-		if('function' === typeof me.callbacks[action]) {
+		if(e.type === me.actionEvent && 'function' === typeof me.callbacks[action]) {
 			me.callbacks[action](grid, records, action, currentVal);
+		}
+		// call contextmenu/rightclick callback if any
+		else if(e.type === me.actionEvent2 && me.callbacks2[action] && me.callbacks2[action].constructor === Array) {
+			myGroupContextMenu(me.menu_grid, me.callbacks2[action], e, grid, records, action, currentVal);
 		}
 
 		return this.fireEvent('groupaction', grid, records, action, currentVal);
