@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.helptag.controller;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -76,7 +77,7 @@ public class HelptagController extends WaspController {
 				  if(restrictionStatusBeforeSubmission==null) restrictionStatusBeforeSubmission = "not found";
 				  String helpLibraryToMakeFromMacromolecule = helptagService.getHelpLibraryToMakeFromMacromolecule(sample);
 				  if(helpLibraryToMakeFromMacromolecule==null) helpLibraryToMakeFromMacromolecule = "not found";
-				  Map<String,String> map = new HashMap<String,String>();
+				  Map<String,String> map = new LinkedHashMap<String,String>();
 				  
 				  map.put("Initial Glycosylation Status", glycosylationStatusBeforeSubmission);
 				  map.put("Initial Restriction Status", restrictionStatusBeforeSubmission);
