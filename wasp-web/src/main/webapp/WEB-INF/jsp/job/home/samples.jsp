@@ -10,16 +10,18 @@
 //$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ $( this ).html("<br />the added html text agottiiasdf16 and the id is: " + $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","")); });
 
 $("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ 
-	var theEle = $( this );
-	var theId = $( this ).attr("id");
+	var theDiv = $( this );
+	var theMacromoleculeId = $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","");
 	$.ajax({
         type: "GET",
-        url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
-        async:   false, 
+        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theMacromoleculeId+'/plugInSpecificSampleDataForDisplay.do" />',
+        async:   false, //MUST BE SYNCHRONOUS!!!
         success: function (response) {
         	//alert("success");
         	//$( "#dubintest" ).html(response);
-        	theEle.html("myId = " + theId);
+        	//theDiv.html("theMacromoleculeId = " + theMacromoleculeId);
+        	theDiv.html(response);
         },
         error: function (response) {
         	//alert("failure");

@@ -20,6 +20,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.service.JobDraftService;
@@ -88,7 +89,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
 				}
 				else{//genomic DNA; 12-30-14
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());					
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
 				}
 				if (enzymeString.equals("HpaII"))
 					hpaSampleDrafts.add(sd);
@@ -184,5 +185,35 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 			}
 		}
 		return betaGTMspSampleDrafts;
+	}
+	public String getGlycosylationStatusBeforeSubmission(Sample sample){
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());					
+		} catch(MetadataException e) {}
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
+		}catch(Exception e){}		
+		// not found
+		return "";
+	}
+	public String getRestrictionStatusBeforeSubmission(Sample sample){
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, RESTRICTED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());					
+		} catch(MetadataException e) {}
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
+		}catch(Exception e){}		
+		// not found
+		return "";
+	}
+	public String getHelpLibraryToMakeFromMacromolecule(Sample sample){
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sample.getSampleMeta());					
+		} catch(MetadataException e) {}
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, LIBRARY_TO_CREATE_META_KEY, sample.getSampleMeta());
+		}catch(Exception e){}		
+		// not found
+		return "";
 	}
 }
