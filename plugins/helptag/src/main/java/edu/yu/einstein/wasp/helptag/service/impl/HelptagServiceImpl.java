@@ -194,7 +194,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
 		}catch(Exception e){}		
 		// not found
-		return "";
+		return null;
 	}
 	public String getRestrictionStatusBeforeSubmission(Sample sample){
 		try{
@@ -204,7 +204,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
 		}catch(Exception e){}		
 		// not found
-		return "";
+		return null;
 	}
 	public String getHelpLibraryToMakeFromMacromolecule(Sample sample){
 		try{
@@ -214,6 +214,6 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, LIBRARY_TO_CREATE_META_KEY, sample.getSampleMeta());
 		}catch(Exception e){}		
 		// not found
-		return "";
+		return null;
 	}
 }

@@ -4,6 +4,11 @@
  */
 package edu.yu.einstein.wasp.helptag.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -46,10 +51,15 @@ public class HelptagController extends WaspController {
 		return "helptag/description";
 	}
 
-	  @RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificSampleDataForDisplay", method=RequestMethod.GET)
-	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	  public @ResponseBody String plugInSpecificSampleDataForDisplay(@PathVariable("jobId") Integer jobId, @PathVariable("sampleId") Integer sampleId ) {
+	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificSampleDataForDisplay", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	public void plugInSpecificSampleDataForDisplay(
+			  @PathVariable("jobId") Integer jobId, 
+			  @PathVariable("sampleId") Integer sampleId, 
+			  HttpServletResponse response ) {
 	      
+		/* *********THIS IS AN AJAX CALL************* */
+		
 		  Job job = jobService.getJobByJobId(jobId);
 		  Sample sample = null;
 		  for(Sample s : job.getSample()){
@@ -59,44 +69,24 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
-			  String glycosylationStatusBeforeSubmission = helptagService.getGlycosylationStatusBeforeSubmission(sample);
-			  String restrictionStatusBeforeSubmission = helptagService.getRestrictionStatusBeforeSubmission(sample);
-			  String helpLibraryToMakeFromMacromolecule = helptagService.getHelpLibraryToMakeFromMacromolecule(sample);
-			  
-			  StringBuilder sb = new StringBuilder();			
-			  sb.append("Initial Glycosylation Status: " + glycosylationStatusBeforeSubmission + "<br />");
-			  sb.append("Initial Restriction Status: " + restrictionStatusBeforeSubmission + "<br />");
-			  sb.append("Library To Create: " + helpLibraryToMakeFromMacromolecule + "<br />");
-			  return new String(sb);
+			  if(!sample.getSampleType().getIName().equalsIgnoreCase("library")){//macromolecule
+				  String glycosylationStatusBeforeSubmission = helptagService.getGlycosylationStatusBeforeSubmission(sample);
+				  if(glycosylationStatusBeforeSubmission==null) glycosylationStatusBeforeSubmission = "not found";
+				  String restrictionStatusBeforeSubmission = helptagService.getRestrictionStatusBeforeSubmission(sample);
+				  if(restrictionStatusBeforeSubmission==null) restrictionStatusBeforeSubmission = "not found";
+				  String helpLibraryToMakeFromMacromolecule = helptagService.getHelpLibraryToMakeFromMacromolecule(sample);
+				  if(helpLibraryToMakeFromMacromolecule==null) helpLibraryToMakeFromMacromolecule = "not found";
+				  Map<String,String> map = new HashMap<String,String>();
+				  
+				  map.put("Initial Glycosylation Status", glycosylationStatusBeforeSubmission);
+				  map.put("Initial Restriction Status", restrictionStatusBeforeSubmission);
+				  map.put("Library To Create" , helpLibraryToMakeFromMacromolecule);
+				  try{
+						outputJSON(map, response);
+					}catch(Exception e){}
+				  }  
 		  }
-		  return "";
-		  /*
-		  Map<String, String> queryMap = new HashMap<String, String>();
-		  queryMap.put("sampleTypeCategory.iName", "biomaterial");
-		  List<String> orderByColumnNames = new ArrayList<String>();
-		  orderByColumnNames.add("name");
-		  String direction = "asc";
-		  List<SampleType> sampleTypeList = sampleTypeDao.findByMapDistinctOrderBy(queryMap, null, orderByColumnNames, direction);
-		 
-	      StringBuilder sb = new StringBuilder();
-	      sb.append("{\"source\": [");
-	      int counter = 0;
-	      for (SampleType st : sampleTypeList){
-	    	  if(counter++ > 0){
-	    		  sb.append(",");
-	    	  }
-	    	  sb.append("{\"label\": \""+st.getName()+"\", \"value\":\""+st.getIName()+"\"}");
-	      }
-	      sb.append("]}");
-	      
-	      String jsonOutput = new String(sb);
-	      logger.debug("jsonOutput: " + jsonOutput);
-	      
-	      return jsonOutput; 
-	      */
-		  //return "<h2>helpSpecific info test</h2>";
-		  
-	  }
+	}
 	  
 	  
 }

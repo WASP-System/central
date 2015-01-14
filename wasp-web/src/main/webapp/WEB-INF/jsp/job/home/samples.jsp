@@ -3,54 +3,29 @@
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
-//alert("second dubin testing alert");
-//$(".dubinclass").html("<br />the added html text<br />");
-//$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ $( this ).html("<br />the added html text agotti16 and the id is: " + $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","")); });
-
-//$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ $( this ).html("<br />the added html text agottiiasdf16 and the id is: " + $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","")); });
-
-$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){ 
-	var theDiv = $( this );
-	var theMacromoleculeId = $( this ).attr("id").replace("displayExtraMetaForMacromoleculeSampleId_","");
-	$.ajax({
-        type: "GET",
-        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
-        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theMacromoleculeId+'/plugInSpecificSampleDataForDisplay.do" />',
-        async:   false, //MUST BE SYNCHRONOUS!!!
-        success: function (response) {
-        	//alert("success");
-        	//$( "#dubintest" ).html(response);
-        	//theDiv.html("theMacromoleculeId = " + theMacromoleculeId);
-        	theDiv.html(response);
-        },
-        error: function (response) {
-        	//alert("failure");
-        	$( "#dubintest" ).html("<br />failure");
-        }
-    });
-	
-	
-});
-
-/*			
-$("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){
+			$("div[id^='divToDisplayExtraMetaForSampleId_']").each(function(){ 
+				var theDiv = $( this );
+				var theSampleId = $( this ).attr("id").replace("divToDisplayExtraMetaForSampleId_","");
 				$.ajax({
 			        type: "GET",
-			        url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theSampleId+'/plugInSpecificSampleDataForDisplay.do" />',
+			        async:   false, //MUST BE SYNCHRONOUS!!!
+			        dataType: "json",
 			        success: function (response) {
-			        	
-			        	$( this ).html("success");
+			        	theDiv.append("<br />");
+			        	$.each( response, function( key, val ) {			        		
+			        		theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
+						  });	
 			        },
 			        error: function (response) {
-			        	
-			        	$( this ).html("failure");
+			        	//alert("failure");
 			        }
-			    });
+			    });				
 			});
-	*/		
 		});
 	})(jQuery);
-	</script>
+</script>
 	
 <br />
 	 	 								
@@ -112,11 +87,10 @@ $("div[id^='displayExtraMetaForMacromoleculeSampleId_']").each(function(){
 						</c:if>
 						<br />		  
 					</c:if>
-	<div id="displayExtraMetaForMacromoleculeSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
-	<div id="dubintest"></div>
 	
+					<!-- for displaying plugin spcific information -->
+					<div id="divToDisplayExtraMetaForSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
 	
-					
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
