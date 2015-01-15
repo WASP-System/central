@@ -10,7 +10,7 @@
   	<property name="type" value="#{T(edu.yu.einstein.wasp.Strategy$StrategyType).LIBRARY_STRATEGY}" />
     <property name="strategy" value="Library-QC" />
     <property name="displayStrategy" value="Library Quality Control Analysis" />
-    <property name="description" value="QC methods for assessing library quality. (Note that this is not an SRA strategy.)" />
+    <property name="description" value="QC methods for assessing library quality (for example: Bioanalyzer analysis). Note: Not an SRA strategy." />
     <property name="available" value="true" />
     <property name="sraCompatible" value="false" />
   </bean> 
