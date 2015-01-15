@@ -5,6 +5,10 @@ Ext.require(['Ext.grid.*', 'Ext.data.*', 'Ext.form.field.Number',
 function mergeDownloadLinks(records, linkfield) {
 
 	var links = records[0].get(linkfield);
+	if (!links || 0===links.length) {
+		window.alert("Some selected items are not downloadable.")
+		return false;
+	}
 
 	if (records.length > 1) {
 		// trim off the file name if any
@@ -14,6 +18,10 @@ function mergeDownloadLinks(records, linkfield) {
 		
 		for (var i = 1; i < records.length; i++) {
 			var uuid = records[i].get(linkfield);
+			if (!uuid || 0===uuid.length) {
+				window.alert("Some selected items are not downloadable.")
+				return false;
+			}
 			n = uuid.search(pattUUID);
 			links += "," + uuid.substring(n, n+36);//uuid.lastIndexOf('/') + 1);
 		}
@@ -285,10 +293,9 @@ Ext.define('Wasp.GridPortlet', {
 					qtip : action.groupTooltip,
 					align : action.groupAlign.toLowerCase(),
 					callback : function(grid, records, groupAction, groupValue) {
-						if (records.length > 0 && groupAction in grid.groupactiondatamap)
-							linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
-							window.location = linktext;
-							
+						if (records.length > 0 && groupAction in grid.groupactiondatamap 
+							&& false!==mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]))
+							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
 					},
 					callback2 : [ 
 						{
@@ -312,7 +319,7 @@ Ext.define('Wasp.GridPortlet', {
 											linkfield : 'cb' + action.icnHashCode.toString().replace('-', '_'),
 											handler : function(me, e) {
 												var records = grid.getSelectionModel().getSelection();
-												if (records.length > 0) {
+												if (records.length > 0 && false!==mergeDownloadLinks(records, me.linkfield)) {
 													window.location = mergeDownloadLinks(records, me.linkfield);
 												}
 											}

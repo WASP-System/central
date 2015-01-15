@@ -138,17 +138,19 @@ public class UcscGenomeBrowserPlugin extends AbstractGenomeBrowserPlugin  {
 				logger.debug("expected last character of genomeName (" + genomeName + ") to be a digit, but it was not: " + e.getMessage());
 				return null;
 			}
+
+			// no need to append file name extension after append file name to the UUID url
 			// append file name extension to the link so genome browser could recognize it
-			String ext = "";
-			FileType ft = fh.getFileType();
-			if (ft == null)
-				ft = fg.getFileType();
-			if (ft == null)
-				logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
-			else
-				ext =  "." + ft.getDefaultExtension();
-			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genomeName
-					+ "&hgt.customText=" + resolvedURL + ext;
+			// String ext = "";
+			// FileType ft = fh.getFileType();
+			// if (ft == null)
+			// ft = fg.getFileType();
+			// if (ft == null)
+			// logger.warn("UNABLE TO RESOLVE extension for filehandle in ucscgenomebrowserplugin: " + fh.getFileName());
+			// else
+			// ext = "." + ft.getDefaultExtension();
+
+			return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genomeName + "&hgt.customText=" + resolvedURL; // + ext;
 		}
 		else{
 			return null;

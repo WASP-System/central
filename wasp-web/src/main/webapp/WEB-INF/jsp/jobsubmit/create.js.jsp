@@ -2,6 +2,7 @@
 <script type="text/javascript">
 
 var savedAnalysisSelectedChoice = "";
+var strategyChangedByUserClick = "false"; //01-13-15; dubin
 
 function addNewGrant(){
 	$("#newGrantCodeError").html("");
@@ -115,12 +116,25 @@ function handleStrategyUpdate() {
 					  }
 				  }
 				  
+				  
+				  //01-13-15; dubin
 				  $.each( data, function( key, val ) {
-					  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
+					  //////$("#workflowId").append("<option value='"+key+"'>"+val+"</option>");	
+					  if(key == "<c:out value="${jobDraft.workflowId}"/>" && strategyChangedByUserClick == "false"){
+						  $("#workflowId").append("<option value='"+key+"' selected>"+val+"</option>");		
+					  }
+					  else{
+						  $("#workflowId").append("<option value='"+key+"'>"+val+"</option>");						 
+					  }
 				  });	
 				  
+				  
 			}); //end of getJSON method 
-			showWorkflowRow();		  
+			showWorkflowRow();	
+			//01-13-15; dubin
+			if( $("#grantSelectRowId").css("display") != 'none' ){
+				showContinueButton(); 
+			}
 	  } 		  
 }
 
@@ -179,6 +193,7 @@ $(document).ready(function() {
 	
 	
 	$( "#strategy" ).change(function(){
+		strategyChangedByUserClick = "true";//01-13-15; dubin
 		handleStrategyUpdate();
 	});
 	
