@@ -49,6 +49,8 @@
 	
 	<mockito:mock id="softwareService" class="edu.yu.einstein.wasp.service.impl.SoftwareServiceImpl" />
 	
+	<mockito:mock id="waspSqlService" class="edu.yu.einstein.wasp.service.impl.WaspSqlServiceImpl" />
+	
 	<import resource="classpath:META-INF/spring/integration/integration-common-config.xml" />
  	
  	<import resource="classpath:META-INF/spring/batch-integration-common-config.xml" />
@@ -62,6 +64,16 @@
  		queue-capacity="${wasp.taskexecutor.queueCapacity:0}" 
  		pool-size="${wasp.taskexecutor.corePoolSize:5}-${wasp.taskexecutor.maxPoolSize:1000000}" 
  		rejection-policy="CALLER_RUNS" />
+ 		
+ 	<mockito:mock id="propertiesLoadService" class="edu.yu.einstein.wasp.plugin.daemon.stubs.PropertiesLoadServiceImpl" />
+	
+	<bean id="messageSource" class="edu.yu.einstein.wasp.service.impl.WaspMessageSourceImpl" />
+	
+	<!-- import internationalized messaging. -->
+  	<bean id="dBResourceBundle" class="edu.yu.einstein.wasp.resourcebundle.DBResourceBundle">
+  		<constructor-arg name="messageFilePattern" value="classpath*:/i18n/**/*messages_*.properties" />
+  		<property name="runSQL" value="false" />
+  	</bean>
 	
 	
 	

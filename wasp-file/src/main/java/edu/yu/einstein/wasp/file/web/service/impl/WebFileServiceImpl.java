@@ -184,56 +184,6 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		}
 	}
 
-	private static int OverlappedStringLength(String s1, String s2) {
-		if (s1.endsWith(s2))
-			return s2.length();
-		else if (s2.length() < 2)
-			return 0;
-
-		// Trim s1 so it isn't longer than s2
-		if (s1.length() > s2.length())
-			s1 = s1.substring(s1.length() - s2.length());
-
-		int[] T = ComputeBackTrackTable(s2); // O(n)
-
-		int m = 0;
-		int i = 0;
-		while (m + i < s1.length()) {
-			if (s2.charAt(i) == s1.charAt(m + i)) {
-				i += 1;
-				// <-- removed the return case here, because |s1| <= |s2|
-			} else {
-				m += i - T[i];
-				if (i > 0)
-					i = T[i];
-			}
-		}
-
-		return i; // <-- changed the return here to return characters matched
-	}
-
-	private static int[] ComputeBackTrackTable(String s) {
-		int[] T = new int[s.length()];
-		int cnd = 0;
-		T[0] = -1;
-		T[1] = 0;
-		int pos = 2;
-		while (pos < s.length()) {
-			if (s.charAt(pos - 1) == s.charAt(cnd)) {
-				T[pos] = cnd + 1;
-				pos += 1;
-				cnd += 1;
-			} else if (cnd > 0) {
-				cnd = T[cnd];
-			} else {
-				T[pos] = 0;
-				pos += 1;
-			}
-		}
-
-		return T;
-	}
-
 	/**
 	 * @param uuid
 	 * @param adjext
@@ -241,7 +191,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	 * @return
 	 * @throws WaspException
 	 */
-	private java.io.File getLocalFileFromUUID(String uuid, String adjext) throws WaspException {
+	private java.io.File getLocalFileFromUUID(String uuid, String reqFileName) throws WaspException {
 		UUID uu;
 		try {
 			uu = UUID.fromString(uuid);
@@ -299,33 +249,47 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 			filename = location;
 		}
 
+		if (!reqFileName.isEmpty() && filename.compareTo(reqFileName) != 0) {
+			if (reqFileName.startsWith(filename)) {
+				logger.warn("Requesting adj file '" + reqFileName + "' for file '" + filename + "'");
+				filename = reqFileName;
+			} else {
+				throw new WaspException("Req filename '" + reqFileName + "' doesn't match the file for uuid '" + uuid + "'");
+			}
+		}
+
 		// if (!filename.endsWith(adjext)) {
 		// String ext = filename.substring(filename.lastIndexOf("."));
 		// if (!ext.equals(adjext))
 		// filename += adjext;
 		// }
-		filename += adjext.substring(OverlappedStringLength(filename, adjext));
+		// filename += adjext.substring(OverlappedStringLength(filename, adjext));
 
 		String localFilePath = prefix + "/" + folder + filename;
 		logger.debug("Local file: " + localFilePath);
 
 		java.io.File download = new java.io.File(localFilePath);
-		return download;
-	}
-
-	@Override
-	public void processFileRequest(String uuid, String adjext, HttpServletRequest request, HttpServletResponse response) throws IOException, WaspException {
-
-		java.io.File download = getLocalFileFromUUID(uuid, adjext);
-
 		if (!download.exists()) {
 			if (download.getName().endsWith(".bam.bai")) {
 				download = new java.io.File(download.getPath().replaceAll("\\.bam\\.bai", ".bai"));
 			}
 			if (!download.exists()) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				throw new WaspException("File not exists: " + download.getPath());
 			}
+		}
+
+		return download;
+	}
+
+	@Override
+	public void processFileRequest(String uuid, String reqFileName, HttpServletRequest request, HttpServletResponse response) throws IOException, WaspException {
+
+		java.io.File download;
+		try {
+			download = getLocalFileFromUUID(uuid, reqFileName);
+		} catch (WaspException e) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			throw e;
 		}
 
 		String filename = download.getName();
@@ -497,7 +461,8 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 	}
 
 	@Override
-	public void processMultipleFileDownloadRequest(String uuids, boolean fileOrGroup, HttpServletRequest request, HttpServletResponse response)
+	public void processMultipleFileDownloadRequest(String uuids, String reqFileName, boolean fileOrGroup, HttpServletRequest request,
+			HttpServletResponse response)
 			throws IOException, WaspException {
 		// parse the comma delimited string into a list of filegroup uuids
 		List<String> uuidList = Arrays.asList(uuids.split("\\s*,\\s*"));
@@ -531,6 +496,10 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 				filename = getLocalFileFromUUID(uuidList.get(0), "").getName() + ".zip";
 			} else {
 				filename = fileService.getFileGroup(UUID.fromString(uuidList.get(0))).getDescription().replaceAll("\\W", "") + ".zip";
+			}
+
+			if (!reqFileName.isEmpty() && !reqFileName.equals(filename)) {
+				throw new WaspException("Req filename '" + reqFileName + "' doesn't match the file for uuid list '" + uuidList.toString() + "'");
 			}
 		}
 
@@ -578,12 +547,14 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 
 		String linksFileStr = "";
 		for (String uuid : uuidList) {
-			java.io.File download = getLocalFileFromUUID(uuid, "");
-			if (!download.exists()) {
+			try {
+				java.io.File download = getLocalFileFromUUID(uuid, "");
+			} catch (WaspException e) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			} else {
-				linksFileStr += pathURL + uuid + "\n";
+				throw e;
 			}
+
+			linksFileStr += pathURL + uuid + "\n";
 		}
 
 		// Added by AJ: to enable Cross-site HTTP requests for CORS support

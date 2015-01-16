@@ -92,7 +92,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		
 		URL retval;
 		
-		String file_uri = destination + subPath + file.getUUID().toString();
+		String file_uri = destination + subPath + file.getUUID().toString() + "/" + file.getFileName();
 		try {
 			URI uri = new URI(file_uri);
 			retval = uri.normalize().toURL();
@@ -212,7 +212,7 @@ public class LocalMappedRoundRobinFileUrlResolver implements FileUrlResolver {
 		
 		URL retval;
 		
-		String group_uri = destination + subPath + group.getUUID().toString();
+		String group_uri = destination + subPath + group.getUUID().toString() + "/" + group.getDescription().replaceAll("\\W", "") + ".zip";
 		try {
 			URI uri = new URI(group_uri);
 			retval = uri.normalize().toURL();

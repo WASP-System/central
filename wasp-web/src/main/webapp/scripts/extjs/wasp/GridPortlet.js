@@ -5,10 +5,27 @@ Ext.require(['Ext.grid.*', 'Ext.data.*', 'Ext.form.field.Number',
 function mergeDownloadLinks(records, linkfield) {
 
 	var links = records[0].get(linkfield);
+	if (!links || 0===links.length) {
+		window.alert("Some selected items are not downloadable.")
+		return false;
+	}
 
-	for (var i = 1; i < records.length; i++) {
-		var uuid = records[i].get(linkfield);
-		links += "," + uuid.substring(uuid.lastIndexOf('/') + 1);
+	if (records.length > 1) {
+		// trim off the file name if any
+		var pattUUID = /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
+		var n = links.search(pattUUID);
+		links = links.substring(0,n+36);
+		
+		for (var i = 1; i < records.length; i++) {
+			var uuid = records[i].get(linkfield);
+			if (!uuid || 0===uuid.length) {
+				window.alert("Some selected items are not downloadable.")
+				return false;
+			}
+			n = uuid.search(pattUUID);
+			links += "," + uuid.substring(n, n+36);//uuid.lastIndexOf('/') + 1);
+		}
+		links += "/FileGroup.zip";
 	}
 
 	return links;
@@ -33,6 +50,11 @@ Ext.define('Wasp.GridPortlet', {
 	groupfield : '',
 	groupheader : '{name}',
 	groupactiondatamap : {},
+	
+	checkbox : false,
+	checkbox_btns : [],
+	
+	tbalign : 'center',
 
 	statusfld : null,
 
@@ -179,6 +201,7 @@ Ext.define('Wasp.GridPortlet', {
 			// window.open(record.get(grid.gblink), '_blank');
 			// }
 			},
+			callbacks2: {},
 			sortable: false,
 			keepSelection : true
 		};
@@ -191,7 +214,14 @@ Ext.define('Wasp.GridPortlet', {
 						+ action.iconClassName
 						+ '": "function(grid, record, action, row, col){linktext = record.get(\'cb'
 						+ action.icnHashCode.toString().replace('-', '_')
-						+ '\');if(window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext)!=null){window.location=linktext;}}"}';
+						+ '\');window.location=linktext;}"}';
+
+				var fstr = 'function(grid, record, action, row, col){linktext = record.get(\'cb'
+						+ action.icnHashCode.toString().replace('-', '_')
+						+ '\');window.prompt(\'Copy download link to clipboard: Ctrl+C, Enter\', linktext);return false;}';
+				var configobj2 = JSON.parse('{"' + action.iconClassName + '": [] }');
+				configobj2[action.iconClassName].push({text:'Show link', handler: new Function('return ' + fstr)()});
+				Ext.apply(actioncol.callbacks2, configobj2);
 			} else if (action.callbackFunctionType === 'OPEN_IN_NEW_BROWSER_WIN') {
 				strcbfunc = '{"'
 						+ action.iconClassName
@@ -228,17 +258,33 @@ Ext.define('Wasp.GridPortlet', {
 			// function(grid, record, action, row, col) {
 			// eval('+action.callbackContent+'); } }');
 			Ext.apply(actioncol.callbacks, configobj);
+			
+//			if (strcbfunc2) {
+//				var configobj2 = JSON.parse(strcbfunc2, function(key, value) {
+//						if (value && (typeof value === 'string')
+//								&& value.indexOf("function") === 0) {
+//							// we can only pass a function as string in JSON ==>
+//							// doing a real function
+//							// eval("var jsFunc = " + value);
+//							var jsFunc = new Function('return ' + value)();
+//							return jsFunc;
+//						}
+//
+//						return value;
+//					});
+//				actioncol.callbacks2.push(
+//					{	
+//						text: 'Show link',
+//						handler: configobj2
+//					}
+//				);
+//				Ext.apply(actioncol.callbacks2, configobj2);
+//			}
+			
 			actioncol.actions.push({
-						iconIndex : 'icon'
-								+ action.icnHashCode.toString().replace('-',
-										'_'),
-						qtipIndex : 'tip'
-								+ action.icnHashCode.toString().replace('-',
-										'_'),
-						hideIndex : 'hide'
-								+ action.icnHashCode.toString().replace('-',
-										'_')
-
+						iconIndex : 'icon' + action.icnHashCode.toString().replace('-', '_'),
+						qtipIndex : 'tip' + action.icnHashCode.toString().replace('-', '_'),
+						hideIndex : 'hide' + action.icnHashCode.toString().replace('-', '_')
 					});
 
 			if (action.group == true && action.callbackFunctionType === 'DOWNLOAD') {
@@ -247,13 +293,37 @@ Ext.define('Wasp.GridPortlet', {
 					qtip : action.groupTooltip,
 					align : action.groupAlign.toLowerCase(),
 					callback : function(grid, records, groupAction, groupValue) {
-						if (records.length > 0 && groupAction in grid.groupactiondatamap)
-							linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
-							window.location = linktext;
-							window.prompt('Copy download link to clipboard: Ctrl+C, Enter', linktext);
-					}
+						if (records.length > 0 && groupAction in grid.groupactiondatamap 
+							&& false!==mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]))
+							window.location = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+					},
+					callback2 : [ 
+						{
+							text: 'Show link',
+							handler: function(grid, records, groupAction, groupValue) {
+								linktext = mergeDownloadLinks(records, grid.groupactiondatamap[groupAction]);
+								window.prompt('Copy download link to clipboard: Ctrl+C, Enter', linktext);
+							}
+						}
+					]
 				}];
 				grid.groupactiondatamap[action.groupIconClassName] = 'cb' + action.icnHashCode.toString().replace('-', '_');
+			}
+			
+			if (action.checkbox == true && action.callbackFunctionType === 'DOWNLOAD') {
+				grid.checkbox = true;
+				grid.checkbox_btns.push({
+											minWidth : 80,
+											disabled : true,
+											text : action.checkboxBtnName,
+											linkfield : 'cb' + action.icnHashCode.toString().replace('-', '_'),
+											handler : function(me, e) {
+												var records = grid.getSelectionModel().getSelection();
+												if (records.length > 0 && false!==mergeDownloadLinks(records, me.linkfield)) {
+													window.location = mergeDownloadLinks(records, me.linkfield);
+												}
+											}
+										});
 			}
 		};
 
@@ -327,7 +397,7 @@ Ext.define('Wasp.GridPortlet', {
 				});
 
 		// enable selecting multiple files to download
-		if (this.dlselect && this.dllinkfld != '') {
+		if (this.checkbox && this.checkbox_btns.length>0) {
 			Ext.apply(this, {
 				selModel : Ext.create('Ext.selection.CheckboxModel', {
 							singleSelect : false,
@@ -336,12 +406,18 @@ Ext.define('Wasp.GridPortlet', {
 							mode : 'SIMPLE',
 							listeners : {
 								selectionchange : function(me, selected, eOpts) {
-									var dlbtn = grid.down('button[text="'
-											+ grid.dlbtntxt + '"]');
-									if (selected.length == 0) {
-										dlbtn.disable();
-									} else {
-										dlbtn.enable();
+									//var dlbtn = grid.down('button[text="' + grid.dlbtntxt + '"]');
+									var tb = grid.getDockedItems('toolbar[dock="bottom"]').pop();
+									if (tb && tb.items.length>0) {
+										if (selected.length == 0) {
+											for (var i=0; i<tb.items.length; i++) {
+												tb.items.get(i).disable();
+											}
+										} else {
+											for (var i=0; i<tb.items.length; i++) {
+												tb.items.get(i).enable();
+											}
+										}
 									}
 								}
 							}
@@ -351,21 +427,22 @@ Ext.define('Wasp.GridPortlet', {
 					dock : 'bottom',
 					ui : 'footer',
 					layout : {
-						pack : this.dlbtnalign
+						pack : this.tbalign
 					},
-					items : [{
-						minWidth : 80,
-						disabled : true,
-						text : this.dlbtntxt,
-						handler : function(me, e) {
-							var records = grid.getSelectionModel()
-									.getSelection();
-							if (records.length > 0) {
-								window.location = mergeDownloadLinks(records,
-										grid.dllinkfld);
-							}
-						}
-					}]
+					items : this.checkbox_btns
+//					[{
+//						minWidth : 80,
+//						disabled : true,
+//						text : this.dlbtntxt,
+//						handler : function(me, e) {
+//							var records = grid.getSelectionModel()
+//									.getSelection();
+//							if (records.length > 0) {
+//								window.location = mergeDownloadLinks(records,
+//										grid.dllinkfld);
+//							}
+//						}
+//					}]
 				}]
 			});
 		}

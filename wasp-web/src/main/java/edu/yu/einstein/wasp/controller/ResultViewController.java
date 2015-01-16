@@ -263,8 +263,7 @@ public class ResultViewController extends WaspController {
 
 			} else if (type.startsWith("filegroup")) {
 				FileGroup fg = fileService.getFileGroupById(id);
-				List<FileDataTabViewing> plugins = fileService
-						.getTabViewProvidingPluginsByFileGroup(fg);
+				List<FileDataTabViewing> plugins = fileService.getTabViewProvidingPluginsByFileGroup(fg);
 				String[][] statusArray = new String[plugins.size()][4];
 				Map<String, PanelTab> pluginPanelTabs = new LinkedHashMap<>();
 				if (fg.getId() == null) {
@@ -524,13 +523,14 @@ public class ResultViewController extends WaspController {
 			try {
 				resolvedURL = fileUrlResolver.getURL(fg).toString();
 				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL, true, "icon-group-download", "Download All",
-										  GroupActionAlignType.RIGHT));
+										  GroupActionAlignType.RIGHT, true, "Download Selected"));
 			} catch (Exception e) {
 				logger.debug("UNABLE TO RESOLVE URL for file group: " + fg.getDescription());
 			}
 
 			// add generic file viewer action to the list
-			actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId().toString()));
+			if (!fileService.getTabViewProvidingPluginsByFileGroup(fg).isEmpty())
+				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId().toString()));
 
 			List<GenomeBrowserProviding> plugins = new ArrayList<>();
 			plugins.addAll(waspPluginRegistry

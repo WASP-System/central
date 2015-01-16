@@ -70,7 +70,7 @@ public class BioanalyzerPlugin extends WaspPlugin
 	@Qualifier("bioanalyzer")
 	private Software bioanalyzer;
 	
-	public static final String FLOW_NAME = "edu.yu.einstein.wasp.plugin.bioanalyzer.mainFlow";
+	public static final String FLOW_NAME = "default.waspJob.jobflow.bioanalyzer.v1";
 
 	public BioanalyzerPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
