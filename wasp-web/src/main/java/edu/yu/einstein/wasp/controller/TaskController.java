@@ -236,10 +236,7 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingSampleQC){
-    	logger.debug("processing samples for job with id='" + job.getId() + "'");
     	List<Sample> newSampleList = jobService.getSubmittedSamplesNotYetQC(job);
-    	for (Sample sample: newSampleList)
-    		logger.debug("    .... sample: id='" + sample.getId() + "'");
     	sampleService.sortSamplesBySampleId(newSampleList);    	
     	jobAndSampleMap.put(job, newSampleList);
     }
@@ -256,68 +253,73 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/sampleqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String updateSampleQC(
-      @RequestParam("sampleId") final Integer sampleId,
-      @RequestParam("qcStatus") final String qcStatus,
-      @RequestParam("comment") final String comment,
-      final ModelMap m) {	
-	  
-	  /*return new Callable<String>() {
-
-		@Override
-		public String call() throws Exception {*/
-			Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
-			  if(sample.getId()==null){
-				  waspErrorMessage("task.sampleqc_invalid_sample.error");
-				  return "redirect:/task/sampleqc/list.do";
-			  }
-			  if(qcStatus == null ||  qcStatus.equals("")){
-				  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");
-				  return "redirect:/task/sampleqc/list.do";
-			  }
-			  if( ! SampleService.STATUS_FAILED.equals(qcStatus) && ! SampleService.STATUS_PASSED.equals(qcStatus) ){
-				  waspErrorMessage("task.sampleqc_qcStatus_invalid.error");	
-				  return "redirect:/task/sampleqc/list.do";
-			  }
-			  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
-				  waspErrorMessage("task.sampleqc_comment_empty.error");	
-				  return "redirect:/task/sampleqc/list.do";
-			  }
-
-			  try{
-				  if(qcStatus.equals(SampleService.STATUS_PASSED)){
-					  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
-					  transitionDelay();
-				  }
-				  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
-					  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
-					  transitionDelay();
-				  }
-				  else{
-					  waspErrorMessage("task.sampleqc_status_invalid.error");
-					  return "redirect:/task/sampleqc/list.do";
-				  }
-			  } catch (WaspMessageBuildingException e){
-				  logger.warn(e.getLocalizedMessage());
-				  waspErrorMessage("task.sampleqc_message.error");
-				  return "redirect:/task/sampleqc/list.do";
-				  }
-			  
-			  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
-			  //unfortunately, they are not easily linked within a single transaction.
-			  try{
-				  if(!comment.trim().isEmpty()){
-					  sampleService.setSampleQCComment(sample.getId(), comment.trim());
-				  }
-			  }
-			  catch(Exception e){
-				  logger.warn(e.getMessage());
-			  }
-			  
-			  waspMessage("task.sampleqc_update_success.label");	
+  public String updateSampleQC(@RequestParam("jobId") final Integer jobId,
+		  					@RequestParam("sampleId") final List<Integer> sampleIdList, final ModelMap m) {	
+	 
+	  List<Sample> sampleList = new ArrayList<Sample>();
+	  List<String> qcStatusList = new ArrayList<String>();
+	  List<String> commentList = new ArrayList<String>();
+	  for(Integer sampleId : sampleIdList){//fill up lists and check for errors (there should be no errors, as the javascript on the webpage should have handled this)
+		  //we could also check that the samples are on job with id - jobId, but I did not do it
+		  Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
+		  String qcStatus = request.getParameter("qcStatus" + sampleId.toString());		  
+		  String comment = request.getParameter("comment" + sampleId.toString());
+		  if(sample==null || qcStatus==null ||  comment==null){
+			  waspErrorMessage("task.sampleqc_unexpectedErrorDetectedTryAgain.error");
 			  return "redirect:/task/sampleqc/list.do";
-//		}
-//	};
+		  }
+		  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
+			  waspErrorMessage("task.sampleqc_unexpectedErrorDetectedTryAgain.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+		  sampleList.add(sample);
+		  qcStatusList.add(qcStatus);
+		  commentList.add(comment);
+		  
+		  /*  testing only
+		  logger.debug("dubin 1-16-15 samplename: " + sample.getName());
+		  logger.debug("dubin 1-16-15 passedOrFailed: " + qcStatus);
+		  logger.debug("dubin 1-16-15 comment: " + comment);
+		  */	  
+	  }
+	  
+	  //no errors, so update as needed
+	  int counter = -1;
+	  for(Sample sample : sampleList){
+		  counter++;
+		  
+		  try{
+			  if(qcStatusList.get(counter).equals(SampleService.STATUS_PASSED)){
+				  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
+				  transitionDelay();
+			  }
+			  else if(qcStatusList.get(counter).equals(SampleService.STATUS_FAILED)){
+				  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
+				  transitionDelay();
+			  }
+			  else{//neither passed nor failed selected, which is allowed; nothing to update
+				  continue;
+			  }
+		  } catch (WaspMessageBuildingException e){
+			  logger.warn(e.getLocalizedMessage());
+			  waspErrorMessage("task.sampleqc_message.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+		  
+		  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+		  //unfortunately, they are not easily linked within a single transaction.
+		  try{
+			  if(!commentList.get(counter).trim().isEmpty()){
+				  sampleService.setSampleQCComment(sample.getId(), commentList.get(counter).trim());
+			  }
+		  }
+		  catch(Exception e){//don't worry about this that much
+			  logger.warn(e.getMessage());
+		  }		  	  
+	  }
+	  waspMessage("task.sampleqc_update_success.label");	
+	  return "redirect:/task/sampleqc/list.do";
+
   }
   
   @RequestMapping(value = "/libraryqc/list", method = RequestMethod.GET)
