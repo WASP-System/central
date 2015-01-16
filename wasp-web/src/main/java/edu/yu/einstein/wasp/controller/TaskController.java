@@ -277,7 +277,7 @@ public class TaskController extends WaspController {
 		  commentList.add(comment);
 		  
 		  /*  testing only
-		  logger.debug("dubin 1-16-15 samplename: " + sample.getName());
+		  logger.debug("dubin 1-16-15 SAMPLE Macro samplename: " + sample.getName());
 		  logger.debug("dubin 1-16-15 passedOrFailed: " + qcStatus);
 		  logger.debug("dubin 1-16-15 comment: " + comment);
 		  */	  
@@ -330,10 +330,7 @@ public class TaskController extends WaspController {
         
     Map<Job, List<Sample>> jobAndSampleMap = new HashMap<Job, List<Sample>>();
     for(Job job : jobsActiveAndAwaitingLibraryQC){
-    	logger.debug("processing libraries for job with id='" + job.getId() + "'");
-    	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
-    	for (Sample sample: newLibraryList)
-    		logger.debug("    .... sample: id='" + sample.getId() + "'");
+     	List<Sample> newLibraryList = jobService.getLibrariesNotYetQC(job);
     	sampleService.sortSamplesBySampleId(newLibraryList);    	
     	jobAndSampleMap.put(job, newLibraryList);
     }
@@ -350,69 +347,74 @@ public class TaskController extends WaspController {
 
   @RequestMapping(value = "/libraryqc/qc", method = RequestMethod.POST)
   @PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
-  public /*Callable<String>*/ String updateLibraryQC(
-      @RequestParam("sampleId") final Integer sampleId,
-      @RequestParam("qcStatus") final String qcStatus,
-      @RequestParam("comment") final String comment,
-      final ModelMap m) {
+  public String updateLibraryQC(@RequestParam("jobId") final Integer jobId,
+			@RequestParam("sampleId") final List<Integer> libraryIdList, final ModelMap m) {	  
 	  
-	  /*return new Callable<String>() {
-
-		@Override
-		public String call() throws Exception {*/
-			 Sample sample = sampleService.getSampleDao().getSampleBySampleId(sampleId);
-			  if(sample.getId()==null){
-				  waspErrorMessage("task.libraryqc_invalid_sample.error");
-				  return "redirect:/task/libraryqc/list.do";
+	  List<Sample> libraryList = new ArrayList<Sample>();//THESE ARE LIBRARIES
+	  List<String> qcStatusList = new ArrayList<String>();
+	  List<String> commentList = new ArrayList<String>();
+	  for(Integer libraryId : libraryIdList){//fill up lists and check for errors (there should be no errors, as the javascript on the webpage should have handled this)
+		  //we could also check that the samples are on job with id - jobId, but I did not do it
+		  //we could also check that these are libraries, but I did not do it
+		  Sample library = sampleService.getSampleDao().getSampleBySampleId(libraryId);
+		  String qcStatus = request.getParameter("qcStatus" + libraryId.toString());		  
+		  String comment = request.getParameter("comment" + libraryId.toString());
+		  if(library==null || qcStatus==null ||  comment==null){
+			  waspErrorMessage("task.sampleqc_unexpectedErrorDetectedTryAgain.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+		  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
+			  waspErrorMessage("task.sampleqc_unexpectedErrorDetectedTryAgain.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+		  libraryList.add(library);
+		  qcStatusList.add(qcStatus);
+		  commentList.add(comment);
+		  
+		  /*  testing only
+		  logger.debug("dubin 1-16-15 library sample's name: " + library.getName());
+		  logger.debug("dubin 1-16-15 passedOrFailed: " + qcStatus);
+		  logger.debug("dubin 1-16-15 comment: " + comment);
+		  */	  
+	  }
+ 	  
+	  //no errors, so update as needed
+	  int counter = -1;
+	  for(Sample library : libraryList){
+		  counter++;
+		  
+		  try{
+			  if(qcStatusList.get(counter).equals(SampleService.STATUS_PASSED)){
+				  sampleService.updateQCStatus(library, WaspStatus.COMPLETED);
+				  transitionDelay();
 			  }
-			  if(qcStatus == null ||  qcStatus.equals("")){
-				  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");
-				  return "redirect:/task/libraryqc/list.do";
+			  else if(qcStatusList.get(counter).equals(SampleService.STATUS_FAILED)){
+				  sampleService.updateQCStatus(library, WaspStatus.FAILED);
+				  transitionDelay();
 			  }
-			  if( ! SampleService.STATUS_FAILED.equals(qcStatus) && ! SampleService.STATUS_PASSED.equals(qcStatus) ){
-				  waspErrorMessage("task.libraryqc_qcStatus_invalid.error");	
-				  return "redirect:/task/libraryqc/list.do";
+			  else{//neither passed nor failed selected, which is allowed; nothing to update
+				  continue;
 			  }
-			  if(SampleService.STATUS_FAILED.equals(qcStatus) && comment.trim().isEmpty() ){
-				  waspErrorMessage("task.libraryqc_comment_empty.error");	
-				  return "redirect:/task/libraryqc/list.do";
+		  } catch (WaspMessageBuildingException e){
+			  logger.warn(e.getLocalizedMessage());
+			  waspErrorMessage("task.sampleqc_message.error");
+			  return "redirect:/task/sampleqc/list.do";
+		  }
+		  
+		  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
+		  //unfortunately, they are not easily linked within a single transaction.
+		  try{
+			  if(!commentList.get(counter).trim().isEmpty()){
+				  sampleService.setSampleQCComment(library.getId(), commentList.get(counter).trim());
 			  }
-
-			  try{
-				  if(qcStatus.equals(SampleService.STATUS_PASSED)){
-					  sampleService.updateQCStatus(sample, WaspStatus.COMPLETED);
-					  transitionDelay();
-				  }
-				  else if(qcStatus.equals(SampleService.STATUS_FAILED)){
-					  sampleService.updateQCStatus(sample, WaspStatus.FAILED);
-					  transitionDelay();
-				  }
-				  else{
-					  waspErrorMessage("task.libraryqc_status_invalid.error");
-					  return "redirect:/task/libraryqc/list.do";
-				  }
-			  } catch (WaspMessageBuildingException e){
-				  logger.warn(e.getLocalizedMessage());
-				  waspErrorMessage("task.libraryqc_message.error");
-				  return "redirect:/task/libraryqc/list.do";
-			  }
-			  
-			  //12-11-12 as per Andy, perform the updateQCstatus and the setSampleQCComment separately
-			  //unfortunately, they are not easily linked within a single transaction.
-			  try{
-				  if(!comment.trim().isEmpty()){
-					  sampleService.setSampleQCComment(sample.getId(), comment.trim());
-				  }
-			  }
-			  catch(Exception e){
-				  logger.warn(e.getMessage());
-			  }
-			  
-			  waspMessage("task.libraryqc_update_success.label");	
-			  return "redirect:/task/libraryqc/list.do";
-	//	}
-	//};
- 
+		  }
+		  catch(Exception e){//don't worry about this that much
+			  logger.warn(e.getMessage());
+		  }		  	  
+	  }
+	 
+	  waspMessage("task.libraryqc_update_success.label");	
+	  return "redirect:/task/libraryqc/list.do"; 
   }
  
 

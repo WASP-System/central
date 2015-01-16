@@ -67,7 +67,12 @@
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:choose>
 						<c:when test='${receivedStatusMap.get(submittedMacromolecule) == "RECEIVED"}'>
-							<c:out value="${qcStatusMap.get(submittedMacromolecule)}" />
+							<c:out value="${qcStatusMap.get(submittedMacromolecule)}" />							
+							<c:set value="${qcStatusCommentsMap.get(submittedMacromolecule)}" var="metaMessageList" />
+							<c:if test="${metaMessageList.size()>0}">
+								<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  						<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+							</c:if>							
 						</c:when>
 						<c:otherwise>
 							<fmt:message key="sampleDetails.notApplicable.label" />
@@ -165,7 +170,12 @@
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:choose>
 						<c:when test='${receivedStatusMap.get(submittedLibrary) == "RECEIVED"}'>
-							<c:out value="${qcStatusMap.get(submittedLibrary)}" />
+							<c:out value="${qcStatusMap.get(submittedLibrary)}" />							
+							<c:set value="${qcStatusCommentsMap.get(submittedLibrary)}" var="metaMessageList" />
+							<c:if test="${metaMessageList.size()>0}">
+								<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  						<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+							</c:if>							
 						</c:when>
 						<c:otherwise>
 							<fmt:message key="sampleDetails.notApplicable.label" />
@@ -263,7 +273,14 @@
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${statusFacilityLibrary.count}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${facilityLibrary.getName()}" /><br />(<fmt:message key="sampleDetails.ID.label" />:<c:out value="${facilityLibrary.getId()}" />)<br />[<fmt:message key="sampleDetails.parent.label" />: <c:out value="${facilityLibrary.getParent().getName()}" /> (<fmt:message key="sampleDetails.ID.label" />:<c:out value="${facilityLibrary.getParent().getId()}" />)]</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${facilityLibrary.getSampleType().getName()}" /></td>
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${qcStatusMap.get(facilityLibrary)}" /></td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;">
+					<c:out value="${qcStatusMap.get(facilityLibrary)}" />
+					<c:set value="${qcStatusCommentsMap.get(facilityLibrary)}" var="metaMessageList" />
+					<c:if test="${metaMessageList.size()>0}">
+						<fmt:formatDate value="${metaMessageList[0].getDate()}" pattern="yyyy-MM-dd" var="date" />
+		  				<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
+					</c:if>					
+				</td>
 				<c:set value="${libraryAdaptorsetMap.get(facilityLibrary)}" var="adaptorSet"/>
 				<c:set value="${libraryAdaptorMap.get(facilityLibrary)}" var="adaptor"/>
 				<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">

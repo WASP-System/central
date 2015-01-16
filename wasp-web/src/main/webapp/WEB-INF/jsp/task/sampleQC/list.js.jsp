@@ -1,39 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 <script>
-	function validate(theform){
-		if(!theform.qcStatus[0].checked && !theform.qcStatus[1].checked){
-			alert("<fmt:message key="task.sampleqc_validatePassFailAlert.label" />");
-			return false;
-		}
-		var commentObj = theform.comment;
-		var commentValue = commentObj.value; 
-		var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
-		if(theform.qcStatus[1].checked && trimmedCommentValue.length==0){
-			alert("<fmt:message key="task.sampleqc_validateCommentAlert.label" />");
-			if(commentValue.length>0){
-				commentObj.value = "";
-			}
-			commentObj.focus();
-			return false;
-		}
-		openWaitDialog();
-		return true;
-	}
-	function selectedFail(formId){
-		var commentObj = document.getElementById(formId).comment;
-		var commentValue = commentObj.value; 
-		var trimmedCommentValue = commentValue.replace(/^\s+|\s+$/g, "");
-		if(trimmedCommentValue.length==0){
-			alert("<fmt:message key="task.sampleqc_validateCommentAlert.label" />");
-			if(commentValue.length>0){
-				commentObj.value = "";
-			}
-			commentObj.focus();
-		}
-
-
-	}
-	
 	//added 1-15-15;dubin
 	function set(formId, status){
 		var elementsOnForm = document.getElementById(formId).elements;// for some reason, thisForm.getElementsByTagName("select") does not work 
@@ -83,7 +49,6 @@
 		if(numberFailed==0){//none Failed, at least one passed
 			openWaitDialog();
 			return true;
-			///////////////////////////return false;//must remove
 		}
 		else if(numberFailed>0){
 			var confirmReturnValue =  confirm("Are you sure you wish to fail " + numberFailed + " sample(s)?");
@@ -91,9 +56,7 @@
 				openWaitDialog();
 				return true;
 			}
-		}
-		
-		return false;
-		
+		}		
+		return false;		
 	}
 </script>
