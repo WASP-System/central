@@ -733,6 +733,11 @@ public class BatchJobHibernationManager {
 	 */
 	private void reawakenJobExecution(StepExecution stepExecution, String contextRecordKey, Object contextRecordValue) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
+		if (isInErrorCondition(je)){
+			removeStepExecutionFromWakeMessageMap(stepExecution);
+			logger.debug("Not going to reawaken job  id=" + je.getId() + ") because it is in error condition");
+			return;
+		}
 		ExitStatus status = je.getExitStatus();
 		if (!status.isHibernating()){
 			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is not hibernating");
@@ -906,17 +911,25 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * returns true if this job is in error state and flagged for restart
-	 * @param se
+	 * returns true if this job is in error state 
+	 * @param stepExecution
 	 * @return
 	 */
-	public static boolean isInErrorConditionAndFlaggedForRestart(StepExecution stepExecution) {
-		JobExecution je = stepExecution.getJobExecution();
-		boolean isFlaggedForRestart = false;
-		if (je.getExecutionContext().containsKey(GridResult.FLAGGED_FOR_RESTART))
-			isFlaggedForRestart =  Boolean.parseBoolean(je.getExecutionContext().getString(GridResult.FLAGGED_FOR_RESTART));
-		logger.debug("Grid work unit for JobExecutionId=" + je.getId() + " is flagged for restart=" + isFlaggedForRestart);
-		return isFlaggedForRestart;
+	public static boolean isInErrorCondition(StepExecution stepExecution) {
+		return isInErrorCondition(stepExecution.getJobExecution());
+	}
+	
+	/**
+	 * returns true if this job is in error state 
+	 * @param je
+	 * @return
+	 */
+	public static boolean isInErrorCondition(JobExecution jobExecution) {
+		boolean isInErrorCondition = false;
+		if (jobExecution.getExecutionContext().containsKey(GridResult.IN_ERROR_CONDITION))
+			isInErrorCondition =  (boolean) jobExecution.getExecutionContext().get(GridResult.IN_ERROR_CONDITION);
+		logger.debug("Grid work unit for JobExecutionId=" + jobExecution.getId() + " is in error condition=" + isInErrorCondition);
+		return isInErrorCondition;
 	}
 	
 	/**
@@ -924,9 +937,9 @@ public class BatchJobHibernationManager {
 	 * @param se
 	 * @param isFlaggedForRestart
 	 */
-	public static void setIsInErrorConditionAndFlaggedForRestart(StepExecution stepExecution, Boolean isFlaggedForRestart) {
+	public static void setIsInErrorCondition(StepExecution stepExecution, Boolean isInErrorCondition) {
 		JobExecution je = stepExecution.getJobExecution();
-		je.getExecutionContext().put(GridResult.FLAGGED_FOR_RESTART, isFlaggedForRestart.toString());
+		je.getExecutionContext().put(GridResult.IN_ERROR_CONDITION, isInErrorCondition);
 	}
 	
 	/**
