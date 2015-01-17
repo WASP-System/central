@@ -79,6 +79,8 @@ public class BatchJobStatusViewerController extends WaspController {
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15' />");
+			else if (exitCode.equals(ExitStatus.ERROR.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/warning.png' alt='Error Condition' height='15' />");
 			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode())){
 				try {
 					DateFormat df = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
