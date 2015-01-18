@@ -119,7 +119,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code"); 
 			doCleanupBeforeRestart(stepExecution);
 			int retryCount = getRetryCount(stepExecution) + 1;
-			if (retryCount < maxRetryAttempts){
+			if (retryCount <= maxRetryAttempts){
 				incrementRetryCounter(stepExecution);
 				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + maxRetryAttempts);
 				throw new TaskletRetryException(e.getMessage());
