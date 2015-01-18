@@ -21,6 +21,7 @@ public interface BatchJobStatusViewerService {
 	public static final String SHOW_COMPLETED = "Completed";
 	public static final String SHOW_TERMINATED = "Terminated";
 	public static final String SHOW_FAILED = "Failed";
+	public static final String SHOW_ERROR = "Error";
 	
 	public ExtTreeModel getTreeModel(JobExecution je);
 	

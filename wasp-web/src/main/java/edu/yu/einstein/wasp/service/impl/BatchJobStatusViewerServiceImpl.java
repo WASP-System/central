@@ -164,6 +164,8 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 						jobExplorer.getJobExecutionCount(ExitStatus.EXECUTING) + jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING));
 			if (displayParam.equals(SHOW_COMPLETED))
 				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.COMPLETED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED));
+			if (displayParam.equals(SHOW_ERROR))
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.ERROR, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.ERROR));
 			if (displayParam.equals(SHOW_FAILED))
 				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.FAILED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.FAILED));
 			if (displayParam.equals(SHOW_TERMINATED))
@@ -176,6 +178,8 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING);
 			else if (displayParam.equals(SHOW_COMPLETED))
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED);
+			else if (displayParam.equals(SHOW_ERROR))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.ERROR);
 			else if (displayParam.equals(SHOW_FAILED))
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.FAILED);
 			else if (displayParam.equals(SHOW_TERMINATED))

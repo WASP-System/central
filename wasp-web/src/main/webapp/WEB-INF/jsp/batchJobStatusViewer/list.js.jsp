@@ -279,6 +279,13 @@ Ext.onReady(function() {
             	treeGridStore.loadPage(1);
             }
         }, {
+            text: "<fmt:message key='batchViewer.showErrorButton.label'/> <img src='<wasp:relativeUrl value="images/warning.png" />' height='12' />",
+            scope: this,
+            handler: function (){
+            	treeGridStore.getProxy().extraParams.displayParam = "Error";
+            	treeGridStore.loadPage(1);
+            }
+        }, {
             text: "<fmt:message key='batchViewer.showTerminatedButton.label'/> <img src='<wasp:relativeUrl value="images/stop_yellow_25x25.png" />' height='12' />",
             scope: this,
             handler: function (){
