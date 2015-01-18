@@ -80,6 +80,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		if (isInErrorCondition(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " is being woken up from hibernation from error state.");
 			removeIsInErrorCondition(stepExecution);
+			BatchJobHibernationManager.resetRetryCounter(stepExecution);
 		}
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
