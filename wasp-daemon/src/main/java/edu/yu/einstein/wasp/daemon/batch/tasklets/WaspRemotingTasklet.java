@@ -55,7 +55,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public abstract GridResult doExecute(ChunkContext context) throws Exception;
 	
 	/**
-	 * cleanup work to do before a restart
+	 * cleanup work to do before a restart and before entering error state
 	 * @param context
 	 */
 	public abstract void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception;
@@ -77,6 +77,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		Long stepExecutionId = stepExecution.getId();
+		if (isInErrorCondition(stepExecution)){
+			logger.debug("StepExecution id=" + stepExecutionId + " is being woken up from hibernation from error state.");
+			removeIsInErrorCondition(stepExecution);
+		}
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
@@ -126,9 +130,15 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			}
 			else {
 				setIsInErrorCondition(stepExecution, true);
-				logger.debug("Marked as in error condition. Going to hibernate");
+				logger.warn("Maximum retries exceeded. Entering error hibernation state.");
 			}
-				//throw new GridException("Maximum number of retry attempts (" + maxRetryAttempts + ") exceeded.", e);
+		} catch (Exception e1){
+			// enter error state on catching any unexpected errors
+			logger.warn("Exception caught of  type " + e1.getClass().getName() + ": " + e1.getLocalizedMessage() + ". Going to run cleanup code and enter error state"); 
+			e1.printStackTrace();
+			doCleanupBeforeRestart(stepExecution);
+			setIsInErrorCondition(stepExecution, true);
+			logger.info("Entering error hibernation state.");
 		} finally {
 			logger.trace("saving GridResult from finally block");
 			if (result != null)
@@ -178,11 +188,17 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		return super.afterStep(stepExecution);

@@ -921,7 +921,7 @@ public class BatchJobHibernationManager {
 	
 	/**
 	 * returns true if this job is in error state 
-	 * @param je
+	 * @param jobExecution
 	 * @return
 	 */
 	public static boolean isInErrorCondition(JobExecution jobExecution) {
@@ -933,13 +933,23 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
-	 * Sets if this job is in error state and flagged for restart.
-	 * @param se
+	 * Sets if this job is in error state
+	 * @param stepExecution
 	 * @param isFlaggedForRestart
 	 */
 	public static void setIsInErrorCondition(StepExecution stepExecution, Boolean isInErrorCondition) {
 		JobExecution je = stepExecution.getJobExecution();
 		je.getExecutionContext().put(GridResult.IN_ERROR_CONDITION, isInErrorCondition);
+	}
+	
+	/**
+	 * remove error state flag from job execution context
+	 * @param stepExecution
+	 */
+	public static void removeIsInErrorCondition(StepExecution stepExecution) {
+		JobExecution je = stepExecution.getJobExecution();
+		if (je.getExecutionContext().containsKey(GridResult.IN_ERROR_CONDITION))
+			je.getExecutionContext().remove(GridResult.IN_ERROR_CONDITION);
 	}
 	
 	/**

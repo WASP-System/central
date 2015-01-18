@@ -369,11 +369,18 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
 	}
 	
+	/**
+	 * Will be called when step executed for the first time, after restart and when resuming from hibernation in error state.
+	 * Not called after waking from hibernation when not in error state.
+	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
 	
+	/**
+	 * Called immediately prior to completion of step
+	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		logger.debug("In after step for StepExecutionId=" + stepExecution.getId());
@@ -406,8 +413,12 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return BatchJobHibernationManager.isInErrorCondition(se);
 	}
 	
-	protected static void setIsInErrorCondition(StepExecution se, Boolean isFlaggedForRestart) {
-		BatchJobHibernationManager.setIsInErrorCondition(se, isFlaggedForRestart);
+	protected static void setIsInErrorCondition(StepExecution se, Boolean isInErrorCondition) {
+		BatchJobHibernationManager.setIsInErrorCondition(se, isInErrorCondition);
+	}
+	
+	protected static void removeIsInErrorCondition(StepExecution se){
+		BatchJobHibernationManager.removeIsInErrorCondition(se);
 	}
 	
 	protected void incrementRetryCounter(StepExecution se) {
