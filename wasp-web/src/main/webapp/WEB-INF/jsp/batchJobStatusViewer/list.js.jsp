@@ -31,6 +31,23 @@
 
 <script type="text/javascript">
 
+function sendActionRequest(url, jobId, stepName, page, treeGridStore){
+	$.ajax({
+        type: "GET",
+        url: url,
+        data: {jobId : jobId, stepName : stepName, page : page},
+        success: function (response) {
+        	treeGridStore.loadPage(page)
+    		$("waspMessage").show();
+        	waspFade("waspMessage", response);
+        },
+        error: function (xmlHttpRequest, textStatus, errorThrown) {
+        	$("waspErrorMessage").show();
+        	waspFade("waspErrorMessage", xmlHttpRequest.responseText);
+        }
+     });
+}
+
 Ext.require([
     'Ext.data.*',
     'Ext.button.*',
@@ -292,7 +309,7 @@ Ext.onReady(function() {
                 		jobExecId = id.substring(2, id.indexOf('SE'));
                 		var r = confirm("You are about to RESTART job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
                 		if (r == true) {
-                			alert("restarting job id=" + jobExecId + " step=" + stepName + ", page=" + gridStore.currentPage);
+                			sendActionRequest("restartBatchJob.do", jobExecId, stepName, gridStore.currentPage, treeGridStore);
                 		} 
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
@@ -318,7 +335,7 @@ Ext.onReady(function() {
                 		jobExecId = id.substring(2, id.indexOf('SE'));
                 		var r = confirm("You are about to ABORT job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
                 		if (r == true) {
-                			alert("aborting job id=" + jobExecId + " step=" + stepName + ", page=" + gridStore.currentPage);
+                			sendActionRequest("abortBatchJob.do", jobExecId, stepName, gridStore.currentPage, treeGridStore);
                 		} 
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );

@@ -32,6 +32,7 @@ import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel.ExtIcon;
+import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
@@ -133,6 +134,16 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		for (JobExecution je : jobExplorer.getJobExecutions(exitStatus, getJobSortProperty(property), getSortDirection(direction), start, limit))
 			modelList.add(getTreeModel(je));
 		return modelList;
+	}
+	
+	@Override
+	public void restartBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException{
+		
+	}
+	
+	@Override
+	public void abortBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException{
+		
 	}
 	
 	private List<ExtTreeModel> getSteps(String nodeId, String property, String direction, Long start, Long limit){

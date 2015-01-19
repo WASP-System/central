@@ -9,6 +9,7 @@ import org.springframework.batch.core.StepExecution;
 import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
+import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 
 public interface BatchJobStatusViewerService {
 	
@@ -36,5 +37,9 @@ public interface BatchJobStatusViewerService {
 	public ExtGridResponse<ExtTreeModel> getPagedModelList(String nodeId, String displayParam, String property, String direction, Long start, Long limit);
 
 	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName);
+
+	public void restartBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException;
+	
+	public void abortBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException;
 
 }
