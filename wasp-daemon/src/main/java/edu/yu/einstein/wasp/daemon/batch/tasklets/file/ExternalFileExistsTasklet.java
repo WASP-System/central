@@ -106,6 +106,11 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnMessageStatus(stepExecution);
+		} else if (wasWokenOnRequest(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a request via message.");
+			wasHibernationRequested = false;
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			removeWokenOnTimeoutStatus(stepExecution);
 		}
 		if (!wasHibernationRequested){
 			WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();

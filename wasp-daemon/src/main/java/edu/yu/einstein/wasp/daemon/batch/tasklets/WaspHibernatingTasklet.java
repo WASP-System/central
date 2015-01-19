@@ -334,6 +334,21 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS));
 	}
 	
+	protected boolean wasWokenOnRequest(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_REQUEST));
+	}
+	
+	protected boolean wasWokenOnRequest(ChunkContext context){
+		return wasWokenOnRequest(context.getStepContext().getStepExecution());
+	}
+	
+	protected void removeWokenOnRequestStatus(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_REQUEST))
+			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_REQUEST);
+	}
+	
 	protected WaspStatus getWokenOnMessageStatus(StepExecution stepExecution){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		WaspStatus status = WaspStatus.UNKNOWN;
@@ -394,17 +409,6 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
 		ExitStatus exitStatus = super.afterStep(stepExecution);
-/*	TODO: figure out how to implement stopping in error condition	
- 		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
-    		logger.debug(stepExecution.getStepName() + " afterStep identified stopped state for error");
-    		if (wasWokenOnTimeout(stepExecution)){
-    			removeWokenOnTimeoutStatus(stepExecution);
-    			setTimeoutIntervalInContext(stepExecution, getRandomInitialExponentialInterval()); // reset for restart
-    		} else 
-    			removeWokenOnMessageStatus(stepExecution);
-            exitStatus =  new ExitStatus("ERROR").addExitDescription("Stopped for Error");
-        }
-*/
 		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
 		return exitStatus;
 	}

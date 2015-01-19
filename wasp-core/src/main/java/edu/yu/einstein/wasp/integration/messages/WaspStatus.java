@@ -16,9 +16,10 @@ public enum WaspStatus {
 	COMPLETED (2),
 	FAILED (2),
 	STOPPED (3),
-	STARTED (4),
-	ACCEPTED (5),
-	CREATED (6);
+	RESTARTED (4),
+	STARTED (5),
+	ACCEPTED (6),
+	CREATED (7);
 	
 	
 	private Integer priority;

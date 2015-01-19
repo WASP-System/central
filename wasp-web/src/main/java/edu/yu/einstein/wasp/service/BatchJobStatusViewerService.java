@@ -10,6 +10,7 @@ import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 
 public interface BatchJobStatusViewerService {
 	
@@ -38,8 +39,8 @@ public interface BatchJobStatusViewerService {
 
 	public ExtStepInfoModel getExtStepInfoModel(Long jobExecutionId, String stepName);
 
-	public void restartBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException;
+	public void restartBatchJob(Long jobExecutionId, String stepName) throws WaspBatchJobExecutionException, WaspMessageBuildingException;
 	
-	public void abortBatchJob(Integer jobId, String stepName) throws WaspBatchJobExecutionException;
+	public void abortBatchJob(Long jobExecutionId, String stepName) throws WaspBatchJobExecutionException, WaspMessageBuildingException;
 
 }

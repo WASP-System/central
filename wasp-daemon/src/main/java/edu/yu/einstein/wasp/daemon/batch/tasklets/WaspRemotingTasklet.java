@@ -77,10 +77,13 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		Long stepExecutionId = stepExecution.getId();
+		GridResult result = null;
 		if (isInErrorCondition(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " is being woken up from hibernation from error state.");
 			removeIsInErrorCondition(stepExecution);
 			BatchJobHibernationManager.resetRetryCounter(stepExecution);
+		} else {
+			result = getGridResult(context);
 		}
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
@@ -92,6 +95,11 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnMessageStatus(stepExecution);
+		} else if (wasWokenOnRequest(stepExecution)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation by request via message.");
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			wasHibernationRequested = false;
+			removeWokenOnRequestStatus(stepExecution);
 		}
 		
 		// Three cases at this point
@@ -99,7 +107,6 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		boolean jobHasUpdatedChild = false;
-		GridResult result = getGridResult(context);
 		try{
 			if (result != null && !isInErrorCondition(stepExecution)){
 				Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());

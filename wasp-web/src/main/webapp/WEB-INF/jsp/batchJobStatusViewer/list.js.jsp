@@ -31,11 +31,11 @@
 
 <script type="text/javascript">
 
-function sendActionRequest(url, jobId, stepName, page, treeGridStore){
+function sendActionRequest(url, jobExecutionId, stepName, page, treeGridStore){
 	$.ajax({
         type: "GET",
         url: url,
-        data: {jobId : jobId, stepName : stepName, page : page},
+        data: {jobExecutionId : jobExecutionId, stepName : stepName, page : page},
         success: function (response) {
         	treeGridStore.loadPage(page)
     		$("waspMessage").show();

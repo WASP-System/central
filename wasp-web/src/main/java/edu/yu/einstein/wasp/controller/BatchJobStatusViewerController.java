@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpResponse;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
@@ -22,12 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
+import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtModel;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
-import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
@@ -79,14 +79,15 @@ public class BatchJobStatusViewerController extends WaspController {
 	}
 	
 	@RequestMapping(value="/restartBatchJob", method = RequestMethod.GET)
-	public void restartBatchJob(@RequestParam("jobId") Integer jobId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
+	public void restartBatchJob(@RequestParam("jobExecutionId") Long jobExecutionId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
 		m.addAttribute("startPage", page);
 		String[] args = new String[2];
-		args[0] = jobId.toString();
+		args[0] = jobExecutionId.toString();
 		args[1] = stepName;
 		try{
-			statusViewerService.restartBatchJob(jobId, stepName);
-		} catch (WaspBatchJobExecutionException e){
+			statusViewerService.restartBatchJob(jobExecutionId, stepName);
+		} catch (WaspBatchJobExecutionException | WaspMessageBuildingException e){
+			logger.warn("Caught " + e.getClass().getName() + ":" + e.getLocalizedMessage());
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			try {
 				response.getWriter().write(messageService.getMessage("batchViewer.restartJobFailure.label", args));
@@ -104,13 +105,14 @@ public class BatchJobStatusViewerController extends WaspController {
 	}
 	
 	@RequestMapping(value="/abortBatchJob", method = RequestMethod.GET)
-	public void abortBatchJob(@RequestParam("jobId") Integer jobId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
+	public void abortBatchJob(@RequestParam("jobExecutionId") Long jobExecutionId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
 		String[] args = new String[1];
-		args[0] = jobId.toString();
+		args[0] = jobExecutionId.toString();
 		m.addAttribute("startPage", page);
 		try{
-			statusViewerService.abortBatchJob(jobId, stepName);
-		} catch (WaspBatchJobExecutionException e){
+			statusViewerService.abortBatchJob(jobExecutionId, stepName);
+		} catch (WaspBatchJobExecutionException | WaspMessageBuildingException e){
+			logger.warn("Caught " + e.getClass().getName() + ":" + e.getLocalizedMessage());
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			try {
 				response.getWriter().write(messageService.getMessage("batchViewer.abortJobFailure.label", args));

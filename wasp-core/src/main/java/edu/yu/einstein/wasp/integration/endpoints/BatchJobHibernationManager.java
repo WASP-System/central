@@ -50,6 +50,8 @@ import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionReadinessException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.integration.messages.WaspMessageType;
 import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobStepActionStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.StatusMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.WaspStatusMessageTemplate;
@@ -66,6 +68,7 @@ public class BatchJobHibernationManager {
 	public static final String ABANDON_ON_MESSAGE = "abandonedOnMessage";
 	public static final String WOKEN_ON_MESSAGE_STATUS = "wokenOnMessageStatus";
 	public static final String WOKEN_ON_TIMEOUT = "wokenOnTimeout";
+	public static final String WOKEN_ON_REQUEST = "wokenOnRequest";
 	public static final String MESSAGES_TO_WAKE = "w_msgs";
 	public static final String MESSAGES_TO_ABANDON = "a_msgs";
 	public static final String TIME_TO_WAKE = "w_time";
@@ -189,44 +192,54 @@ public class BatchJobHibernationManager {
 	 * @return
 	 */
 	public Message<WaspStatus> handleStatusMessage(Message<WaspStatus> message){
-	        logger.trace("handleStatusMessage");
-		int resendCount = 0;
+	    logger.trace("handleStatusMessage");
+	    int resendCount = 0;
 		boolean resendMessage = false;
 		if (message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
 			resendCount = message.getHeaders().get(WaspMessageTemplate.RESEND, Integer.class);
-		WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
-		//remove superfluous headers if present (these are not used to make decisions about acting on messages)
-		sanitizeHeaders(incomingStatusMessageTemplate);
-		logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
-		Set<Long> handledJobExecutionIds = new HashSet<Long>();
-		if (incomingStatusMessageTemplate.getHeader(WaspMessageType.HEADER_KEY).equals(WaspMessageType.MANY) &&
-		        isListenerRegistered(incomingStatusMessageTemplate) == false) {
-		    
-		    if (!message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
-		            resendCount = 0;
-		    else
-		        resendCount++;
-		    
-		    Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
-		    
-		    logger.trace("RESEND " + resendCount +":"+ waitingManyJobs.containsKey(incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID)));
-		    
-		    logger.debug("Result message from " + incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID) + 
-                            " has not been registered yet, resending " + resendCount);
-                    logger.info("Returning MANY message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
-                    return newMessage;
-		}
-		try {
-			handledJobExecutionIds.addAll(handleStepExecutionWakingOnMessage(incomingStatusMessageTemplate));
-		} catch (WaspBatchJobExecutionReadinessException e) {
-			logger.debug("Going to request return message to queue due to at least one job not being ready for it (" + e + ")");
-			resendMessage = true;
-		}
-		try {
-			handledJobExecutionIds.addAll(handleStepExecutionAbandonmentOnMessage(incomingStatusMessageTemplate));
-		} catch (WaspBatchJobExecutionReadinessException e) {
-			logger.debug("Going to request return message to queue due to at least one job not being ready for it (" + e + ")");
-			resendMessage = true;
+		if (BatchJobStepActionStatusMessageTemplate.isMessageOfCorrectType(message)){
+			BatchJobStepActionStatusMessageTemplate stepActionStatusMessageTemplate = new BatchJobStepActionStatusMessageTemplate(message);
+			logger.info("Handling BatchJobStepAction message: " + stepActionStatusMessageTemplate.toString());
+			try {
+				handleStepExecutionActionMessage(stepActionStatusMessageTemplate);
+			} catch (WaspBatchJobExecutionReadinessException e) {
+				logger.debug("Going to request return message to queue due to at least one job not being ready for it (" + e + ")");
+				resendMessage = true;
+			}
+		} else {
+			WaspStatusMessageTemplate incomingStatusMessageTemplate = new WaspStatusMessageTemplate((Message<WaspStatus>) message);
+			//remove superfluous headers if present (these are not used to make decisions about acting on messages)
+			sanitizeHeaders(incomingStatusMessageTemplate);
+			logger.info("Handling message: " + incomingStatusMessageTemplate.toString());
+			Set<Long> handledJobExecutionIds = new HashSet<Long>();
+			if (ManyJobStatusMessageTemplate.isMessageOfCorrectType(message) && isListenerRegistered(incomingStatusMessageTemplate) == false) {
+			    
+			    if (!message.getHeaders().containsKey(WaspMessageTemplate.RESEND))
+			            resendCount = 0;
+			    else
+			        resendCount++;
+			    
+			    Message<WaspStatus> newMessage = getMessageToResend(message, resendCount);
+			    
+			    logger.trace("RESEND " + resendCount +":"+ waitingManyJobs.containsKey(incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID)));
+			    
+			    logger.debug("Result message from " + incomingStatusMessageTemplate.getHeader(WaspMessageTemplate.PARENT_ID) + 
+	                            " has not been registered yet, resending " + resendCount);
+	            logger.info("Returning MANY message to queue for retry " + resendCount + " / " + RESEND_MESSAGE_MAX_TIMES + " :" + newMessage);
+	            return newMessage;
+			}
+			try {
+				handledJobExecutionIds.addAll(handleStepExecutionWakingOnMessage(incomingStatusMessageTemplate));
+			} catch (WaspBatchJobExecutionReadinessException e) {
+				logger.debug("Going to request return message to queue due to at least one job not being ready for it (" + e + ")");
+				resendMessage = true;
+			}
+			try {
+				handledJobExecutionIds.addAll(handleStepExecutionAbandonmentOnMessage(incomingStatusMessageTemplate));
+			} catch (WaspBatchJobExecutionReadinessException e) {
+				logger.debug("Going to request return message to queue due to at least one job not being ready for it (" + e + ")");
+				resendMessage = true;
+			}
 		}
 		if (resendMessage){
 			resendCount++;
@@ -319,6 +332,70 @@ public class BatchJobHibernationManager {
 	}
 	
 	/**
+	 * handles remote action requests for an existing StepExecution e.g. restarting or abandoning
+	 * @param stepActionStatusMessageTemplate
+	 * @throws WaspBatchJobExecutionReadinessException
+	 */
+	@Transactional
+	public synchronized void handleStepExecutionActionMessage(BatchJobStepActionStatusMessageTemplate stepActionStatusMessageTemplate) throws WaspBatchJobExecutionReadinessException {
+		logger.trace("handleStepExecutionActionMessage");
+		WaspStatus status = stepActionStatusMessageTemplate.getStatus();
+		String stepName =  stepActionStatusMessageTemplate.getStepName();
+		JobExecution je = jobExplorer.getJobExecution(stepActionStatusMessageTemplate.getJobExecutionId());
+		StepExecution se = jobRepository.getLastStepExecution(je.getJobInstance(), stepName); 
+		if (se == null){
+			String mess = "Attempted to get latest StepExecution for step " + stepName + " but it is null";
+			logger.info(mess);
+			throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue (" + mess + ")");
+		}
+		if (status.equals(WaspStatus.RESTARTED)){
+			if (!lockJobExecution(se.getJobExecution(), LockType.WAKE)){
+				String mess = "Not restarting job with JobExecution id=" + je.getId() + " for step " + stepName + " because execution locked";
+				logger.info(mess);
+				throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue (" + mess + ")");
+			}
+			try{
+				reawakenJobExecution(se, WOKEN_ON_REQUEST, true);
+			} catch (WaspBatchJobExecutionException e){
+				logger.warn("Problem reawakening job execution : " + e.getLocalizedMessage());
+				unlockJobExecution(je, LockType.WAKE);
+			} catch (Throwable e1){
+				logger.warn("Problem reawakening job execution. Caught " + e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+				unlockJobExecution(je, LockType.WAKE);
+			}
+		} else if (status.equals(WaspStatus.ABANDONED)){
+			if (!isLockedJobExecution(je, LockType.ABANDON)){
+				// if already locked for abandonment do not try and lock again. We might have been stopping and waiting to try again
+				if (!lockJobExecution(je, LockType.ABANDON)){
+					String mess = "Unable to abandon JobExecution (id=" + je.getId() + ") because it is locked for another task";
+					logger.info(mess);
+					throw new WaspBatchJobExecutionReadinessException("Need to push message back into queue (" + mess + ")");
+				}
+			}
+			logger.info("Abandoning job with JobExecution id=" + je.getId() + " for step " + se.getId() + " on receiving request");
+			try{
+			    abandonJobExecution(se);                                                
+				// remove all step executions being monitored for this abandoned JobExecution
+				removeStepExecutionFromMessageMap(je, messageTemplatesWakingStepExecutions);
+				removeStepExecutionFromMessageMap(je, messageTemplatesAbandoningStepExecutions);
+				unlockJobExecution(je, LockType.ABANDON);
+			} catch (WaspBatchJobExecutionReadinessException e1){
+				logger.debug(e1.getLocalizedMessage());
+				throw e1; // rethrow
+			} catch (WaspBatchJobExecutionException e2){
+				logger.debug("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions': " + e2.getLocalizedMessage());
+				unlockJobExecution(je, LockType.ABANDON);
+			} catch (Throwable e1){
+				logger.warn("Problem aborting job execution and cleaning up 'messageTemplatesAbandoningStepExecutions'. Caught " + 
+						e1.getClass().getName() + " exception.: " + e1.getLocalizedMessage());
+				unlockJobExecution(je, LockType.ABANDON);
+			}
+		} else {
+			logger.warn("Got unexpected WaspStatus of " + status); 
+		}
+	}
+	
+	/**
 	 * Checks provided WaspStatusMessage against set of messages that are being listened for in order to wake batch jobs. Removes message
 	 * from set after jobs successfully woken.
 	 * @param messageTemplate
@@ -327,7 +404,7 @@ public class BatchJobHibernationManager {
 	 */
 	@Transactional
 	public synchronized Set<Long> handleStepExecutionWakingOnMessage(WaspStatusMessageTemplate messageTemplate) throws WaspBatchJobExecutionReadinessException{
-	        logger.trace("handleStepExecutionWakingOnMessage");
+	    logger.trace("handleStepExecutionWakingOnMessage");
 		Set<Long> awakeningJobExecutionIds = new HashSet<>();
 		int pushMessageBackIntoQueueRequests = 0;
 		if (messageTemplatesWakingStepExecutions.keySet().contains(messageTemplate)){
@@ -733,11 +810,8 @@ public class BatchJobHibernationManager {
 	 */
 	private void reawakenJobExecution(StepExecution stepExecution, String contextRecordKey, Object contextRecordValue) throws WaspBatchJobExecutionException{
 		JobExecution je = jobExplorer.getJobExecution(stepExecution.getJobExecutionId());
-		if (isInErrorCondition(je)){
-			removeStepExecutionFromWakeMessageMap(stepExecution);
-			logger.debug("Not going to reawaken job  id=" + je.getId() + ") because it is in error condition");
-			return;
-		}
+		if (isInErrorCondition(je))
+			logger.debug("Reawakening job  id=" + je.getId() + ") after error condition");
 		ExitStatus status = je.getExitStatus();
 		if (!status.isHibernating()){
 			throw new WaspBatchJobExecutionReadinessException("Unable to wake JobExecution (id=" + je.getId() + ") because it is not hibernating");

@@ -61,6 +61,11 @@ public abstract class TestForGenomeIndexTasklet extends WaspRemotingTasklet {
 			wasHibernationRequested = false;
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			removeWokenOnTimeoutStatus(stepExecution);
+		} else if (wasWokenOnRequest(context)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a request via message.");
+			wasHibernationRequested = false;
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			removeWokenOnTimeoutStatus(stepExecution);
 		}
 		if (!wasHibernationRequested){
 			if (getIsGenomeAvailable(getStepExecutionContext(context)))
