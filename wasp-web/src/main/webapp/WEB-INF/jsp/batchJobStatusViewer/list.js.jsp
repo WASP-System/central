@@ -13,7 +13,7 @@
         margin: 0px 2px 0px 2px
 	}
 	.abortIcon {
-        background-image: url(<wasp:relativeUrl value="images/abort_30x30.png" />) !important;
+        background-image: url(<wasp:relativeUrl value="images/abort_24x24.png" />) !important;
         background-size: 15px 15px;
         background-repeat: no-repeat;
         margin: 0px 2px 0px 2px
