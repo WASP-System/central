@@ -55,6 +55,7 @@ Ext.define('BatchTreeModel', {
     ]
 });
 
+var startPage = <c:out value="${startPage}" />;
 
 var itemsPerPage = 14;
 
@@ -260,7 +261,8 @@ Ext.onReady(function() {
                 },
                 handler: function(grid, rowIndex, colIndex) {
                 	// action to be performed when icon clicked
-                	var rec = grid.getStore().getAt(rowIndex);
+                	var gridStore = grid.getStore();
+                	var rec = gridStore.getAt(rowIndex);
                 	if (rec.get('resultAvailable') == true){
                 		id = rec.get('id');
                 		stepName = rec.get('name');
@@ -282,14 +284,15 @@ Ext.onReady(function() {
                 },
                 handler: function(grid, rowIndex, colIndex) {
                 	// action to be performed when icon clicked
-                	var rec = grid.getStore().getAt(rowIndex);
+                	var gridStore = grid.getStore();
+                	var rec = gridStore.getAt(rowIndex);
                 	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')){
                 		id = rec.get('id');
                 		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
                 		var r = confirm("You are about to RESTART job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
                 		if (r == true) {
-                			alert("restarting job id=" + jobExecId + " step=" + stepName);
+                			alert("restarting job id=" + jobExecId + " step=" + stepName + ", page=" + gridStore.currentPage);
                 		} 
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
@@ -307,14 +310,15 @@ Ext.onReady(function() {
                 },
                 handler: function(grid, rowIndex, colIndex) {
                 	// action to be performed when icon clicked
-                	var rec = grid.getStore().getAt(rowIndex);
+                	var gridStore = grid.getStore();
+                	var rec = gridStore.getAt(rowIndex);
                 	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')){
                 		id = rec.get('id');
                 		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
                 		var r = confirm("You are about to ABORT job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
                 		if (r == true) {
-                			alert("aborting job id=" + jobExecId + " step=" + stepName);
+                			alert("aborting job id=" + jobExecId + " step=" + stepName + ", page=" + gridStore.currentPage);
                 		} 
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
@@ -326,42 +330,42 @@ Ext.onReady(function() {
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "All";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }, {
             text: "<fmt:message key='batchViewer.showActiveButton.label'/> <img src='<wasp:relativeUrl value="images/gears_green_30x30.png" />' height='12' />",
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "Active";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }, {
             text: "<fmt:message key='batchViewer.showCompletedButton.label'/> <img src='<wasp:relativeUrl value="images/pass.png" />' height='12' />",
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "Completed";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }, {
             text: "<fmt:message key='batchViewer.showErrorButton.label'/> <img src='<wasp:relativeUrl value="images/warning.png" />' height='12' />",
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "Error";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }, {
             text: "<fmt:message key='batchViewer.showTerminatedButton.label'/> <img src='<wasp:relativeUrl value="images/stop_yellow_25x25.png" />' height='12' />",
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "Terminated";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }, {
             text: "<fmt:message key='batchViewer.showFailedButton.label'/> <img src='<wasp:relativeUrl value="images/fail.png" />' height='12' />",
             scope: this,
             handler: function (){
             	treeGridStore.getProxy().extraParams.displayParam = "Failed";
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }],
         bbar: { // bottom tool bar for paging
@@ -374,7 +378,7 @@ Ext.onReady(function() {
         listeners: {
         	sortchange: function(ct, column, direction, eOpts) {
         		// after sorting be sure to load the first page again
-            	treeGridStore.loadPage(1);
+            	treeGridStore.loadPage(startPage);
             }
         }
     });
@@ -383,7 +387,7 @@ Ext.onReady(function() {
    	 tree.setHeight($('#content').height());
 	}).trigger('resize');
     
-    treeGridStore.loadPage(1);
+    treeGridStore.loadPage(startPage);
 });
 
 </script>

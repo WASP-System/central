@@ -38,6 +38,7 @@ public class BatchJobStatusViewerController extends WaspController {
 	@RequestMapping(value="/list.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
 	public String getBatchJobStatusViewerView(ModelMap m){
+		m.addAttribute("startPage", 1);
 		return "batchJobStatusViewer/list";
 	}
 	
