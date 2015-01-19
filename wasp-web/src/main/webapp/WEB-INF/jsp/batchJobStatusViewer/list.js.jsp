@@ -9,8 +9,22 @@
 	.infoIcon {
         background-image: url(<wasp:relativeUrl value="images/information_30x30.png" />) !important;
         background-size: 15px 15px;
+        background-repeat: no-repeat;
+        margin: 0px 2px 0px 2px
 	}
-	.infoNotAvailableIcon {
+	.abortIcon {
+        background-image: url(<wasp:relativeUrl value="images/abort_30x30.png" />) !important;
+        background-size: 15px 15px;
+        background-repeat: no-repeat;
+        margin: 0px 2px 0px 2px
+	}
+	.restartIcon {
+        background-image: url(<wasp:relativeUrl value="images/start_30x30.png" />) !important;
+        background-size: 15px 15px;
+        background-repeat: no-repeat;
+        margin: 0px 2px 0px 2px
+	}
+	.notAvailableIcon {
         background-image: none;
 	}
 </style>
@@ -228,11 +242,11 @@ Ext.onReady(function() {
             sortable: true,
             dataIndex: 'exitCode'
         },{
-        	text: '',
+        	text: '<fmt:message key="batchViewer.actionCol.label"/>',
         	align: 'center',
         	sortable: false,
             xtype: 'actioncolumn',
-            width: 50,
+            width: 80,
             items: [{
             	iconCls: 'infoIcon',
                 tooltip: 'Get Job Information',
@@ -241,7 +255,7 @@ Ext.onReady(function() {
                     if (rec.get('resultAvailable') == true) {
                         return 'infoIcon';
                     } else {
-                        return 'infoNotAvailableIcon';
+                        return 'notAvailableIcon';
                     }
                 },
                 handler: function(grid, rowIndex, colIndex) {
@@ -252,6 +266,56 @@ Ext.onReady(function() {
                 		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
                 		displayInfoData(jobExecId, stepName);
+                	}
+                    //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
+                }
+            },{
+            	iconCls: 'restartIcon',
+                tooltip: 'Restart Batch Job',
+                tooltipType: 'title',
+                getClass: function(v, meta, rec) {
+                	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')) {
+                        return 'restartIcon';
+                    } else {
+                        return 'notAvailableIcon';
+                    }
+                },
+                handler: function(grid, rowIndex, colIndex) {
+                	// action to be performed when icon clicked
+                	var rec = grid.getStore().getAt(rowIndex);
+                	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')){
+                		id = rec.get('id');
+                		stepName = rec.get('name');
+                		jobExecId = id.substring(2, id.indexOf('SE'));
+                		var r = confirm("You are about to RESTART job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
+                		if (r == true) {
+                			alert("restarting job id=" + jobExecId + " step=" + stepName);
+                		} 
+                	}
+                    //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
+                }
+            },{
+            	iconCls: 'abortIcon',
+                tooltip: 'Abort Batch Job',
+                tooltipType: 'title',
+                getClass: function(v, meta, rec) {
+                    if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')) {
+                        return 'abortIcon';
+                    } else {
+                        return 'notAvailableIcon';
+                    }
+                },
+                handler: function(grid, rowIndex, colIndex) {
+                	// action to be performed when icon clicked
+                	var rec = grid.getStore().getAt(rowIndex);
+                	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')){
+                		id = rec.get('id');
+                		stepName = rec.get('name');
+                		jobExecId = id.substring(2, id.indexOf('SE'));
+                		var r = confirm("You are about to ABORT job id=" + jobExecId + " step name=" + stepName + ". Press 'OK' to proceed or 'Cancel'");
+                		if (r == true) {
+                			alert("aborting job id=" + jobExecId + " step=" + stepName);
+                		} 
                 	}
                     //Ext.Msg.alert('info', 'showing Job Info for ' + rec.get('executionId') );
                 }
