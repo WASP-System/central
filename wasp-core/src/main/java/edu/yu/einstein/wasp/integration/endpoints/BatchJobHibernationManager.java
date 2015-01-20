@@ -1057,7 +1057,7 @@ public class BatchJobHibernationManager {
 	public static int getRetryCount(StepExecution stepExecution){
 		Integer restartCount = 0;
 		if (stepExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
-			restartCount = Integer.parseInt(stepExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+			restartCount = stepExecution.getExecutionContext().getInt(GridResult.RESTART_COUNT);
 		return restartCount;
 	}
 	
@@ -1068,7 +1068,7 @@ public class BatchJobHibernationManager {
 	public static int getRetryCount(JobExecution jobExecution){
 		Integer restartCount = 0;
 		if (jobExecution.getExecutionContext().containsKey(GridResult.RESTART_COUNT))
-			restartCount = Integer.parseInt(jobExecution.getExecutionContext().getString(GridResult.RESTART_COUNT));
+			restartCount = jobExecution.getExecutionContext().getInt(GridResult.RESTART_COUNT);
 		return restartCount;
 	}
 	

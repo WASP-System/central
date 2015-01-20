@@ -131,9 +131,10 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code"); 
 			doCleanupBeforeRestart(stepExecution);
 			int retryCount = getRetryCount(stepExecution) + 1;
-			if (retryCount <= maxRetryAttempts){
+			if (retryCount < maxRetryAttempts){
 				incrementRetryCounter(stepExecution);
-				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + maxRetryAttempts);
+				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + (maxRetryAttempts - 1));
+				result = null;
 				throw new TaskletRetryException(e.getMessage());
 			}
 			else {
@@ -149,10 +150,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			logger.info("Entering error hibernation state.");
 		} finally {
 			logger.trace("saving GridResult from finally block");
-			if (result != null)
-				saveGridResult(context, result); // do this whatever else happens in the try block
-			else
-				logger.warn("Not saving GridResult for StepExecution id=" + stepExecutionId + " as is null! (wasHibernationRequested=" + wasHibernationRequested + ")");
+			saveGridResult(context, result); // do this whatever else happens in the try block
 		}
 		if (!wasHibernationRequested){
 			if (isInErrorCondition(stepExecution)){
@@ -181,8 +179,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	private static void saveGridResult(ChunkContext context, GridResult result) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		logger.debug(result.toString());
-		stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
+		if (result == null && stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
+			stepExecution.getExecutionContext().remove(GridResult.GRID_RESULT_KEY);
+		else {
+			logger.debug(result.toString());
+			stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
+		}
 	}
 	
 	protected static GridResult getGridResult(ChunkContext context) {
