@@ -164,6 +164,11 @@ public class BatchJobHibernationManager {
 						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is null");
 						continue;
 					}
+					if (isInErrorCondition(se)){
+						logger.warn("Attempted to get latest StepExecution for step " + seStored.getStepName() + " but it is in error condition");
+						timesWakingStepExecutions.remove(time);
+						continue;
+					}
 					logger.info("restarting job with JobExecution id=" + je.getId() + " for step " + se.getId() + 
 							" on restart wait timeout");
 					if (!lockJobExecution(se.getJobExecution(), LockType.WAKE)){

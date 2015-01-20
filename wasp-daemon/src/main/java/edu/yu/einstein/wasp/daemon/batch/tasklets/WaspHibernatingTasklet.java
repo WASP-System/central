@@ -174,9 +174,13 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 				logger.warn("Unable to get Abandon Messages for JobExecution id=" + jobExecutionId + ", from StepExecution id=" + stepExecutionId + ": " + 
 						e.getLocalizedMessage());
 			}
-			Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(se);
-			if (timeInterval != null)
-				hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+			if (isInErrorCondition(se))
+				hibernationManager.removeStepExecutionFromWakeMessageMap(se);
+			else {
+				Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(se);
+				if (timeInterval != null)
+					hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+			}
 			
 		}
 		waitUntilStateTransitionsStable(stepExecution);
