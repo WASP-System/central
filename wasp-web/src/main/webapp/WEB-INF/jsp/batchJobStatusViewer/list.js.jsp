@@ -319,7 +319,7 @@ Ext.onReady(function() {
                 tooltip: 'Abort Batch Job',
                 tooltipType: 'title',
                 getClass: function(v, meta, rec) {
-                    if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')) {
+                    if (rec.get('id').contains('SE') && (rec.get('exitCode').contains('Error Condition') || rec.get('exitCode').contains('running'))) {
                         return 'abortIcon';
                     } else {
                         return 'notAvailableIcon';
@@ -329,7 +329,7 @@ Ext.onReady(function() {
                 	// action to be performed when icon clicked
                 	var gridStore = grid.getStore();
                 	var rec = gridStore.getAt(rowIndex);
-                	if (rec.get('id').contains('SE') && rec.get('exitCode').contains('Error Condition')){
+                	if (rec.get('id').contains('SE') && (rec.get('exitCode').contains('Error Condition') || rec.get('exitCode').contains('running'))){
                 		id = rec.get('id');
                 		stepName = rec.get('name');
                 		jobExecId = id.substring(2, id.indexOf('SE'));
