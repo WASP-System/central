@@ -1036,8 +1036,8 @@ public class BatchJobHibernationManager {
 		Integer jobRestartCount = getRetryCount(je);
 		stepRestartCount++;
 		jobRestartCount++;
-		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, stepRestartCount.toString());
-		je.getExecutionContext().put(GridResult.RESTART_COUNT, jobRestartCount.toString());
+		stepExecution.getExecutionContext().put(GridResult.RESTART_COUNT, stepRestartCount);
+		je.getExecutionContext().put(GridResult.RESTART_COUNT, jobRestartCount);
 	}
 	
 	/**
