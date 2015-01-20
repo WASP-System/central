@@ -90,16 +90,19 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnTimeoutStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 		} else if (wasWokenOnMessage(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnMessageStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 		} else if (wasWokenOnRequest(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation by request via message.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnRequestStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 		}
 		
 		// Three cases at this point
