@@ -66,7 +66,7 @@
   <bean id="helptagDNASpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
      	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
-     	
+<!--     	
      		<bean parent="helptagDNAUiFieldWrapper">
 	          <property name="baseName" value="glycosylatedBeforeSubmission" />
 	          <property name="label" value="helptag.glycosylatedBeforeSubmission.label" />
@@ -86,15 +86,15 @@
 	          <property name="error" value="helptag.restrictedBeforeSubmission.error" />
 	          <property name="tooltip" value="helptag.restrictedBeforeSubmission.tt" />
 	        </bean>	        
-			
+ --> 			
 	        <bean parent="helptagDNAUiFieldWrapper">
-	          <property name="baseName" value="libraryToCreate" />
-	          <property name="label" value="helptag.libraryToCreate.label" />
+	          <property name="baseName" value="typeOfHelpLibraryRequested" />
+	          <property name="label" value="helptag.typeOfHelpLibraryRequested.label" />
 	          <property name="metaposition" value="120" />
-	          <property name="control" value="helptag.libraryToCreate.control" /> 
+	          <property name="control" value="helptag.typeOfHelpLibraryRequested.control" /> 
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="error" value="helptag.libraryToCreate.error" />
-	          <property name="tooltip" value="helptag.libraryToCreate.tt" />
+	          <property name="error" value="helptag.typeOfHelpLibraryRequested.error" />
+	          <property name="tooltip" value="helptag.typeOfHelpLibraryRequested.tt" />
 	        </bean>
 	        	        
 	      </list>

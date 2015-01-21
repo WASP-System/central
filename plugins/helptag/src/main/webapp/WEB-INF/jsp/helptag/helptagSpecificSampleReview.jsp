@@ -53,7 +53,7 @@
 								</c:if>
 								<c:set var="labelKey" value="${_meta.property.label}" />								
 								<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
-								<c:if test="${id=='glycosylatedBeforeSubmission' || id=='restrictedBeforeSubmission' || id=='libraryToCreate' }">
+								<c:if test="${id=='typeOfHelpLibraryRequested' }">
 									<td class="CaptionTD top-heading" nowrap>${labelKey}
 										<c:if test="${not empty _meta.property.constraint}">
 											<span style="color:red">*</span>
@@ -97,7 +97,7 @@
 							</c:if>
 							<c:set var="labelKey" value="${_meta.property.label}" />
 							<c:set var="id" value="${fn:substringAfter(_meta.k,'.')}" />
-							<c:if test="${id=='glycosylatedBeforeSubmission' || id=='restrictedBeforeSubmission' || id=='libraryToCreate' }">
+							<c:if test="${id=='typeOfHelpLibraryRequested' }">
 							<td class="DataTD value-centered <c:if test="${sampleDraftStatus.count % 2 == 0}"> td-even-number</c:if>">
 								<c:choose>
 									<c:when test="${not empty _meta.property.control}">

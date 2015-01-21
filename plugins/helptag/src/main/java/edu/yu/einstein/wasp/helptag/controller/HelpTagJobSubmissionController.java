@@ -159,7 +159,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			}
 			sampleDraft.setSampleDraftMeta(normalizedMeta);
 			
-			List<String> errorList = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta);
+			List<String> errorList = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta);
 			if(!errorList.isEmpty()){
 				errorsExist = true;
 			}
@@ -175,59 +175,21 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		if(errorsExist){waspErrorMessage("helptag.helptagSpecificSampleReview.error");}
 		return "jobsubmit/helptagSpecificSampleReview";
 	}
-	private List<String> checkForGlycosylatedRestrictedLibrariesToCreateError(List<SampleDraftMeta> sampleDraftMetaList){
+	private List<String> checkForTypeOfHelpLibraryRequestedError(List<SampleDraftMeta> sampleDraftMetaList){
 		
 		//THIS DEALS WITH SUBMISSION OF GENOMIC DNA BEING SUBMITTED TO FACILITY FOR CREATION OF HELP LIBRARIES
 
 		List<String> errorList = new ArrayList<String>();
 		
-		String glycosylatedBeforeSubmission = "";//should be either glycosylated or unglycosylated
-		String restrictedBeforeSubmission = "";//should be unrestricted or restricted
-		String libraryToCreate = "";//MspI or HpaII or beta-GT-MspI
+		String typeOfHelpLibraryRequested = "";//for a genomic DNA being submitted : MspI or HpaII or beta-GT-MspI or pairs or all three
 
 		for(SampleDraftMeta sdm : sampleDraftMetaList){
-			if(sdm.getK().endsWith("glycosylatedBeforeSubmission")){
-				glycosylatedBeforeSubmission = sdm.getV();
+			 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+				typeOfHelpLibraryRequested = sdm.getV();
 			}
-			else if(sdm.getK().endsWith("restrictedBeforeSubmission")){
-				restrictedBeforeSubmission = sdm.getV();
-			}
-			else if(sdm.getK().endsWith("libraryToCreate")){
-				libraryToCreate = sdm.getV();
-			}
-		}
-		
-		if(glycosylatedBeforeSubmission.isEmpty()){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_glycosylatedEmpty.error"));
-			//errorList.add("Sample glycosylation status cannot be empty");
-		}
-		if(restrictedBeforeSubmission.isEmpty()){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_restrictionEmpty.error"));
-			//errorList.add("Sample restriction status cannot be empty");
-		}
-		if(libraryToCreate.isEmpty()){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_libraryToCreateEmpty.error"));
-			//errorList.add("Library to create cannot be empty");
-		}
-		
-		if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("unrestricted")){
-			;//NOT AN ERROR, since any library request is fine
-		}
-		else if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("MspI") && !libraryToCreate.equals("MspI")){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_unglycosylatedRestrictedMsp.error"));
-			//errorList.add("Unglycosylated/MspI-restricted DNA compatible only with MspI library");//since glycosylation must precede restriction
-		}
-		else if(glycosylatedBeforeSubmission.equals("unglycosylated") && restrictedBeforeSubmission.equals("HpaII") && !libraryToCreate.equals("HpaII")){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_unglycosylatedRestrictedHpa.error"));
-			//errorList.add("Unglycosylated/HpaII-restricted DNA compatible only with HpaII library");//since glycosylation must precede restriction
-		}
-		else if(glycosylatedBeforeSubmission.equals("beta-GT") && (restrictedBeforeSubmission.equals("unrestricted") || restrictedBeforeSubmission.equals("MspI")) && ! libraryToCreate.equals("beta-GT-MspI")){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_glycosylatedLibrary.error"));
-			//errorList.add("Glycosylated DNA compatible only with beta-GT-MspI library");
-		}
-		else if(glycosylatedBeforeSubmission.equals("beta-GT") && restrictedBeforeSubmission.equals("HpaII")){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_glycosylatedHpa.error"));
-			//errorList.add("Glycosylated DNA incompatible with HpaII-digested DNA");
+		}		
+		if(typeOfHelpLibraryRequested.isEmpty()){
+			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_typeOfHelpLibraryRequestedEmpty.error"));
 		}
 		return errorList;
 	}
@@ -247,20 +209,12 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			return nextPage(jobDraft);
 		}
 		
-		String[] glycosylatedBeforeSubmissionValues = null;
-		String[] restrictedBeforeSubmissionValues = null;
-		String[] libraryToCreateValues = null;	
+		String[] typeOfHelpLibraryRequestedValues = null;	
 		
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		for (String key : parameterMap.keySet()) {
-			if(key.endsWith("glycosylatedBeforeSubmission")){
-				glycosylatedBeforeSubmissionValues = parameterMap.get(key);
-			}
-			else if(key.endsWith("restrictedBeforeSubmission")){
-				restrictedBeforeSubmissionValues = parameterMap.get(key);
-			}
-			else if(key.endsWith("libraryToCreate")){
-				libraryToCreateValues = parameterMap.get(key);
+			if(key.endsWith("typeOfHelpLibraryRequested")){
+				typeOfHelpLibraryRequestedValues = parameterMap.get(key);
 			}
 		}
 	
@@ -281,15 +235,10 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			} catch (MetadataTypeException e) {
 				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 			}
+			//this is here in case a change was made
 			for(SampleDraftMeta sdm : normalizedMeta){
-				if(sdm.getK().endsWith("glycosylatedBeforeSubmission")){
-					sdm.setV(glycosylatedBeforeSubmissionValues[counter]);
-				}
-				else if(sdm.getK().endsWith("restrictedBeforeSubmission")){
-					sdm.setV(restrictedBeforeSubmissionValues[counter]);
-				}
-				else if(sdm.getK().endsWith("libraryToCreate")){
-					sdm.setV(libraryToCreateValues[counter]);
+				if(sdm.getK().endsWith("libraryToCreate")){
+					sdm.setV(typeOfHelpLibraryRequestedValues[counter]);
 				}
 			}
 			//conscious decision by Rob: save the new meta, even if it has problems. will check below (if errorsExist==true) 
@@ -302,7 +251,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			sampleDraftSampleDraftMetaListMap.put(sampleDraft, normalizedMeta);
 			tempSampleDraftList.add(sampleDraft);
 			
-			List<String> errorList = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta);
+			List<String> errorList = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta);
 			if(!errorList.isEmpty()){
 				errorsExist = true;
 			}
@@ -337,7 +286,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 					sampleDraftList.add(newSampleDraft);
 					
 					//acts as an assert test, to make sure the system did not screw up with the conversions.
-					List<String> errorListAssert = this.checkForGlycosylatedRestrictedLibrariesToCreateError(normalizedMeta2);
+					List<String> errorListAssert = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta2);
 					if(!errorListAssert.isEmpty()){
 						waspErrorMessage("helptag.helptagSpecificSampleReview_unexpectedProblemOccurredNewRecordHasErrors.error");						
 						return "redirect:/dashboard.do";
