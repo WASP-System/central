@@ -213,6 +213,14 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		// not found
 		return null;
 	}
+	public String getTypeOfHelpLibraryForLibrary(Sample sample){
+		try{
+			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sample.getSampleMeta());					
+		} catch(MetadataException e) {}	
+		// not found
+		return null;
+		
+	}
 	public boolean isHpaII(Sample s){
 		String enzymeString;
 		try{

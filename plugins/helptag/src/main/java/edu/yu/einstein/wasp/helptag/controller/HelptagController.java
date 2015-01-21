@@ -85,7 +85,35 @@ public class HelptagController extends WaspController {
 			  }  
 		  }
 	}
-	
+	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificLibraryDataForDisplay", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	public void plugInSpecificLibraryDataForDisplay(
+			  @PathVariable("jobId") Integer jobId, 
+			  @PathVariable("sampleId") Integer sampleId, 
+			  HttpServletResponse response ) {
+	      
+		/* *********THIS IS AN AJAX CALL************* */
+		
+		  Job job = jobService.getJobByJobId(jobId);
+		  Sample sample = null;
+		  for(Sample s : job.getSample()){
+			  if(s.getId().intValue()==sampleId.intValue()){
+				  sample = s;
+				  break;
+			  }
+		  }
+		  if(sample != null){
+			  if(sample.getSampleType().getIName().equalsIgnoreCase("library")){//macromolecule
+				  String typeOfHelpLibraryForLibrary = helptagService.getTypeOfHelpLibraryForLibrary(sample);
+				  if(typeOfHelpLibraryForLibrary==null) typeOfHelpLibraryForLibrary = "not found";
+				  Map<String,String> map = new LinkedHashMap<String,String>();
+				  map.put("Type of HELP Library" , typeOfHelpLibraryForLibrary);
+				  try{
+						outputJSON(map, response);
+				  }catch(Exception e){}
+			  }  
+		  }
+	}
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	public String plugInSpecificSamplePairingDataForDisplay(

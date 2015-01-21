@@ -22,7 +22,29 @@
 			        	//alert("failure");
 			        }
 			    });				
-			});
+			});		
+			
+			$("div[id^='divToDisplayExtraMetaForLibraryId_']").each(function(){ 
+				var theDiv = $( this );
+				var theLibraryId = $( this ).attr("id").replace("divToDisplayExtraMetaForLibraryId_","");
+				$.ajax({
+			        type: "GET",
+			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theLibraryId+'/plugInSpecificLibraryDataForDisplay.do" />',
+			        async:   false, //MUST BE SYNCHRONOUS!!!
+			        dataType: "json",
+			        success: function (response) {
+			        	theDiv.append("<br />");
+			        	$.each( response, function( key, val ) {			        		
+			        		theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
+						  });	
+			        },
+			        error: function (response) {
+			        	//alert("failure");
+			        }
+			    });				
+			});		
+			
 		});
 	})(jQuery);
 </script>
@@ -159,7 +181,12 @@
 		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 								</c:if>	
 								<br /> 	 						  
-							</c:if>								
+							</c:if>	
+							
+								
+							<!-- for displaying plugin spcific information -->
+							<div id="divToDisplayExtraMetaForLibraryId_<c:out value="${library.getId()}"/>" ></div>	
+													
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
 							
