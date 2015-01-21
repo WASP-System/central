@@ -20,5 +20,9 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagSpecificSampleReview.jsp" />
 	</definition>
 
+	<definition name="helptag/helptagSpecificSamplePairingPostSubmission" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagSpecificSamplePairingPostSubmission.jsp" />
+	</definition>
+
 </tiles-definitions>
 

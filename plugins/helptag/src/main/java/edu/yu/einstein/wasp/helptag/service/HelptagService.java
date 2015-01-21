@@ -42,4 +42,7 @@ public interface HelptagService extends WaspService {
 		public String getGlycosylationStatusBeforeSubmission(Sample sample);
 		public String getRestrictionStatusBeforeSubmission(Sample sample);
 		public String getHelpLibraryToMakeFromMacromolecule(Sample sample);
+		public boolean isBetaGTMspI(Sample s);
+		public boolean isHpaII(Sample s);
+		
 }

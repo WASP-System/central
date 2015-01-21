@@ -4,9 +4,12 @@
  */
 package edu.yu.einstein.wasp.helptag.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,6 +28,7 @@ import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -88,6 +92,65 @@ public class HelptagController extends WaspController {
 				  }  
 		  }
 	}
-	  
+	
+	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	public String plugInSpecificSamplePairingDataForDisplay(
+			  @PathVariable("jobId") Integer jobId, 
+			  ModelMap m ) {
+	      
+		/* *********THIS IS AN AJAX CALL************* */
+		
+		  Job job = jobService.getJobByJobId(jobId);
+			List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+			List<Sample> controlList = new ArrayList<Sample>();
+			List<Sample> testWithPairList = new ArrayList<Sample>();
+			
+			//m.addAttribute("submittedSamplesList", submittedSamplesList);
+			Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+			Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+			for(Sample submittedSample : submittedSamplesList){
+				List<Sample> list = new ArrayList<Sample>();
+				for(SampleSource ss : sampleSourceSet){
+					Sample test = ss.getSample();//HpaII or beta-GT-MspI
+					Sample control = ss.getSourceSample();
+					//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
+					if(submittedSample == control){
+						list.add(test);
+						testWithPairList.add(test);
+					}
+				}
+				if(!list.isEmpty()){
+					samplePairsMap.put(submittedSample, list);//submittedSample is MspI
+					controlList.add(submittedSample);
+				}
+			}
+			
+			//if any test submitted sample (HpaII or betaGT-MspI) is NOT PAIRED WITH SOME CONTROL SAMPLE,
+			//display as paired with Universal reference
+			List<Sample> testsPairedWithUniversalReference = new ArrayList<Sample>();
+			for(Sample submittedSample : submittedSamplesList){
+				if(testWithPairList.contains(submittedSample)){
+					continue;//this test (HpaII or beta-GT-MspI) already paired up
+				}
+				else{
+					if(helptagService.isHpaII(submittedSample)||helptagService.isBetaGTMspI(submittedSample)){
+						testsPairedWithUniversalReference.add(submittedSample);
+					}
+				}
+			}
+			if(!testsPairedWithUniversalReference.isEmpty()){
+				Sample standardReferenceControl = new Sample();
+				standardReferenceControl.setName(messageService.getMessage("helptag.helptagStandardReference.label"));
+				samplePairsMap.put(standardReferenceControl, testsPairedWithUniversalReference);
+				controlList.add(standardReferenceControl);
+			}
+			
+			
+			m.addAttribute("samplePairsMap", samplePairsMap);
+			m.addAttribute("controlList", controlList);
+
+		  return "helptag/helptagSpecificSamplePairingPostSubmission";
+	}
 	  
 }

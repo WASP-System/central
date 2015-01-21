@@ -216,4 +216,40 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		// not found
 		return null;
 	}
+	public boolean isHpaII(Sample s){
+		String enzymeString;
+		try{
+			if(s.getSampleType().getIName().equalsIgnoreCase("library")){
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
+			}
+			else{//genomic DNA; 1-8-15; dubin
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, s.getSampleMeta());					
+			}
+			if (enzymeString.equals("HpaII")){
+				return true;
+			}
+		} catch(MetadataException e) {
+			// not found
+			logger.debug("Restriction Enzyme Meta (and libraryToCreate meta) not found for Sample id = " + s.getId());
+		}
+		return false;
+	}
+	public boolean isBetaGTMspI(Sample s){
+		String enzymeString;
+		try{
+			if(s.getSampleType().getIName().equalsIgnoreCase("library")){
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
+			}
+			else{//genomic DNA; 1-8-15; dubin
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, s.getSampleMeta());					
+			}
+			if (enzymeString.equals("HpaII")){
+				return true;
+			}
+		} catch(MetadataException e) {
+			// not found
+			logger.debug("Restriction Enzyme Meta (and libraryToCreate meta) not found for Sample id = " + s.getId());
+		}
+		return false;
+	}
 }
