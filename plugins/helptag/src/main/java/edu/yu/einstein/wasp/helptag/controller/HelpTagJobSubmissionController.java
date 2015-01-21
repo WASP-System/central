@@ -143,56 +143,29 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		}
 		
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
-		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
-		boolean errorsExist = false;
+		Map<SampleDraft,String> sampleDraftTypeOfHelpLibraryRequestedMap = new HashMap<SampleDraft,String>();
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
 			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want genomic DNA samples that are to be converted to help-tag libraries
 				continue;
-			}
-			
-			List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
-			try {			
-				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
-			} catch (MetadataTypeException e) {
-				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
-			}
-			sampleDraft.setSampleDraftMeta(normalizedMeta);
-			
-			List<String> errorList = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta);
-			if(!errorList.isEmpty()){
-				errorsExist = true;
-			}
-			sampleDraftErrorListMap.put(sampleDraft, errorList);
-			sampleDraftList.add(sampleDraft);					
+			}			
+			String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+			for(SampleDraftMeta sdm : sampleDraft.getSampleDraftMeta()){
+				 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+					typeOfHelpLibraryRequested = sdm.getV();
+				}
+			}		
+			sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested);
+			sampleDraftList.add(sampleDraft);
 		}
 	
 		m.addAttribute("jobDraft", jobDraft);
 		m.addAttribute("sampleDraftList", sampleDraftList);
-		m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
-		m.addAttribute("errorsExist", errorsExist);
+		m.addAttribute("sampleDraftTypeOfHelpLibraryRequestedMap", sampleDraftTypeOfHelpLibraryRequestedMap);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
-		if(errorsExist){waspErrorMessage("helptag.helptagSpecificSampleReview.error");}
 		return "jobsubmit/helptagSpecificSampleReview";
 	}
-	private List<String> checkForTypeOfHelpLibraryRequestedError(List<SampleDraftMeta> sampleDraftMetaList){
-		
-		//THIS DEALS WITH SUBMISSION OF GENOMIC DNA BEING SUBMITTED TO FACILITY FOR CREATION OF HELP LIBRARIES
 
-		List<String> errorList = new ArrayList<String>();
-		
-		String typeOfHelpLibraryRequested = "";//for a genomic DNA being submitted : MspI or HpaII or beta-GT-MspI or pairs or all three
-
-		for(SampleDraftMeta sdm : sampleDraftMetaList){
-			 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
-				typeOfHelpLibraryRequested = sdm.getV();
-			}
-		}		
-		if(typeOfHelpLibraryRequested.isEmpty()){
-			errorList.add(messageService.getMessage("helptag.helptagSpecificSampleReview_typeOfHelpLibraryRequestedEmpty.error"));
-		}
-		return errorList;
-	}
 	@RequestMapping(value="/helptagSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
 	public String helptagSpecificSampleReviewPost (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
@@ -204,107 +177,52 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 			return "redirect:/dashboard.do";
 		}
 		
-		String[] sampleIdsAsStringArray = request.getParameterValues("sampleId");
-		if(sampleIdsAsStringArray==null){//there could be no DNA samples to deal with
-			return nextPage(jobDraft);
-		}
-		
-		String[] typeOfHelpLibraryRequestedValues = null;	
-		
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		for (String key : parameterMap.keySet()) {
-			if(key.endsWith("typeOfHelpLibraryRequested")){
-				typeOfHelpLibraryRequestedValues = parameterMap.get(key);
-			}
-		}
-	
-		List<SampleDraft> tempSampleDraftList = new ArrayList<SampleDraft>();
 		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
-		Map<SampleDraft,List<SampleDraftMeta>> sampleDraftSampleDraftMetaListMap = new HashMap<SampleDraft,List<SampleDraftMeta>>();
-		Map<SampleDraft, List<String>> sampleDraftErrorListMap = new HashMap<SampleDraft,List<String>>();
-		boolean errorsExist = false;
+		Map<SampleDraft,String> sampleDraftTypeOfHelpLibraryRequestedMap = new HashMap<SampleDraft,String>();
 		boolean atLeastOneSampleConversionOccurred = false;
-		
-		int counter = 0;
-		for(String idAsString: sampleIdsAsStringArray){
-			SampleDraft sampleDraft = sampleDraftDao.getSampleDraftBySampleDraftId(Integer.parseInt(idAsString));
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
-			List<SampleDraftMeta> normalizedMeta = new ArrayList<SampleDraftMeta>();
-			try {			
-				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(sampleDraft.getSampleSubtype(), sampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
-			} catch (MetadataTypeException e) {
-				logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
-			}
-			//this is here in case a change was made
-			for(SampleDraftMeta sdm : normalizedMeta){
-				if(sdm.getK().endsWith("libraryToCreate")){
-					sdm.setV(typeOfHelpLibraryRequestedValues[counter]);
+			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want genomic DNA samples that are to be converted to help-tag libraries
+				continue;
+			}	
+			
+			List<String> typeOfHelpLibrariesRequestedList = helptagService.getTypeOfHelpLibrariesRequestedList(sampleDraft.getSampleDraftMeta());
+			if(typeOfHelpLibrariesRequestedList.size()>1){//convert
+				List<SampleDraft> newSampleDrafts = helptagService.createNewHelpDNASampleDrafts(sampleDraft, typeOfHelpLibrariesRequestedList);
+				//newSampleDrafts.size should equal typeOfHelpLibrariesRequestedList.size
+				if(typeOfHelpLibrariesRequestedList.size()!=newSampleDrafts.size()){
+					waspErrorMessage("helptag.helptagSpecificSampleReview_unexpectedProblemOccurredNewRecordHasErrors.error");
+					return "redirect:/dashboard.do";
 				}
-			}
-			//conscious decision by Rob: save the new meta, even if it has problems. will check below (if errorsExist==true) 
-			try{
-				sampleDraftMetaDao.setMeta(normalizedMeta, sampleDraft.getId());//THIS IS A SAVE COMMAND!
-			}
-			catch(Exception e){logger.debug("unable to save sampleMetaList in helptagSpecificSampleReviewPost() for sampleDraft: " + sampleDraft.getName() + ". message: " + e.getMessage());}
-			
-			sampleDraft.setSampleDraftMeta(normalizedMeta);
-			sampleDraftSampleDraftMetaListMap.put(sampleDraft, normalizedMeta);
-			tempSampleDraftList.add(sampleDraft);
-			
-			List<String> errorList = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta);
-			if(!errorList.isEmpty()){
-				errorsExist = true;
-			}
-			sampleDraftErrorListMap.put(sampleDraft, errorList);
-			
-			counter++;
-		}
-		
-		if(errorsExist){
-			m.addAttribute("jobDraft", jobDraft);
-			m.addAttribute("sampleDraftList", tempSampleDraftList);//Note use of tempSampleDraftList !!!!!!!!!!!!!!!!**************!!!!!!!!!!
-			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);
-			m.addAttribute("errorsExist", errorsExist);
-			m.put("pageFlowMap", getPageFlowMap(jobDraft));
-			waspErrorMessage("helptag.helptagSpecificSampleReview.error");
-			return "jobsubmit/helptagSpecificSampleReview";
-		}
-	
-		//no errors - so next check if we need to convert any sampleDraft to two or three samples because user asked for multiple libraries to be made; if so, do the conversion
-		for(SampleDraft sampleDraft : tempSampleDraftList){
-			List<String> librariesToCreateList = helptagService.getLibrariesToCreateList(sampleDraftSampleDraftMetaListMap.get(sampleDraft));//this will be the normalized meta from above
-			if(librariesToCreateList.size()>1){
-				List<SampleDraft> newSampleDrafts = helptagService.createNewHelpDNASampleDrafts(sampleDraft, librariesToCreateList);
 				for(SampleDraft newSampleDraft : newSampleDrafts){
-					List<SampleDraftMeta> normalizedMeta2 = new ArrayList<SampleDraftMeta>();
-					try {	
-						normalizedMeta2.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(newSampleDraft.getSampleSubtype(), newSampleDraft.getSampleDraftMeta(), SampleDraftMeta.class));
-					} catch (MetadataTypeException e) {
-						logger.warn("Could not get meta into normalizedMeta2 for class 'SampleDraftMeta':" + e.getMessage());
+					String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+					for(SampleDraftMeta sdm : newSampleDraft.getSampleDraftMeta()){
+						 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+							typeOfHelpLibraryRequested = sdm.getV();
+						}
 					}
-					newSampleDraft.setSampleDraftMeta(normalizedMeta2);
 					sampleDraftList.add(newSampleDraft);
-					
-					//acts as an assert test, to make sure the system did not screw up with the conversions.
-					List<String> errorListAssert = this.checkForTypeOfHelpLibraryRequestedError(normalizedMeta2);
-					if(!errorListAssert.isEmpty()){
-						waspErrorMessage("helptag.helptagSpecificSampleReview_unexpectedProblemOccurredNewRecordHasErrors.error");						
-						return "redirect:/dashboard.do";
-					}
+					sampleDraftTypeOfHelpLibraryRequestedMap.put(newSampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));
 				}
 				atLeastOneSampleConversionOccurred = true;
 				jobDraftService.removeSampleDraftAndAllDependencies(jobDraft, sampleDraft);
 			}
-			else if(librariesToCreateList.size()==1){
+			else {//no conversion required for this one
+				String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+				for(SampleDraftMeta sdm : sampleDraft.getSampleDraftMeta()){
+					 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+						typeOfHelpLibraryRequested = sdm.getV();
+					}
+				}
 				sampleDraftList.add(sampleDraft);
+				sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));				
 			}
 		}
 		
 		if(atLeastOneSampleConversionOccurred){
 			m.addAttribute("jobDraft", jobDraft);
-			m.addAttribute("sampleDraftList", sampleDraftList);//Note use of sampleDraftList !*!
-			m.addAttribute("sampleDraftErrorListMap", sampleDraftErrorListMap);//there are no errors
-			m.addAttribute("errorsExist", errorsExist);//will be false
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleDraftTypeOfHelpLibraryRequestedMap", sampleDraftTypeOfHelpLibraryRequestedMap);			
 			m.put("pageFlowMap", getPageFlowMap(jobDraft));
 			m.addAttribute("atLeastOneSampleConversionOccurred", atLeastOneSampleConversionOccurred);
 			waspMessage("helptag.helptagSpecificSampleReview_NewRecordsCreated.label");	
@@ -312,7 +230,6 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		}
 		
 		return nextPage(jobDraft);
-		
 	}
 }
 

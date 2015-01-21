@@ -26,7 +26,7 @@ public interface HelptagService extends WaspService {
 		public static final String HELPTAG_DNA_AREA = "helptagDNA";
 		
 		public static final String RESTRICTION_ENZYME_META_KEY = "enzyme";
-		public static final String LIBRARY_TO_CREATE_META_KEY = "libraryToCreate";
+		public static final String TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY = "typeOfHelpLibraryRequested";
 		
 		public static final String RESTRICTED_BEFORE_SUBMISSION_META_KEY = "restrictedBeforeSubmission";
 		public static final String GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY = "glycosylatedBeforeSubmission";
@@ -41,8 +41,11 @@ public interface HelptagService extends WaspService {
 		
 		public String getGlycosylationStatusBeforeSubmission(Sample sample);
 		public String getRestrictionStatusBeforeSubmission(Sample sample);
-		public String getHelpLibraryToMakeFromMacromolecule(Sample sample);
+		public String getTypeOfHelpLibraryRequestedForMacromolecule(Sample sample);
 		public boolean isBetaGTMspI(Sample s);
 		public boolean isHpaII(Sample s);
+		
+		//1-21-15
+		public List<String> getTypeOfHelpLibrariesRequestedList(List<SampleDraftMeta> sampleDraftMetaList);
 		
 }

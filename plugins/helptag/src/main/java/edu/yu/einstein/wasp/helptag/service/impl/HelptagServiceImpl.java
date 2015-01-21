@@ -63,7 +63,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
 				}
 				else{//genomic DNA; 1-8-15; dubin
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
 				}
 				if (enzymeString.equals("MspI"))
 					mspSampleDrafts.add(sd);
@@ -89,7 +89,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
 				}
 				else{//genomic DNA; 12-30-14
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
 				}
 				if (enzymeString.equals("HpaII"))
 					hpaSampleDrafts.add(sd);
@@ -131,11 +131,11 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	}
 	private void resetLibraryToCreateMetaData(SampleDraft clone, String libraryTypeToCreate){
 		for(SampleDraftMeta sdm : clone.getSampleDraftMeta()){
-			if(sdm.getK().endsWith("libraryToCreate")){
+			if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
 				sdm.setV(libraryTypeToCreate);
 			}
-			sdm.setSampleDraftId(clone.getId());
-			sampleService.getSampleDraftMetaDao().save(sdm);
+			sdm.setSampleDraftId(clone.getId());//must do this for every meta entry
+			sampleService.getSampleDraftMetaDao().save(sdm);//then must do this for every meta entry
 		}
 	}
 	public List<SampleDraft> getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId(Integer id){
@@ -150,7 +150,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
 				}
 				else{//genomic DNA; 1-8-15; dubin
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
 				}
 				if (enzymeString.equals("HpaII")||enzymeString.equals("beta-GT-MspI"))
 					hpaAndbetaGTMspSampleDrafts.add(sd);
@@ -175,7 +175,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
 				}
 				else{//genomic DNA; 1-8-15; dubin
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sd.getSampleDraftMeta());					
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
 				}
 				if (enzymeString.equals("beta-GT-MspI"))
 					betaGTMspSampleDrafts.add(sd);
@@ -206,13 +206,10 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		// not found
 		return null;
 	}
-	public String getHelpLibraryToMakeFromMacromolecule(Sample sample){
+	public String getTypeOfHelpLibraryRequestedForMacromolecule(Sample sample){
 		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, sample.getSampleMeta());					
-		} catch(MetadataException e) {}
-		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, LIBRARY_TO_CREATE_META_KEY, sample.getSampleMeta());
-		}catch(Exception e){}		
+			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sample.getSampleMeta());					
+		} catch(MetadataException e) {}	
 		// not found
 		return null;
 	}
@@ -223,7 +220,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			}
 			else{//genomic DNA; 1-8-15; dubin
-				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, s.getSampleMeta());					
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());					
 			}
 			if (enzymeString.equals("HpaII")){
 				return true;
@@ -241,7 +238,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			}
 			else{//genomic DNA; 1-8-15; dubin
-				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, LIBRARY_TO_CREATE_META_KEY, s.getSampleMeta());					
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());					
 			}
 			if (enzymeString.equals("HpaII")){
 				return true;
@@ -252,4 +249,23 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		}
 		return false;
 	}
+	
+	
+	//1-21-15
+	@Override
+	public List<String> getTypeOfHelpLibrariesRequestedList(List<SampleDraftMeta> sampleDraftMetaList){
+		List<String> typeOfHelpLibrariesRequestedList = new ArrayList<String>();
+		for(SampleDraftMeta sdm : sampleDraftMetaList){
+			if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+				String [] stringArray = StringUtils.split(sdm.getV(),",");
+				for(int i = 0; i < stringArray.length; i++){
+					typeOfHelpLibrariesRequestedList.add(stringArray[i].trim());
+				}
+				break;
+			}
+		}
+		return typeOfHelpLibrariesRequestedList;
+	}
+	
+	
 }

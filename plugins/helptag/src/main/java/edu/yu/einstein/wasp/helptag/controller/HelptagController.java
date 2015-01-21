@@ -75,21 +75,14 @@ public class HelptagController extends WaspController {
 		  }
 		  if(sample != null){
 			  if(!sample.getSampleType().getIName().equalsIgnoreCase("library")){//macromolecule
-				  String glycosylationStatusBeforeSubmission = helptagService.getGlycosylationStatusBeforeSubmission(sample);
-				  if(glycosylationStatusBeforeSubmission==null) glycosylationStatusBeforeSubmission = "not found";
-				  String restrictionStatusBeforeSubmission = helptagService.getRestrictionStatusBeforeSubmission(sample);
-				  if(restrictionStatusBeforeSubmission==null) restrictionStatusBeforeSubmission = "not found";
-				  String helpLibraryToMakeFromMacromolecule = helptagService.getHelpLibraryToMakeFromMacromolecule(sample);
-				  if(helpLibraryToMakeFromMacromolecule==null) helpLibraryToMakeFromMacromolecule = "not found";
+				  String typeOfHelpLibraryRequested = helptagService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
+				  if(typeOfHelpLibraryRequested==null) typeOfHelpLibraryRequested = "not found";
 				  Map<String,String> map = new LinkedHashMap<String,String>();
-				  
-				  map.put("Initial Glycosylation Status", glycosylationStatusBeforeSubmission);
-				  map.put("Initial Restriction Status", restrictionStatusBeforeSubmission);
-				  map.put("Library To Create" , helpLibraryToMakeFromMacromolecule);
+				  map.put("Type of HELP Library Requested" , typeOfHelpLibraryRequested);
 				  try{
 						outputJSON(map, response);
-					}catch(Exception e){}
-				  }  
+				  }catch(Exception e){}
+			  }  
 		  }
 	}
 	
@@ -127,7 +120,7 @@ public class HelptagController extends WaspController {
 			}
 			
 			//if any test submitted sample (HpaII or betaGT-MspI) is NOT PAIRED WITH SOME CONTROL SAMPLE,
-			//display as paired with Universal reference
+			//then display as paired with standard reference
 			List<Sample> testsPairedWithUniversalReference = new ArrayList<Sample>();
 			for(Sample submittedSample : submittedSamplesList){
 				if(testWithPairList.contains(submittedSample)){
