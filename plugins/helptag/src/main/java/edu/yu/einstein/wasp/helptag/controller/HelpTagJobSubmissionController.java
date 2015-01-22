@@ -146,7 +146,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		Map<SampleDraft,String> sampleDraftTypeOfHelpLibraryRequestedMap = new HashMap<SampleDraft,String>();
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
-			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want genomic DNA samples that are to be converted to help-tag libraries
+			if( !sampleDraft.getSampleType().getIName().toLowerCase().equals("dna") ){//we don't want to deal with libraries here, only dna macromolecules being submitted to be converted to help libraries by the facility
 				continue;
 			}			
 			String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
@@ -155,7 +155,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 					typeOfHelpLibraryRequested = sdm.getV();
 				}
 			}		
-			sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested);
+			sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));
 			sampleDraftList.add(sampleDraft);
 		}
 	
@@ -182,7 +182,7 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 		boolean atLeastOneSampleConversionOccurred = false;
 		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
 			
-			if(sampleDraft.getSampleType().getIName().equalsIgnoreCase("library")){//here, we only want genomic DNA samples that are to be converted to help-tag libraries
+			if( !sampleDraft.getSampleType().getIName().toLowerCase().equals("dna") ){//we don't want to deal with libraries here, only dna macromolecules being submitted to be converted to help libraries by the facility
 				continue;
 			}	
 			

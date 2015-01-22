@@ -77,6 +77,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	}
 
 	@Override
+	//looks like this is not used anymore and in its place we now use getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId() below
 	public List<SampleDraft> getAllHpaIISampleDraftsFromJobDraftId(Integer id) {
 		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
 		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
@@ -101,20 +102,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 
 		return hpaSampleDrafts;
 	}
-	@Override
-	public List<String> getLibrariesToCreateList(List<SampleDraftMeta> sampleDraftMetaList){
-		List<String> libraryToCreateList = new ArrayList<String>();
-		for(SampleDraftMeta sdm : sampleDraftMetaList){
-			if(sdm.getK().endsWith("libraryToCreate")){
-				String [] stringArray = StringUtils.split(sdm.getV(),",");
-				for(int i = 0; i < stringArray.length; i++){
-					libraryToCreateList.add(stringArray[i].trim());
-				}
-				break;
-			}
-		}
-		return libraryToCreateList;
-	}
+	
 	@Override
 	public List<SampleDraft> createNewHelpDNASampleDrafts(SampleDraft sampleDraft, List<String> librariesToCreateList){
 		List<SampleDraft> newSampleDrafts = new ArrayList<SampleDraft>();
@@ -186,26 +174,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		}
 		return betaGTMspSampleDrafts;
 	}
-	public String getGlycosylationStatusBeforeSubmission(Sample sample){
-		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());					
-		} catch(MetadataException e) {}
-		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, GLYCOSYLATED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
-		}catch(Exception e){}		
-		// not found
-		return null;
-	}
-	public String getRestrictionStatusBeforeSubmission(Sample sample){
-		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, RESTRICTED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());					
-		} catch(MetadataException e) {}
-		try{
-			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTED_BEFORE_SUBMISSION_META_KEY, sample.getSampleMeta());
-		}catch(Exception e){}		
-		// not found
-		return null;
-	}
+
 	public String getTypeOfHelpLibraryRequestedForMacromolecule(Sample sample){
 		try{
 			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sample.getSampleMeta());					
