@@ -193,7 +193,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public boolean isHpaII(Sample s){
 		String enzymeString;
 		try{
-			if(s.getSampleType().getIName().equalsIgnoreCase("library")){
+			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			}
 			else{//genomic DNA; 1-8-15; dubin
@@ -211,13 +211,13 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public boolean isBetaGTMspI(Sample s){
 		String enzymeString;
 		try{
-			if(s.getSampleType().getIName().equalsIgnoreCase("library")){
+			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			}
 			else{//genomic DNA; 1-8-15; dubin
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());					
 			}
-			if (enzymeString.equals("HpaII")){
+			if (enzymeString.equals("beta-GT-MspI")){
 				return true;
 			}
 		} catch(MetadataException e) {

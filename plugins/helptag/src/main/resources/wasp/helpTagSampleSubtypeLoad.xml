@@ -50,7 +50,7 @@
     <property name="uiFieldGroupsFromWrapper">
     	<list>
     		<ref bean="genericLibraryUiFields" />
-    		<ref bean="helptagLibrarySpecificUiFields" />
+    	<!-- 	<ref bean="helptagLibrarySpecificUiFields" />  removed as per Andy, 1-22-15 -->
     	</list>
     </property>
     <property name="applicableRoles" value="ft" />
