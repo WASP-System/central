@@ -74,7 +74,7 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
-			  if(!sample.getSampleType().getIName().equalsIgnoreCase("library")){//macromolecule
+			  if(!sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
 				  String typeOfHelpLibraryRequested = helptagService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
 				  if(typeOfHelpLibraryRequested==null) typeOfHelpLibraryRequested = "not found";
 				  Map<String,String> map = new LinkedHashMap<String,String>();
@@ -103,7 +103,7 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
-			  if(sample.getSampleType().getIName().equalsIgnoreCase("library")){//macromolecule
+			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
 				  String typeOfHelpLibraryForLibrary = helptagService.getTypeOfHelpLibraryForLibrary(sample);
 				  if(typeOfHelpLibraryForLibrary==null) typeOfHelpLibraryForLibrary = "not found";
 				  Map<String,String> map = new LinkedHashMap<String,String>();
