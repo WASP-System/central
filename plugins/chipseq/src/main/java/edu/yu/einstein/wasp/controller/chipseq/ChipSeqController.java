@@ -23,6 +23,7 @@ import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @Controller
@@ -35,7 +36,9 @@ public class ChipSeqController extends WaspController {
 	SampleService sampleService;
 	@Autowired
 	ChipSeqService chipseqService;
-	
+	@Autowired
+	private MessageServiceWebapp messageService;
+
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
 		return "chipseq/description";
@@ -59,48 +62,17 @@ public class ChipSeqController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
-			  if(!sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
-				  String inputOrIP = chipseqService.getInputOrIPStatus(sample);
+			  String inputOrIPStatus = chipseqService.getInputOrIPStatus(sample);
+			  if(inputOrIPStatus!=null && !inputOrIPStatus.isEmpty()){
 				  Map<String,String> map = new LinkedHashMap<String,String>();
-				  if(inputOrIP != null && !inputOrIP.isEmpty()){
-				  	  map.put("Input/IP Status" , inputOrIP);
-				  	  try{
-				  		  outputJSON(map, response);
-				  	  }catch(Exception e){}
-				  }  
+				  map.put(messageService.getMessage("chipseq.inputOrIPStatus.label"), inputOrIPStatus);
+				  try{
+					  outputJSON(map, response);
+				  }catch(Exception e){}  
 			  }
 		  }
 	}
-	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificLibraryDataForDisplay", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	public void plugInSpecificLibraryDataForDisplay(
-			  @PathVariable("jobId") Integer jobId, 
-			  @PathVariable("sampleId") Integer sampleId, 
-			  HttpServletResponse response ) {
-	      
-		/* *********THIS IS AN AJAX CALL************* */
-		  Job job = jobService.getJobByJobId(jobId);
-		  Sample sample = null;
-		  for(Sample s : job.getSample()){
-			  if(s.getId().intValue()==sampleId.intValue()){
-				  sample = s;
-				  break;
-			  }
-		  }
-		  if(sample != null){
-			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
-				  String inputOrIP = chipseqService.getInputOrIPStatus(sample);
-				  Map<String,String> map = new LinkedHashMap<String,String>();
-				  if(inputOrIP != null && !inputOrIP.isEmpty()){
-				  	  map.put("Input/IP Status" , inputOrIP);				  	 
-				  	  try{
-				  		  outputJSON(map, response);
-				  	  }catch(Exception e){}
-				  }  
-			  }
-		  }
-	}
-	
+
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	public String plugInSpecificSamplePairingDataForDisplay(

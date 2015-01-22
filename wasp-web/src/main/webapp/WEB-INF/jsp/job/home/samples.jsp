@@ -10,10 +10,10 @@
 			        type: "GET",
 			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
 			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theSampleId+'/plugInSpecificSampleDataForDisplay.do" />',
-			        async:   false, //MUST BE SYNCHRONOUS!!!
+			        async:   false, //Myabe it MUST BE SYNCHRONOUS; not certain
 			        dataType: "json",
 			        success: function (response) {
-			        	theDiv.append("<br />");
+			        	//theDiv.append("<br />");
 			        	$.each( response, function( key, val ) {			        		
 			        		theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
 						  });	
@@ -23,28 +23,6 @@
 			        }
 			    });				
 			});		
-			
-			$("div[id^='divToDisplayExtraMetaForLibraryId_']").each(function(){ 
-				var theDiv = $( this );
-				var theLibraryId = $( this ).attr("id").replace("divToDisplayExtraMetaForLibraryId_","");
-				$.ajax({
-			        type: "GET",
-			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
-			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theLibraryId+'/plugInSpecificLibraryDataForDisplay.do" />',
-			        async:   false, //MUST BE SYNCHRONOUS!!!
-			        dataType: "json",
-			        success: function (response) {
-			        	theDiv.append("<br />");
-			        	$.each( response, function( key, val ) {			        		
-			        		theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
-						  });	
-			        },
-			        error: function (response) {
-			        	//alert("failure");
-			        }
-			    });				
-			});		
-			
 		});
 	})(jQuery);
 </script>
@@ -110,7 +88,7 @@
 						<br />		  
 					</c:if>
 	
-					<!-- for displaying plugin spcific information -->
+					<!-- for displaying plugin spcific information about a macromolecule-->
 					<div id="divToDisplayExtraMetaForSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
 	
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
@@ -184,8 +162,8 @@
 							</c:if>	
 							
 								
-							<!-- for displaying plugin spcific information -->
-							<div id="divToDisplayExtraMetaForLibraryId_<c:out value="${library.getId()}"/>" ></div>	
+							<!-- for displaying plugin spcific information about a library-->
+							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>	
 													
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	

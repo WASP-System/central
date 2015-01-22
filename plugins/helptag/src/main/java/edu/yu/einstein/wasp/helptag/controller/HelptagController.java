@@ -74,46 +74,27 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
-			  if(!sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
+			  Map<String,String> map = new LinkedHashMap<String,String>();
+			  if(sample.getSampleType().getIName().toLowerCase().equals("dna")){//HELP macromolecule
 				  String typeOfHelpLibraryRequested = helptagService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
-				  if(typeOfHelpLibraryRequested==null) typeOfHelpLibraryRequested = "not found";
-				  Map<String,String> map = new LinkedHashMap<String,String>();
-				  map.put("Type of HELP Library Requested" , typeOfHelpLibraryRequested);
+				  if(typeOfHelpLibraryRequested!=null && !typeOfHelpLibraryRequested.isEmpty()){
+					  map.put(messageService.getMessage("helptag.typeOfHelpLibraryRequested.label"), typeOfHelpLibraryRequested);					  
+				  } 
+			  }
+			  else{//library
+				  String typeOfHelpLibrary = helptagService.getTypeOfHelpLibrary(sample);
+				  if(typeOfHelpLibrary!=null && !typeOfHelpLibrary.isEmpty()){
+					  map.put(messageService.getMessage("helptag.typeOfHelpLibrary.label"), typeOfHelpLibrary);
+				  }
+			  }
+			  if(!map.isEmpty()){
 				  try{
-						outputJSON(map, response);
+					  outputJSON(map, response);
 				  }catch(Exception e){}
-			  }  
-		  }
-	}
-	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificLibraryDataForDisplay", method=RequestMethod.GET)
-	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
-	public void plugInSpecificLibraryDataForDisplay(
-			  @PathVariable("jobId") Integer jobId, 
-			  @PathVariable("sampleId") Integer sampleId, 
-			  HttpServletResponse response ) {
-	      
-		/* *********THIS IS AN AJAX CALL************* */
-		
-		  Job job = jobService.getJobByJobId(jobId);
-		  Sample sample = null;
-		  for(Sample s : job.getSample()){
-			  if(s.getId().intValue()==sampleId.intValue()){
-				  sample = s;
-				  break;
 			  }
 		  }
-		  if(sample != null){
-			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
-				  String typeOfHelpLibraryForLibrary = helptagService.getTypeOfHelpLibraryForLibrary(sample);
-				  if(typeOfHelpLibraryForLibrary==null) typeOfHelpLibraryForLibrary = "not found";
-				  Map<String,String> map = new LinkedHashMap<String,String>();
-				  map.put("Type of HELP Library" , typeOfHelpLibraryForLibrary);
-				  try{
-						outputJSON(map, response);
-				  }catch(Exception e){}
-			  }  
-		  }
 	}
+
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	public String plugInSpecificSamplePairingDataForDisplay(
