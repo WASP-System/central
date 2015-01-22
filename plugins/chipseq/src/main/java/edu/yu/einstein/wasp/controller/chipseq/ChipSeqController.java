@@ -2,9 +2,12 @@ package edu.yu.einstein.wasp.controller.chipseq;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.controller.WaspController;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
@@ -29,10 +33,72 @@ public class ChipSeqController extends WaspController {
 	JobService jobService;
 	@Autowired
 	SampleService sampleService;
+	@Autowired
+	ChipSeqService chipseqService;
 	
 	@RequestMapping(value="/description", method=RequestMethod.GET)
 	public String displayDescription(ModelMap m){
 		return "chipseq/description";
+	}
+	
+	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificSampleDataForDisplay", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	public void plugInSpecificSampleDataForDisplay(
+			  @PathVariable("jobId") Integer jobId, 
+			  @PathVariable("sampleId") Integer sampleId, 
+			  HttpServletResponse response ) {
+	      
+		/* *********THIS IS AN AJAX CALL************* */
+		
+		  Job job = jobService.getJobByJobId(jobId);
+		  Sample sample = null;
+		  for(Sample s : job.getSample()){
+			  if(s.getId().intValue()==sampleId.intValue()){
+				  sample = s;
+				  break;
+			  }
+		  }
+		  if(sample != null){
+			  if(!sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
+				  String inputOrIP = chipseqService.getInputOrIPStatus(sample);
+				  Map<String,String> map = new LinkedHashMap<String,String>();
+				  if(inputOrIP != null && !inputOrIP.isEmpty()){
+				  	  map.put("Input/IP Status" , inputOrIP);
+				  	  try{
+				  		  outputJSON(map, response);
+				  	  }catch(Exception e){}
+				  }  
+			  }
+		  }
+	}
+	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificLibraryDataForDisplay", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
+	public void plugInSpecificLibraryDataForDisplay(
+			  @PathVariable("jobId") Integer jobId, 
+			  @PathVariable("sampleId") Integer sampleId, 
+			  HttpServletResponse response ) {
+	      
+		/* *********THIS IS AN AJAX CALL************* */
+		  Job job = jobService.getJobByJobId(jobId);
+		  Sample sample = null;
+		  for(Sample s : job.getSample()){
+			  if(s.getId().intValue()==sampleId.intValue()){
+				  sample = s;
+				  break;
+			  }
+		  }
+		  if(sample != null){
+			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//macromolecule
+				  String inputOrIP = chipseqService.getInputOrIPStatus(sample);
+				  Map<String,String> map = new LinkedHashMap<String,String>();
+				  if(inputOrIP != null && !inputOrIP.isEmpty()){
+				  	  map.put("Input/IP Status" , inputOrIP);				  	 
+				  	  try{
+				  		  outputJSON(map, response);
+				  	  }catch(Exception e){}
+				  }  
+			  }
+		  }
 	}
 	
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
