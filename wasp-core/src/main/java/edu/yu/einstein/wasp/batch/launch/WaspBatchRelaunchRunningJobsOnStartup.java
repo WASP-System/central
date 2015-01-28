@@ -88,6 +88,7 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 	public void doLaunchAllRunningJobs(){
 		long oneSecondAgo = System.currentTimeMillis() - 1000; // set date one second in the past to avoid possible last execution job conflict
 		List<StepExecution> hibernatingStepExecutions = jobExplorer.getStepExecutions(ExitStatus.HIBERNATING); 
+		List<StepExecution> isErrorStateStepExecutions = jobExplorer.getStepExecutions(ExitStatus.ERROR); 
 		
 		Set<StepExecution> stepExecutionsToRestart = new HashSet<StepExecution>();
 		stepExecutionsToRestart.addAll(jobExplorer.getStepExecutions(ExitStatus.UNKNOWN));
@@ -131,6 +132,9 @@ public class WaspBatchRelaunchRunningJobsOnStartup implements BatchRelaunchRunni
 		logger.debug("Re-populate hibernation manager...");
 		for (StepExecution se : hibernatingStepExecutions)
 			hibernationManager.resetStatusAfterDaemonRestart(se.getJobExecutionId(), se.getId(), initialExponentialInterval);
+		logger.debug("Re-populate hibernation manager for jobs in error state...");
+		for (StepExecution se : isErrorStateStepExecutions)
+			hibernationManager.resetStatusAfterDaemonRestart(se.getJobExecutionId(), se.getId(), null);
 	}
 
 }

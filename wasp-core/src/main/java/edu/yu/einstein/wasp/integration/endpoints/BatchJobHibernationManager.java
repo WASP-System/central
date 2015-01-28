@@ -1241,7 +1241,7 @@ public class BatchJobHibernationManager {
 		addMessageTemplatesForAbandoningJobStep(jobExecutionId, stepExecutionId);
 		
 		// If a wake-time interval is set re-register executions to be woken after a delay (reset to provided interval).
-		if (getWakeTimeInterval(jobExecutionId, stepExecutionId) != null){
+		if (initialExponentialInterval != null && getWakeTimeInterval(jobExecutionId, stepExecutionId) != null){
 			setWakeTimeInterval(jobExecutionId, stepExecutionId, initialExponentialInterval);
 			addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, initialExponentialInterval);
 		}
