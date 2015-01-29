@@ -73,7 +73,7 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/file/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/file/{uuid:[a-fA-F0-9-,]+}/**/{filename:.+}")
 	public void getFileWithName(@PathVariable("uuid") String uuid, @PathVariable("filename") String reqfn, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -137,7 +137,7 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/files/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/files/{uuid:[a-fA-F0-9-,]+}/**/{filename:.+}")
 	public void getMultipleFilesWithName(@PathVariable("uuid") String uuids, @PathVariable("filename") String reqfn, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -186,7 +186,7 @@ public class FileController {
 		}
 	}
 
-	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/filegroup/{uuid:[a-fA-F0-9-,]+}/{filename:.+}")
+	@RequestMapping(method = { RequestMethod.GET, RequestMethod.HEAD }, value = "/get/filegroup/{uuid:[a-fA-F0-9-,]+}/**/{filename:.+}")
 	public void getFileGroupWithName(@PathVariable("uuid") String uuids, @PathVariable("filename") String reqfn, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
