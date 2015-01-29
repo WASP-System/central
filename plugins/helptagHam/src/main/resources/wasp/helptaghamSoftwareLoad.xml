@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="helptaghamUiFieldWrapper">
+    <property name="baseArea" ref="helptaghamPluginArea" />
+  </bean>
+
+  <bean id="helptagham" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.helptagham.software.Helptagham</value></property> <!-- must be derived from the SoftwarePackage class -->
+    <property name="name" value="Helptagham" />
+    <property name="version" value="0.0.0" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
+    <property name="description" value="Methylation score calculator for HELP tagging pipeline" />
+    <property name="area" ref="helptaghamPluginArea" />
+    <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="helptaghamPluginArea" />
+         <!-- Load any software metadata 
+         <property name="metaList">
+         	<list>
+         		<value>helptagham.myMetaValue=foo</value>
+         	</list>
+       	 </property>
+       	 -->
+       </bean>
+    </property> 
+    <!-- If specifying form elements these may be done below (after un-commenting this section, remove the spaces in the comment terminators) - ->
+    <property name="uiFieldsFromWrapper">
+      <list>
+        <bean parent="helptaghamUiFieldWrapper">
+          <property name="baseName" value="foo" /> <!- - required - ->
+           <property name="metaposition" value="1" /> <!- - required: specifies order of form elements on page - ->
+           <property name="label" value="foo.bar.lab" /> <!- - required: define 'foo.bar.lab' in i18n e.g. 'foo.bar.lab=Please Enter a Foo' - ->
+           <property name="type" value="NUMBER" /> <!- - optional: can be INTEGER, NUMBER, or STRING- ->
+           <property name="range" value="1:100" /> <!- - optional: e.g. '10' (max of 10, no minimum) or '1:100' (from 1 to 100 inclusive) - ->
+           <property name="default" value="10" /> <!- - optional - ->
+           <property name="constraint" value="NotEmpty" /> <!- - optional: can be: 'NotEmpty' or 'RegExp:<regular expression>' (e.g. RegExp:^[AB].+(5)$) - ->
+           <property name="error" value="foo.bar.err" /> <!- - define 'foo.bar.err' in i18n properties files e.g. 'foo.bar.err=You must supply a Foo' - ->
+           <property name="tooltip" value="foo.bar.tt" /> <!- - define 'foo.bar.tt' in i18n properties files e.g. 'foo.bar.tt=A Foo is a curious thing' - ->
+        </bean>
+      </list>
+    </property> 
+	-->
+  </bean> 
+
+</beans>

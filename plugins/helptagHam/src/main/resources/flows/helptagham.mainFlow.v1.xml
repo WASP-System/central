@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+	<batch:job id="edu.yu.einstein.wasp.helptagham.mainFlow">
+		<batch:step id="edu.yu.einstein.wasp.helptagham.mainFlow.notifyHelptaghamStart" next="edu.yu.einstein.wasp.helptagham.mainFlow.performAction">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.helptagham.integration.messages.SimpleHelptaghamStatusMessageTemplate">
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.helptagham.mainFlow.performAction" next="edu.yu.einstein.wasp.helptagham.mainFlow.notifyComplete">
+			<batch:tasklet>
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.helptagham.batch.tasklet.HelptaghamTasklet" scope="step">
+					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).JOB_ID]}" />
+					<constructor-arg name="hpa2CellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).HPA2_LIBRARY_CELL_ID_LIST]}" />
+					<constructor-arg name="msp1CellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).MSP1_LIBRARY_CELL_ID_LIST]}" />
+				</bean>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="edu.yu.einstein.wasp.helptagham.mainFlow.notifyFail" />
+			<batch:next on="*" to="edu.yu.einstein.wasp.helptagham.mainFlow.notifyComplete" />
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.helptagham.mainFlow.notifyComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.helptagham.integration.messages.SimpleHelptaghamStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="edu.yu.einstein.wasp.helptagham.mainFlow.notifyFail">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.priority.waspStatusMessages" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.ManyJobStatusMessageTemplate">
+							<constructor-arg name="parentId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).PARENT_ID]}" />
+							<constructor-arg name="childId" value="#{jobParameters[T(edu.yu.einstein.wasp.integration.messages.templates.WaspMessageTemplate).CHILD_MESSAGE_ID]}" />
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>		
+	</batch:job>
+
+</beans>
+
+<!-- NOTE 1: public static members of a bean can easily be accessed using SpEL e.g.:  -->
+<!-- <property name="task" value="#{fooBatchJobTask.MY_TASK}" /> -->
+
+<!-- NOTE 2: job parameters provided during job launching can be accessed by name using SpEL e.g.:  -->
+<!-- <constructor-arg name="fileGroupId" value="#{jobParameters['fileGroupId']}" /> -->
+<!-- or better to use statics (see NOTE 1): <constructor-arg name="fileGroupId" value="#{jobParameters[waspJobParameters.FILE_GROUP_ID]}" /> -->
+<!-- For this to work the tasklet bean definition must be in step scope (scope="step") -->
+
+

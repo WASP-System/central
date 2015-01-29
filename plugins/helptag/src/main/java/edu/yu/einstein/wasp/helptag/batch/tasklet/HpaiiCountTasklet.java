@@ -41,8 +41,6 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	@Autowired
 	private GridHostResolver gridHostResolver;
 
-	private StepExecution stepExecution;
-	
 	private Integer cellLibraryId;
 	
 	/**
@@ -63,7 +61,7 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	@Override
 	@Transactional("entityManager")
 	public GridResult doExecute(ChunkContext context) throws Exception {
-			WorkUnit w = helptag.getHpaiiCount(cellLibraryId);
+			WorkUnit w = helptag.getHpaiiCounter(cellLibraryId);
 			return gridHostResolver.execute(w);
 	}
 	
@@ -87,7 +85,6 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		this.stepExecution = stepExecution;
 		
 	}
 
