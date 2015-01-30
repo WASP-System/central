@@ -124,4 +124,12 @@ public interface JobDraftService extends WaspService {
 	public void setIsAnalysisSelected(JobDraft jobDraft, boolean isAnalysisSelected);
 
 	public Boolean getIsAnalysisSelected(JobDraft jobDraft);
+	
+	/**
+	 * remove SampleDraft, its SampleDraftMeta, any lanes it was placed on, any sample pairs, and replicates (replicates only for chipseq) 
+	 * @param JobDraft jobDraft
+	 * @param SampleDraft sampleDraft  
+	 * @return void
+	 */
+	public void removeSampleDraftAndAllDependencies(JobDraft jobDraft, SampleDraft sampleDraft);
 }

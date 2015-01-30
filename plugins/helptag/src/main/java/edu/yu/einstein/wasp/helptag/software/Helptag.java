@@ -11,7 +11,6 @@ import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalExcept
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
@@ -169,69 +168,6 @@ public class Helptag extends SoftwarePackage{
 			e.printStackTrace();
 		}
 		
-		return w;
-	}
-
-	@Transactional("entityManager")
-	public WorkUnit getAngleMaker(String genome, String prefixForFileName, List<FileHandle> hpa2FileHandleList, List<FileHandle> msp1FileHandleList) {
-		Assert.assertTrue(!hpa2FileHandleList.isEmpty());
-
-		List<FileHandle> reqFHList = new ArrayList<FileHandle>();
-		reqFHList.addAll(hpa2FileHandleList);
-		reqFHList.addAll(msp1FileHandleList);
-		WorkUnit w = prepareWorkUnit(reqFHList);
-
-		StringBuilder tempCommand;
-
-		int numHpaFiles = hpa2FileHandleList.size();
-		int numMspFiles = msp1FileHandleList.size();
-
-		String mergedHpa2HcountFile = "";
-		if (numHpaFiles == 1) {
-			mergedHpa2HcountFile = "${" + WorkUnit.INPUT_FILE + "[0]}";
-		} else if (numHpaFiles > 1) {
-			mergedHpa2HcountFile = prefixForFileName + ".merged_Hpa2.hcount";
-
-			tempCommand = new StringBuilder();
-			tempCommand.append("HpaiiCountCombine.pl ");
-			for (int i = 0; i < numHpaFiles; i++) {
-				tempCommand.append("${" + WorkUnit.INPUT_FILE + "[" + i + "]} ");
-			}
-			tempCommand.append(" > " + mergedHpa2HcountFile);
-
-			String command1 = new String(tempCommand);
-			w.addCommand(command1);
-		}
-
-		String mergedMsp1HcountFile = "";
-		if (numMspFiles == 1) {
-			mergedMsp1HcountFile = "${" + WorkUnit.INPUT_FILE + "[" + numHpaFiles + "]}";
-		} else if (numMspFiles > 1) {
-			mergedMsp1HcountFile = prefixForFileName + ".merged_Msp1.hcount";
-
-			tempCommand = new StringBuilder();
-			tempCommand.append("HpaiiCountCombine.pl ");
-			for (int i = numHpaFiles; i < numHpaFiles + numMspFiles; i++) {
-				tempCommand.append("${" + WorkUnit.INPUT_FILE + "[" + i + "]} ");
-			}
-			tempCommand.append(" > " + mergedMsp1HcountFile);
-
-			String command1 = new String(tempCommand);
-			w.addCommand(command1);
-		}
-
-		tempCommand = new StringBuilder();
-		tempCommand.append("htgAngleMaker.pl -i " + mergedHpa2HcountFile);
-		if (numMspFiles > 0) {
-			tempCommand.append(" -m " + mergedMsp1HcountFile);
-		}
-
-		tempCommand.append(" -o " + prefixForFileName);
-
-		tempCommand.append("-g " + genome);
-
-		w.addCommand(new String(tempCommand));
-
 		return w;
 	}
 }

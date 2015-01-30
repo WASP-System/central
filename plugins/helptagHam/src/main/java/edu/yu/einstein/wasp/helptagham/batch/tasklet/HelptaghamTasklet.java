@@ -269,7 +269,6 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 																					  // it for db storage and replace with <br /> for display purposes
 
 		List<String> listOfFileHandleNames = new ArrayList<String>();
-
 		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
 		Set<FileGroup> helptagHAMFileGroups = new LinkedHashSet<FileGroup>();
 
@@ -329,9 +328,11 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with low confidence scores");
 		helptagHAMFileGroups.add(lcWigFileGroup);
 
-		FileGroup helptaghamAnalysisFileGroup = fileService.createFileGroupCollection(helptagHAMFileGroups);// will create enclosing fileGroup, save it to db, and
-																									  // also set/save parent for each enclosed child fileGroup;
-																									  // it will set it's own filetype
+		// will create enclosing fileGroup, save it to db, and
+		// also set/save parent for each enclosed child fileGroup;
+		// it will set it's own filetype
+		FileGroup helptaghamAnalysisFileGroup = fileService.createFileGroupCollection(helptagHAMFileGroups);
+
 		helptaghamAnalysisFileGroup.setDescription(prefixForFileName);
 		helptaghamAnalysisFileGroup.setSoftwareGeneratedBy(helptagHAM);
 		helptaghamAnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
@@ -377,11 +378,11 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		logger.info("Batch job execution submitted with id=" + result.getGridJobId() + " on host '" + result.getHostname() + "' from step (name='"
 					+ stepExecution.getStepName() + "', id=" + stepExecution.getId() + ")");
 
-		stepContext.put(helptagHAMService.JOB_ID_AS_STRING, jobId.toString());// promote; may not actually be required
-		stepContext.put(helptagHAMService.PREFIX_FOR_FILE_NAME, prefixForFileName);// promote
-		stepContext.put(helptagHAMService.HELPTAGHAM_ANALYSIS_FILEGROUP_ID_AS_STRING, helptaghamAnalysisFileGroupId.toString());// promote
-		stepContext.put(helptagHAMService.WORKING_DIRECTORY, result.getWorkingDirectory());// promote
-		stepContext.put(helptagHAMService.RESULTS_DIRECTORY, result.getResultsDirectory());// promote
+		stepContext.put(HelptaghamService.JOB_ID_AS_STRING, jobId.toString());// promote; may not actually be required
+		stepContext.put(HelptaghamService.PREFIX_FOR_FILE_NAME, prefixForFileName);// promote
+		stepContext.put(HelptaghamService.HELPTAGHAM_ANALYSIS_FILEGROUP_ID_AS_STRING, helptaghamAnalysisFileGroupId.toString());// promote
+		stepContext.put(HelptaghamService.WORKING_DIRECTORY, result.getWorkingDirectory());// promote
+		stepContext.put(HelptaghamService.RESULTS_DIRECTORY, result.getResultsDirectory());// promote
 		
 		return result;
 	}

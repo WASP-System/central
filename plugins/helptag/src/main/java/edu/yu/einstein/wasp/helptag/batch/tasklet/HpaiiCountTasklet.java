@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.helptag.batch.tasklet;
 
+import java.util.LinkedHashSet;
+
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
@@ -17,6 +19,10 @@ import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.helptag.software.Helptag;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
 
@@ -40,6 +46,9 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	
 	@Autowired
 	private GridHostResolver gridHostResolver;
+	
+	@Autowired
+	private FileType hcountFileType;
 
 	private Integer cellLibraryId;
 	
@@ -61,8 +70,31 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	@Override
 	@Transactional("entityManager")
 	public GridResult doExecute(ChunkContext context) throws Exception {
-			WorkUnit w = helptag.getHpaiiCounter(cellLibraryId);
-			return gridHostResolver.execute(w);
+		WorkUnit w = helptag.getHpaiiCounter(cellLibraryId);
+		
+		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
+		SampleSource cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+
+		String hcountFileName = fileService.generateUniqueBaseFileName(cl) + "hcount";
+
+		FileHandle hcountFileHandle = helptagService.createAndSaveInnerFileHandle(hcountFileName, hcountFileType);
+
+		files.add(hcountFileHandle);
+		FileGroup hcountFileGroup = helptagService.createAndSaveInnerFileGroup(hcountFileHandle, helptag,
+																			   "HELP-tagging pipeline generated hcount file showing hit counts on hpaii loci");
+
+		hcountFileGroup.setDescription("hcount file for " + cl.getSample().getName() + " - " + cl.getSourceSample().getName());
+		hcountFileGroup.setSoftwareGeneratedBy(helptag);
+		hcountFileGroup.setIsActive(0);
+		hcountFileGroup = fileService.addFileGroup(hcountFileGroup);
+
+		w.setResultFiles(files);
+
+		GridResult result = gridHostResolver.execute(w);
+
+		logger.info("Batch job execution submitted with id=" + result.getGridJobId() + " on host '" + result.getHostname());
+
+		return result;
 	}
 	
 	public static void doWork(int cellLibraryId) {
@@ -85,7 +117,6 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 		logger.debug("StepExecutionListener beforeStep saving StepExecution");
-		
 	}
 
 	@Override

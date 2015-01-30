@@ -96,13 +96,17 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 		Set<Sample> sampleSetOfHpaIIPairedWithMspI = new HashSet<Sample>();
 		for(Sample approvedSample : setOfApprovedSamples){
 			logger.debug("approvedSample : " + approvedSample.getName());
-			if (helptagService.isHpaII(approvedSample.getId())) {
-				// only make angles for HpaII samples
+			if (helptagService.isHpaII(approvedSample) || helptagService.isBetaGTMspI(approvedSample)) {
+				// only make angles for HpaII or beta-GT-MspI samples
 				List<SampleSource> cellLibraryListForHpaII = approvedSampleApprovedCellLibraryListMap.get(approvedSample);
 
 				for(SampleSource ss : sampleService.getSamplePairsByJob(job)){
 					Sample hpaSample = ss.getSample();
+					Assert.assertTrue(helptagService.isHpaII(hpaSample) || helptagService.isBetaGTMspI(hpaSample));
+
     				Sample mspSample = ss.getSourceSample();
+					Assert.assertTrue(helptagService.isMspI(mspSample));
+
     				if (approvedSample.getId().intValue() == hpaSample.getId().intValue()) {
 						if (setOfApprovedSamples.contains(mspSample)) {
 							Assert.assertTrue(sampleService.confirmSamplePairIsOfSameSpecies(hpaSample, mspSample));

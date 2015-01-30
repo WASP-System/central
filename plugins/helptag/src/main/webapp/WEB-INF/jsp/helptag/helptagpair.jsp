@@ -12,7 +12,14 @@
 
 
 <div class="instructions">
-   <fmt:message key="helptag.pairing_instructions.label"/>
+	<c:choose>
+		<c:when test="${atLeastOneBetaGTMspISampleDraftPresent==true }">
+			<fmt:message key="helptag.pairing_instructions_includingBetaGTMsp.label"/>
+		</c:when>
+		<c:otherwise>
+			<fmt:message key="helptag.pairing_instructions.label"/>
+		</c:otherwise>
+	</c:choose>   
 </div>
 
 <c:set var="m_sampleNumber" value="${fn:length(m_samples)}" />
@@ -26,7 +33,16 @@
 		<td class="noBorder">&nbsp;</td>
 	</tr>
 	<tr class="row">
-		<td rowspan="${h_sampleNumber + 1 }" valign="middle" class="label"><fmt:message key="helptag.test.label"/></td>
+		<td rowspan="${h_sampleNumber + 1 }" valign="middle" class="label">
+			<c:choose>
+				<c:when test="${atLeastOneBetaGTMspISampleDraftPresent==true }">
+					<fmt:message key="helptag.test_includingBetaGTMsp.label"/>
+				</c:when>
+				<c:otherwise>
+					<fmt:message key="helptag.test.label"/>
+				</c:otherwise>
+			</c:choose> 			
+		</td>
 		<td class="label">&nbsp;</td>
 		<c:forEach var="s" items="${m_samples}">
 			<td class="label"><c:out value="${s.name}" /></td>

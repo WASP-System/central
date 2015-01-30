@@ -1542,23 +1542,7 @@ public class JobSubmissionController extends WaspController {
 			waspErrorMessage("jobDraft.jobDraft_null.error");
 			return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 		}
-		Map<String, Integer> query = new HashMap<String, Integer>();
-		query.put("sampleDraftId", sampleDraftId);
-		for (SampleDraftJobDraftCellSelection cellSelection : sampleDraft.getSampleDraftJobDraftCellSelection()){
-			sampleDraftJobDraftCellSelectionDao.remove(cellSelection);
-		}
-		for (SampleDraftMeta sdm : sampleDraftMetaDao.findByMap(query)){
-			sampleDraftMetaDao.remove(sdm);
-		}
-
-		//6-23-14: added by dubin
-		//new feature: remove sampleDraft from jobDraft's metadata related to sample pairs (currently chipseq and helptag) and replicates (currently chipseq)
-		jobDraftService.removeSampleDraftFromReplicates(jobDraft, sampleDraft);
-		jobDraftService.removeSampleDraftFromSamplePairsByJobDraft(jobDraft, sampleDraft);//removes from all samplePairs in this jobDraft
-		
-		
-		sampleDraftDao.remove(sampleDraft);		
-		
+		jobDraftService.removeSampleDraftAndAllDependencies(jobDraft,sampleDraft);//1-8-15; dubin	
 		waspMessage("sampleDetail.updated_success.label");
 		return "redirect:/jobsubmit/samples/"+jobDraftId+".do";
 	}

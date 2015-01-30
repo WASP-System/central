@@ -15,5 +15,14 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagpair.jsp" />
 	</definition>
 
+	<definition name="jobsubmit/helptagSpecificSampleReview" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/helptag/helptagSpecificSampleReview.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagSpecificSampleReview.jsp" />
+	</definition>
+
+	<definition name="helptag/helptagSpecificSamplePairingPostSubmission" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/helptag/helptagSpecificSamplePairingPostSubmission.jsp" />
+	</definition>
+
 </tiles-definitions>
 

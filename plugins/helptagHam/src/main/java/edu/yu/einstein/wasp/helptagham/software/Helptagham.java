@@ -7,21 +7,15 @@ package edu.yu.einstein.wasp.helptagham.software;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.Assert;
-import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.FileHandle;
-import edu.yu.einstein.wasp.model.Sample;
-import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
-import edu.yu.einstein.wasp.service.GenomeService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -42,10 +36,6 @@ public class Helptagham extends SoftwarePackage{
 	
 	@Autowired
 	SampleService sampleService;
-
-	@Autowired
-	private GenomeService genomeService;
-
 
 	/**
 	 * 
@@ -72,25 +62,6 @@ public class Helptagham extends SoftwarePackage{
 		w.setSecureResults(false);
 
 		return w;
-	}
-
-	private Build getGenomeBuild(SampleSource cellLibrary) {
-		Build build = null;
-		try {
-			Sample library = sampleService.getLibrary(cellLibrary);
-			logger.debug("looking for genome build associated with sample: " + library.getId());
-			build = genomeService.getBuild(library);
-			if (build == null) {
-				String mess = "cell library does not have associated genome build metadata annotation";
-				logger.error(mess);
-				throw new NullResourceException(mess);
-			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
-		} catch (ParameterValueRetrievalException e) {
-			logger.error(e.toString());
-			e.printStackTrace();
-		}
-		return build;
 	}
 
 	@Transactional("entityManager")

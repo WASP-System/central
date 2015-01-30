@@ -40,9 +40,60 @@
     		<ref bean="helptagLibrarySpecificUiFields" />
     	</list>
     </property>
-    <property name="applicableRoles" value="ft,lu" />
+    <property name="applicableRoles" value="lu" />
   </bean>
   
+  <bean id="helptagFacilityLibrarySampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="HELP-tag Facility Library" />
+    <property name="area" value="helptagFacilityLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericLibraryUiFields" />
+    	<!-- 	<ref bean="helptagLibrarySpecificUiFields" />  removed as per Andy, 1-22-15 -->
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft" />
+  </bean>
+  
+    <!-- helptag DNA sample -->
+
+  <bean id="helptagDNAUiFieldWrapper" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="helptagDNA" />
+  </bean>
+
+  <bean id="helptagDNASpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+		
+	        <bean parent="helptagDNAUiFieldWrapper">
+	          <property name="baseName" value="typeOfHelpLibraryRequested" />
+	          <property name="label" value="helptag.typeOfHelpLibraryRequested.label" />
+	          <property name="metaposition" value="120" />
+	          <property name="control" value="helptag.typeOfHelpLibraryRequested.control" /> 
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="error" value="helptag.typeOfHelpLibraryRequested.error" />
+	          <property name="tooltip" value="helptag.typeOfHelpLibraryRequested.tt" />
+	        </bean>
+	        	        
+	      </list>
+      </property>
+  </bean>   
+ 
+  <bean id="helptagDNASampleSubtype" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="HELP-tag DNA" />
+    <property name="area" value="helptagDNASample" />
+    <property name="sampleType" ref="dnaSampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="genericDNAUiFields" />
+    		<ref bean="helptagDNASpecificUiFields" />
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft,lu" />
+  </bean>
  
   
 </beans>

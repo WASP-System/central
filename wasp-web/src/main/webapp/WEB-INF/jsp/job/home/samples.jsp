@@ -1,5 +1,32 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<script type="text/javascript">
+	(function($){ 
+		$(document).ready(function(){
+			$("div[id^='divToDisplayExtraMetaForSampleId_']").each(function(){ 
+				var theDiv = $( this );
+				var theSampleId = $( this ).attr("id").replace("divToDisplayExtraMetaForSampleId_","");
+				$.ajax({
+			        type: "GET",
+			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/'+theSampleId+'/plugInSpecificSampleDataForDisplay.do" />',
+			        async:   false, //Myabe it MUST BE SYNCHRONOUS; not certain
+			        dataType: "json",
+			        success: function (response) {
+			        	//theDiv.append("<br />");
+			        	$.each( response, function( key, val ) {			        		
+			        		theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
+						  });	
+			        },
+			        error: function (response) {
+			        	//alert("failure");
+			        }
+			    });				
+			});		
+		});
+	})(jQuery);
+</script>
+	
 <br />
 	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
@@ -60,6 +87,10 @@
 						</c:if>
 						<br />		  
 					</c:if>
+	
+					<!-- for displaying plugin spcific information about a macromolecule-->
+					<div id="divToDisplayExtraMetaForSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
+	
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
@@ -128,7 +159,12 @@
 		  							<wasp:comment value="${metaMessageList[0].getValue()} (${date})" />
 								</c:if>	
 								<br /> 	 						  
-							</c:if>								
+							</c:if>	
+							
+								
+							<!-- for displaying plugin spcific information about a library-->
+							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>	
+													
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
 							

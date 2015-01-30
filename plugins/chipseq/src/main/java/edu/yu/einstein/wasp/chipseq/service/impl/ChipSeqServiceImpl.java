@@ -91,4 +91,24 @@ public class ChipSeqServiceImpl extends WaspServiceImpl implements ChipSeqServic
 		}
 		return peakType;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public String getInputOrIPStatus(Sample sample){
+		List<SampleMeta> sampleMetaList = sampleService.getSampleMetaDao().getSamplesMetaBySampleId(sample.getId());
+		for(SampleMeta sampleMeta : sampleMetaList){
+			if(sampleMeta.getK().contains("inputOrIP")){
+				if(sampleMeta.getV().equalsIgnoreCase("ip")){
+					return "IP";
+				}
+				else if(sampleMeta.getV().equalsIgnoreCase("input")){
+					return "Input";
+				}
+			}
+		}
+		return null;
+	}
 }

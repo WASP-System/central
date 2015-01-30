@@ -24,6 +24,9 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/chipSeq/chipSeqSpecificSampleReview.jsp" />
 	</definition>
 
+	<definition name="chipseq/chipseqSpecificSamplePairingPostSubmission" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/chipSeq/chipseqSpecificSamplePairingPostSubmission.jsp" />
+	</definition>
 
 </tiles-definitions>
 
