@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,7 +105,6 @@ import edu.yu.einstein.wasp.model.JobDraftFile;
 import edu.yu.einstein.wasp.model.JobDraftMeta;
 import edu.yu.einstein.wasp.model.JobDraftSoftware;
 import edu.yu.einstein.wasp.model.JobDraftresourcecategory;
-import edu.yu.einstein.wasp.model.JobFile;
 import edu.yu.einstein.wasp.model.JobMeta;
 import edu.yu.einstein.wasp.model.JobResourcecategory;
 import edu.yu.einstein.wasp.model.JobSample;
@@ -2088,6 +2086,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						return "Withdrawn";
 				}
 			}
+			return "Withdrawn";
 		}
 		if (status.isFailed())
 			return "Failed";
@@ -2598,6 +2597,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		list.add("Completed");
 		list.add("Awaiting Approvals");
 		list.add("In Progress");
+		list.add("Withdrawn");
 		list.add("Withdrawn By PI");
 		list.add("Withdrawn By Dept.");
 		list.add("Withdrawn By Facility");

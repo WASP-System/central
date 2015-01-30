@@ -20,6 +20,7 @@ public class WaspMessageType {
 	public static final String FILE = "file";
 	public static final String HIBERNATION = "hibernation";
 	public static final String LAUNCH_BATCH_JOB = "launchBatchJob";
+	public static final String ACTION_BATCH_JOB = "actionBatchJob";
 	public static final String REPLY = "reply";
 	public static final String MANY = "many";
 }

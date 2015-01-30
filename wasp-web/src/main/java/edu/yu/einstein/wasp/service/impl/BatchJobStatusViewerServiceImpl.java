@@ -19,11 +19,14 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.wasp.JobExplorerWasp;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.wasp.JobOperatorWasp;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute;
 import org.springframework.batch.core.repository.dao.wasp.BatchJobSortAttribute.SortDirection;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,15 +35,21 @@ import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel.ExtIcon;
+import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.grid.work.SgeWorkService;
+import edu.yu.einstein.wasp.integration.endpoints.BatchJobHibernationManager;
+import edu.yu.einstein.wasp.integration.messages.WaspStatus;
+import edu.yu.einstein.wasp.integration.messages.templates.BatchJobStepActionStatusMessageTemplate;
+import edu.yu.einstein.wasp.integration.messages.templates.JobStatusMessageTemplate;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 @Service
 @Transactional // batch
-public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements BatchJobStatusViewerService{
+public class BatchJobStatusViewerServiceImpl extends WaspMessageHandlingServiceImpl implements BatchJobStatusViewerService{
 	
 	private static Logger logger = Logger.getLogger(BatchJobStatusViewerServiceImpl.class);
 	
@@ -58,6 +67,13 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 	@Autowired
 	public void setJobExplorer(JobExplorer jobExplorer){
 		this.jobExplorer = (JobExplorerWasp) jobExplorer;
+	}
+	
+	private JobOperatorWasp jobOperator;
+	
+	@Autowired
+	public void setJobOperator(JobOperator jobOperator){
+		this.jobOperator = (JobOperatorWasp) jobOperator;
 	}
 	
 	public BatchJobStatusViewerServiceImpl() {
@@ -135,6 +151,28 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 		return modelList;
 	}
 	
+	@Override
+	public void restartBatchJob(Long jobExecutionId, String stepName) throws WaspBatchJobExecutionException, WaspMessageBuildingException{
+		BatchJobStepActionStatusMessageTemplate messageTemplate = new BatchJobStepActionStatusMessageTemplate(jobExecutionId, stepName);
+		messageTemplate.setStatus(WaspStatus.RESTARTED);
+		try{
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
+	}
+	
+	@Override
+	public void abortBatchJob(Long jobExecutionId, String stepName) throws WaspBatchJobExecutionException, WaspMessageBuildingException{
+		BatchJobStepActionStatusMessageTemplate messageTemplate = new BatchJobStepActionStatusMessageTemplate(jobExecutionId, stepName);
+		messageTemplate.setStatus(WaspStatus.ABANDONED);
+		try{
+			sendOutboundMessage(messageTemplate.build(), true);
+		} catch (MessagingException e){
+			throw new WaspMessageBuildingException(e.getLocalizedMessage());
+		}
+	}
+	
 	private List<ExtTreeModel> getSteps(String nodeId, String property, String direction, Long start, Long limit){
 		List<ExtTreeModel> modelList = new ArrayList<>();
 		if (nodeId.startsWith(JOB_EXECUTION_ID_PREFIX)){
@@ -164,6 +202,8 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 						jobExplorer.getJobExecutionCount(ExitStatus.EXECUTING) + jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING));
 			if (displayParam.equals(SHOW_COMPLETED))
 				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.COMPLETED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED));
+			if (displayParam.equals(SHOW_ERROR))
+				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.ERROR, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.ERROR));
 			if (displayParam.equals(SHOW_FAILED))
 				return new ExtGridResponse<ExtTreeModel>(getJobList(ExitStatus.FAILED, property, direction, start, limit), jobExplorer.getJobExecutionCount(ExitStatus.FAILED));
 			if (displayParam.equals(SHOW_TERMINATED))
@@ -176,6 +216,8 @@ public class BatchJobStatusViewerServiceImpl extends WaspServiceImpl implements 
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.HIBERNATING);
 			else if (displayParam.equals(SHOW_COMPLETED))
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.COMPLETED);
+			else if (displayParam.equals(SHOW_ERROR))
+				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.ERROR);
 			else if (displayParam.equals(SHOW_FAILED))
 				totalCount = jobExplorer.getJobExecutionCount(ExitStatus.FAILED);
 			else if (displayParam.equals(SHOW_TERMINATED))

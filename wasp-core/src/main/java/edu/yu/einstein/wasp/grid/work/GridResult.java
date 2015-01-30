@@ -15,7 +15,7 @@ import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 public interface GridResult {
 	
 	public static final String GRID_RESULT_KEY ="gridResult";
-	public static final String FLAGGED_FOR_RESTART ="restart_req";
+	public static final String IN_ERROR_CONDITION ="err_cond";
 	public static final String RESTART_COUNT ="restart_count";
 	
 	/**

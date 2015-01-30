@@ -174,9 +174,13 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 				logger.warn("Unable to get Abandon Messages for JobExecution id=" + jobExecutionId + ", from StepExecution id=" + stepExecutionId + ": " + 
 						e.getLocalizedMessage());
 			}
-			Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(se);
-			if (timeInterval != null)
-				hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+			if (isInErrorCondition(se))
+				hibernationManager.removeStepExecutionFromWakeMessageMap(se);
+			else {
+				Long timeInterval = BatchJobHibernationManager.getWakeTimeInterval(se);
+				if (timeInterval != null)
+					hibernationManager.addTimeIntervalForJobStep(jobExecutionId, stepExecutionId, timeInterval);
+			}
 			
 		}
 		waitUntilStateTransitionsStable(stepExecution);
@@ -334,6 +338,21 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_MESSAGE_STATUS));
 	}
 	
+	protected boolean wasWokenOnRequest(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		return (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_REQUEST));
+	}
+	
+	protected boolean wasWokenOnRequest(ChunkContext context){
+		return wasWokenOnRequest(context.getStepContext().getStepExecution());
+	}
+	
+	protected void removeWokenOnRequestStatus(StepExecution stepExecution){
+		ExecutionContext executionContext = stepExecution.getExecutionContext();
+		if (executionContext.containsKey(BatchJobHibernationManager.WOKEN_ON_REQUEST))
+			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_REQUEST);
+	}
+	
 	protected WaspStatus getWokenOnMessageStatus(StepExecution stepExecution){
 		ExecutionContext executionContext = stepExecution.getExecutionContext();
 		WaspStatus status = WaspStatus.UNKNOWN;
@@ -369,11 +388,18 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			executionContext.remove(BatchJobHibernationManager.WOKEN_ON_TIMEOUT);
 	}
 	
+	/**
+	 * Will be called when step executed for the first time, after restart and when resuming from hibernation in error state.
+	 * Not called after waking from hibernation when not in error state.
+	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
 	
+	/**
+	 * Called immediately prior to completion of step
+	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		logger.debug("In after step for StepExecutionId=" + stepExecution.getId());
@@ -387,27 +413,20 @@ public class WaspHibernatingTasklet extends AbandonMessageHandlingTasklet {
 			hibernationManager.removeStepExecutionFromAbandonMessageMap(stepExecution);
 		}
 		ExitStatus exitStatus = super.afterStep(stepExecution);
-/*	TODO: figure out how to implement stopping in error condition	
- 		if (isInErrorConditionAndFlaggedForRestart(stepExecution)){
-    		logger.debug(stepExecution.getStepName() + " afterStep identified stopped state for error");
-    		if (wasWokenOnTimeout(stepExecution)){
-    			removeWokenOnTimeoutStatus(stepExecution);
-    			setTimeoutIntervalInContext(stepExecution, getRandomInitialExponentialInterval()); // reset for restart
-    		} else 
-    			removeWokenOnMessageStatus(stepExecution);
-            exitStatus =  new ExitStatus("ERROR").addExitDescription("Stopped for Error");
-        }
-*/
 		logger.debug("WaspHibernatingTasklet afterStep() returning ExitStatus=" + exitStatus);
 		return exitStatus;
 	}
 	
-	public boolean isFlaggedForRestart(StepExecution se) {
-		return BatchJobHibernationManager.isInErrorConditionAndFlaggedForRestart(se);
+	public boolean isInErrorCondition(StepExecution se) {
+		return BatchJobHibernationManager.isInErrorCondition(se);
 	}
 	
-	protected static void setIsInErrorConditionAndFlaggedForRestart(StepExecution se, Boolean isFlaggedForRestart) {
-		BatchJobHibernationManager.setIsInErrorConditionAndFlaggedForRestart(se, isFlaggedForRestart);
+	protected static void setIsInErrorCondition(StepExecution se, Boolean isInErrorCondition) {
+		BatchJobHibernationManager.setIsInErrorCondition(se, isInErrorCondition);
+	}
+	
+	protected static void removeIsInErrorCondition(StepExecution se){
+		BatchJobHibernationManager.removeIsInErrorCondition(se);
 	}
 	
 	protected void incrementRetryCounter(StepExecution se) {

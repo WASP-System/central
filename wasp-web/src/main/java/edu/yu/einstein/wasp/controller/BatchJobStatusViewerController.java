@@ -21,12 +21,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.yu.einstein.wasp.controller.util.BatchJobTreeModel;
+import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtModel;
 import edu.yu.einstein.wasp.controller.util.ExtStepInfoModel;
-import edu.yu.einstein.wasp.controller.util.ExtGridResponse;
 import edu.yu.einstein.wasp.controller.util.ExtTreeModel;
+import edu.yu.einstein.wasp.exception.WaspBatchJobExecutionException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.service.BatchJobStatusViewerService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 
 @RequestMapping("/batchJobStatusViewer")
 @Controller
@@ -35,9 +38,13 @@ public class BatchJobStatusViewerController extends WaspController {
 	@Autowired
 	BatchJobStatusViewerService statusViewerService;
 	
+	@Autowired
+	private MessageServiceWebapp messageService;
+	
 	@RequestMapping(value="/list.do", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('fm') or hasRole('ft')")
 	public String getBatchJobStatusViewerView(ModelMap m){
+		m.addAttribute("startPage", 1);
 		return "batchJobStatusViewer/list";
 	}
 	
@@ -71,6 +78,57 @@ public class BatchJobStatusViewerController extends WaspController {
 		return outputJSON(extTreeGridResponse, response);
 	}
 	
+	@RequestMapping(value="/restartBatchJob", method = RequestMethod.GET)
+	public void restartBatchJob(@RequestParam("jobExecutionId") Long jobExecutionId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
+		m.addAttribute("startPage", page);
+		String[] args = new String[2];
+		args[0] = jobExecutionId.toString();
+		args[1] = stepName;
+		try{
+			statusViewerService.restartBatchJob(jobExecutionId, stepName);
+		} catch (WaspBatchJobExecutionException | WaspMessageBuildingException e){
+			logger.warn("Caught " + e.getClass().getName() + ":" + e.getLocalizedMessage());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			try {
+				response.getWriter().write(messageService.getMessage("batchViewer.restartJobFailure.label", args));
+			} catch (IOException e1) {
+				logger.warn("Caught IOException writing text to response" + e1);
+			}
+			return;
+		}
+		response.setStatus(HttpServletResponse.SC_OK);
+		try {
+			response.getWriter().write(messageService.getMessage("batchViewer.restartJobSuccess.label", args));
+		} catch (IOException e) {
+			logger.warn("Caught IOException writing text to response");
+		}
+	}
+	
+	@RequestMapping(value="/abortBatchJob", method = RequestMethod.GET)
+	public void abortBatchJob(@RequestParam("jobExecutionId") Long jobExecutionId, @RequestParam("stepName") String stepName, @RequestParam("page") Integer page, HttpServletResponse response, ModelMap m){
+		String[] args = new String[1];
+		args[0] = jobExecutionId.toString();
+		m.addAttribute("startPage", page);
+		try{
+			statusViewerService.abortBatchJob(jobExecutionId, stepName);
+		} catch (WaspBatchJobExecutionException | WaspMessageBuildingException e){
+			logger.warn("Caught " + e.getClass().getName() + ":" + e.getLocalizedMessage());
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			try {
+				response.getWriter().write(messageService.getMessage("batchViewer.abortJobFailure.label", args));
+			} catch (IOException e1) {
+				logger.warn("Caught IOException writing text to response" + e1);
+			}
+			return;
+		}
+		response.setStatus(HttpServletResponse.SC_OK);
+		try {
+			response.getWriter().write(messageService.getMessage("batchViewer.abortJobSuccess.label", args));
+		} catch (IOException e) {
+			logger.warn("Caught IOException writing text to response");
+		}
+	}
+	
 	private ExtGridResponse<ExtTreeModel> replaceExitCodesWithIcons(ExtGridResponse<ExtTreeModel> extTreeGridResponse) {
 		for (ExtTreeModel treeModel: extTreeGridResponse.getModelList()){
 			BatchJobTreeModel batchJobTreeModel = (BatchJobTreeModel) treeModel;
@@ -79,6 +137,8 @@ public class BatchJobStatusViewerController extends WaspController {
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15'/>");
 			else if (exitCode.equals(ExitStatus.UNKNOWN.getExitCode()))
 				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/gears_green_30x30.png' alt='running (live thread)' height='15' />");
+			else if (exitCode.equals(ExitStatus.ERROR.getExitCode()))
+				batchJobTreeModel.setExitCode("<img src='" + getServletPath() + "/images/warning.png' alt='Error Condition' height='15' />");
 			else if (exitCode.equals(ExitStatus.HIBERNATING.getExitCode())){
 				try {
 					DateFormat df = new SimpleDateFormat("yy-MM-dd HH:mm:ss");

@@ -119,8 +119,8 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				((String) message.getHeaders().get(WaspMessageType.HEADER_KEY)).equals(WaspMessageType.ANALYSIS)) )
 			return false;
 		if ( CellLibraryId != null && jobId != null &&
-				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(CellLibraryId) &&
+				message.getHeaders().containsKey(WaspJobParameters.CELL_LIBRARY_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.CELL_LIBRARY_ID)).equals(CellLibraryId) &&
 				message.getHeaders().containsKey(WaspJobParameters.JOB_ID) && 
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
@@ -129,8 +129,8 @@ public class AnalysisStatusMessageTemplate extends  WaspStatusMessageTemplate{
 				((Integer) message.getHeaders().get(WaspJobParameters.JOB_ID)).equals(jobId) )
 			return true;
 		if ( jobId == null && CellLibraryId != null &&
-				message.getHeaders().containsKey(WaspJobParameters.LIBRARY_ID) && 
-				((Integer) message.getHeaders().get(WaspJobParameters.LIBRARY_ID)).equals(CellLibraryId) )
+				message.getHeaders().containsKey(WaspJobParameters.CELL_LIBRARY_ID) && 
+				((Integer) message.getHeaders().get(WaspJobParameters.CELL_LIBRARY_ID)).equals(CellLibraryId) )
 			return true;
 		return false;
 	}

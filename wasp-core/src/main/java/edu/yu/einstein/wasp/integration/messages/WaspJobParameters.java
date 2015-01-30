@@ -28,5 +28,6 @@ public class WaspJobParameters {
 	public static final String SAMPLE_ID = "sampleId";
 	public static final String SAMPLE_NAME = "sampleName";
 	public static final String STEP_EXECUTION_ID = "stepExecutionId";
+	public static final String STEP_NAME = "stepName";
 	public static final String TEST_ID = "testId";
 }

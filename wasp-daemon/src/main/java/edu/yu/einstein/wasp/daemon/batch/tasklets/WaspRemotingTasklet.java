@@ -55,7 +55,7 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public abstract GridResult doExecute(ChunkContext context) throws Exception;
 	
 	/**
-	 * cleanup work to do before a restart
+	 * cleanup work to do before a restart and before entering error state
 	 * @param context
 	 */
 	public abstract void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception;
@@ -77,16 +77,32 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	public RepeatStatus execute(StepContribution contrib, ChunkContext context) throws Exception {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
 		Long stepExecutionId = stepExecution.getId();
+		GridResult result = null;
+		if (isInErrorCondition(stepExecution)){
+			logger.debug("StepExecution id=" + stepExecutionId + " is being woken up from hibernation from error state.");
+			removeIsInErrorCondition(stepExecution);
+			BatchJobHibernationManager.resetRetryCounter(stepExecution);
+		} else {
+			result = getGridResult(context);
+		}
 		if (wasWokenOnTimeout(context)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation after a timeout.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnTimeoutStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 		} else if (wasWokenOnMessage(stepExecution)){
 			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation for a message.");
 			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
 			wasHibernationRequested = false;
 			removeWokenOnMessageStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
+		} else if (wasWokenOnRequest(stepExecution)){
+			logger.debug("StepExecution id=" + stepExecutionId + " was woken up from hibernation by request via message.");
+			BatchJobHibernationManager.unlockJobExecution(context.getStepContext().getStepExecution().getJobExecution(), LockType.WAKE);
+			wasHibernationRequested = false;
+			removeWokenOnRequestStatus(stepExecution);
+			BatchJobHibernationManager.unlockJobExecution(stepExecution.getJobExecution(), LockType.WAKE);
 		}
 		
 		// Three cases at this point
@@ -94,9 +110,8 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		// isStarted=T and isHibernationResuested=T == job started on grid service
 		// isStarted=F and isHibernationRequested=T == not going to request grid work
 		boolean jobHasUpdatedChild = false;
-		GridResult result = getGridResult(context);
 		try{
-			if (result != null && !isFlaggedForRestart(stepExecution)){
+			if (result != null && !isInErrorCondition(stepExecution)){
 				Map<String, GridResult> currentChildJobResults = new HashMap<String, GridResult>(result.getChildResults());
 				GridWorkService gws = hostResolver.getGridWorkService(result);
 				if (gws.isFinished(result)){
@@ -113,36 +128,47 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 					logger.debug("no work unit configured. Exiting without execution.");
 					return RepeatStatus.FINISHED;
 				}
-				setIsInErrorConditionAndFlaggedForRestart(stepExecution, false);		
+				setIsInErrorCondition(stepExecution, false);		
 			}
 		} catch (GridException e) {
 			logger.warn("GridException caught : " + e.getLocalizedMessage() + ". Going to run cleanup code"); 
-			setIsInErrorConditionAndFlaggedForRestart(stepExecution, true);
 			doCleanupBeforeRestart(stepExecution);
 			int retryCount = getRetryCount(stepExecution) + 1;
-			if (retryCount <= maxRetryAttempts){
+			if (retryCount < maxRetryAttempts){
 				incrementRetryCounter(stepExecution);
-				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + maxRetryAttempts);
+				logger.warn("Going to throw TaskletRetryException. This is retry attempt " + retryCount + " of " + (maxRetryAttempts - 1));
+				result = null;
 				throw new TaskletRetryException(e.getMessage());
 			}
-			else 
-				throw new GridException("Maximum number of retry attempts (" + maxRetryAttempts + ") exceeded.", e);
+			else {
+				setIsInErrorCondition(stepExecution, true);
+				logger.warn("Maximum retries exceeded. Entering error hibernation state.");
+			}
+		} catch (Exception e1){
+			// enter error state on catching any unexpected errors
+			logger.warn("Exception caught of  type " + e1.getClass().getName() + ": " + e1.getLocalizedMessage() + ". Going to run cleanup code and enter error state"); 
+			e1.printStackTrace();
+			doCleanupBeforeRestart(stepExecution);
+			setIsInErrorCondition(stepExecution, true);
+			logger.info("Entering error hibernation state.");
 		} finally {
 			logger.trace("saving GridResult from finally block");
-			if (result != null)
-				saveGridResult(context, result); // do this whatever else happens in the try block
-			else
-				logger.warn("Not saving GridResult for StepExecution id=" + stepExecutionId + " as is null! (wasHibernationRequested=" + wasHibernationRequested + ")");
+			saveGridResult(context, result); // do this whatever else happens in the try block
 		}
 		if (!wasHibernationRequested){
-			Long timeoutInterval;
-			if (jobHasUpdatedChild){
-				logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
-				timeoutInterval = getRandomInitialExponentialInterval();
-				setTimeoutIntervalInContext(stepExecution, timeoutInterval);
-			} else 
-				timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
-			logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
+			if (isInErrorCondition(stepExecution)){
+				logger.debug("Job is in error condition so removing wake time interval");
+				removeWokenOnTimeoutStatus(stepExecution);
+			} else {
+				Long timeoutInterval;
+				if (jobHasUpdatedChild){
+					logger.debug("Job result has updated a child job so going to reset timeoutInterval to minimum");
+					timeoutInterval = getRandomInitialExponentialInterval();
+					setTimeoutIntervalInContext(stepExecution, timeoutInterval);
+				} else 
+					timeoutInterval = exponentiallyIncreaseTimeoutIntervalInContext(context);
+				logger.debug("Going to request hibernation for " + timeoutInterval + " ms");
+			}
 			addStatusMessagesToAbandonStepToContext(stepExecution, abandonTemplates);
 		} else {
 			logger.debug("Previous hibernation request made by this StepExecution (id=" + stepExecutionId + 
@@ -156,8 +182,12 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 	
 	private static void saveGridResult(ChunkContext context, GridResult result) {
 		StepExecution stepExecution = context.getStepContext().getStepExecution();
-		logger.debug(result.toString());
-		stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
+		if (result == null && stepExecution.getExecutionContext().containsKey(GridResult.GRID_RESULT_KEY))
+			stepExecution.getExecutionContext().remove(GridResult.GRID_RESULT_KEY);
+		else {
+			logger.debug(result.toString());
+			stepExecution.getExecutionContext().put(GridResult.GRID_RESULT_KEY, result);
+		}
 	}
 	
 	protected static GridResult getGridResult(ChunkContext context) {
@@ -171,11 +201,17 @@ public abstract class WaspRemotingTasklet extends WaspHibernatingTasklet {
 		return (GridResult) stepExecution.getExecutionContext().get(GridResult.GRID_RESULT_KEY);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		super.beforeStep(stepExecution);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution){
 		return super.afterStep(stepExecution);
