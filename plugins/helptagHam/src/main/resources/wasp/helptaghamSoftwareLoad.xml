@@ -16,10 +16,10 @@
   <bean id="helptagham" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
   	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.helptagham.software.Helptagham</value></property> <!-- must be derived from the SoftwarePackage class -->
     <property name="name" value="Helptagham" />
-    <property name="version" value="0.0.0" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
+    <property name="version" value="0.0.1" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
     <property name="description" value="Methylation score calculator for HELP tagging pipeline" />
     <property name="area" ref="helptaghamPluginArea" />
-    <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+    <property name="resourceType" ref="helptagAngleMakerResourceType" /> <!-- TODO: choose a more appropriate resource type -->
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">

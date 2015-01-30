@@ -19,7 +19,12 @@
   </bean>
   
   <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="HELP-tag Pipeline" />
+    <property name="name" value="HELP tagging Pipeline" />
+    <property name="area" ref="helptagPipelineArea" />
+  </bean>
+
+  <bean id="helptagAngleMakerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="HELP tagging angle maker" />
     <property name="area" ref="helptagPipelineArea" />
   </bean>
 

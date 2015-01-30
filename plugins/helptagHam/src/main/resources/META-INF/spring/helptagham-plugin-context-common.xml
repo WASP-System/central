@@ -12,7 +12,7 @@
 
 	<bean id="helptaghamPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>helptagham</value>
+			<value>helptagHAM</value>
 		</constructor-arg>
 	</bean>
 	

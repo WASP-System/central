@@ -150,11 +150,6 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		// get step execution for this tasklet step
 		this.stepExecution = context.getStepContext().getStepExecution();
 		
-		// get job execution for the wrapper batch job and its context
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		ExecutionContext jobExecutionContext = jobExecution.getExecutionContext();
-		
-		
 		// get managed entity object for a wasp job by id 
 		// Note: class or method must be public and be annotated with @Transactional("entityManager") otherwise
 		// it will not be possible to inflate linked entities.
@@ -276,7 +271,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		List<String> listOfFileHandleNames = new ArrayList<String>();
 
 		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
-		Set<FileGroup> helptagFileGroups = new LinkedHashSet<FileGroup>();
+		Set<FileGroup> helptagHAMFileGroups = new LinkedHashSet<FileGroup>();
 
 		FileHandle wigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".wig", wigFileType);
 		listOfFileHandleNames.add(wigFileHandle.getFileName());
@@ -284,7 +279,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup wigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(wigFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated wiggle track file showing methylation histograms on hpaii loci");
-		helptagFileGroups.add(wigFileGroup);
+		helptagHAMFileGroups.add(wigFileGroup);
 
 		FileHandle angleFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".angle", htgAngleFileType);
 		listOfFileHandleNames.add(angleFileHandle.getFileName());
@@ -292,7 +287,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup angleFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(angleFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated tab-delimited file storing methylation scores on hpaii loci");
-		helptagFileGroups.add(angleFileGroup);
+		helptagHAMFileGroups.add(angleFileGroup);
 
 		FileHandle confInfoFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".conf.txt", textFileType);
 		listOfFileHandleNames.add(confInfoFileHandle.getFileName());
@@ -300,7 +295,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup confInfoFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(confInfoFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated plain text file storing confidence scores' distribution information");
-		helptagFileGroups.add(confInfoFileGroup);
+		helptagHAMFileGroups.add(confInfoFileGroup);
 
 		FileHandle bedFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".conf.bed", bedFileType);
 		listOfFileHandleNames.add(bedFileHandle.getFileName());
@@ -308,7 +303,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup bedFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(bedFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated bed track showing the trimmed reads aligned to hpaii loci");
-		helptagFileGroups.add(bedFileGroup);
+		helptagHAMFileGroups.add(bedFileGroup);
 
 		FileHandle hcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".hc.wig", wigFileType);
 		listOfFileHandleNames.add(hcWigFileHandle.getFileName());
@@ -316,7 +311,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup hcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(hcWigFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with high confidence scores");
-		helptagFileGroups.add(hcWigFileGroup);
+		helptagHAMFileGroups.add(hcWigFileGroup);
 
 		FileHandle mcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".mc.wig", wigFileType);
 		listOfFileHandleNames.add(mcWigFileHandle.getFileName());
@@ -324,7 +319,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup mcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(mcWigFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with medium confidence scores");
-		helptagFileGroups.add(mcWigFileGroup);
+		helptagHAMFileGroups.add(mcWigFileGroup);
 
 		FileHandle lcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".lc.wig", wigFileType);
 		listOfFileHandleNames.add(lcWigFileHandle.getFileName());
@@ -332,22 +327,21 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup lcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(lcWigFileHandle, helptagHAM,
 											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with low confidence scores");
-		helptagFileGroups.add(lcWigFileGroup);
+		helptagHAMFileGroups.add(lcWigFileGroup);
 
-		FileGroup helptaghamAnalysisFileGroup = fileService.createFileGroupCollection(helptagFileGroups);// will create enclosing fileGroup, save it to db, and
+		FileGroup helptaghamAnalysisFileGroup = fileService.createFileGroupCollection(helptagHAMFileGroups);// will create enclosing fileGroup, save it to db, and
 																									  // also set/save parent for each enclosed child fileGroup;
 																									  // it will set it's own filetype
 		helptaghamAnalysisFileGroup.setDescription(prefixForFileName);
 		helptaghamAnalysisFileGroup.setSoftwareGeneratedBy(helptagHAM);
-		helptaghamAnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);// this is actually adding reference to samplesourcefilegroup and I think,
-																		// samplefilegroup
+		helptaghamAnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
 		helptaghamAnalysisFileGroup.setIsActive(0);
 		helptaghamAnalysisFileGroup = fileService.addFileGroup(helptaghamAnalysisFileGroup);
 
 		this.helptaghamAnalysisFileGroupId = helptaghamAnalysisFileGroup.getId();
 		logger.debug("new ------- recorded all encompassing fileGroup helptaghamAnalysisFileGroup as a container for files outputted by helptagham");
 
-		logger.debug("recorded fileGroups and fileHandles for helptagham files in MacstwoTasklet.doExecute()");
+		logger.debug("recorded fileGroups and fileHandles for helptagham files in HelptaghamTasklet.doExecute()");
 
 		// get execution context for the step. Store key / value entries in here to maintain state in db
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();
@@ -360,7 +354,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		stepContext.put("helptaghamAnalysisFileGroupId", this.helptaghamAnalysisFileGroupId);
 
 		stepContext.put("commandLineCall", this.commandLineCall);
-		logger.debug("saved variables in stepContext in case of crash in MacstwoTasklet.doExecute()");
+		logger.debug("saved variables in stepContext in case of crash in HelptaghamTasklet.doExecute()");
 
 		w.setResultFiles(files);
 
@@ -375,7 +369,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 			counter++;
 		}
 
-		logger.debug("executed w.setResultsDirectory(a/jobId) in MacstwoTasklet.doExecute()");
+		logger.debug("executed w.setResultsDirectory(a/jobId) in HelptaghamTasklet.doExecute()");
 
 		// get grid result which can be used to determine the state of an executing job 
 		GridResult result = gridHostResolver.execute(w);
@@ -416,7 +410,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		// associate test sample with the new file groups
 		Sample hpa2Sample = sampleService.getSampleById(hpa2SampleId);
 
-		logger.debug("getting ready to save testSample metadata  in MacstwoTasklet");
+		logger.debug("getting ready to save hpa2Sample metadata  in HelptaghamTasklet");
 
 		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and controlId and testId with fileGroupMeta
 		// and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks /
@@ -473,7 +467,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 			fileService.saveFileGroupMeta(fgmList, enclosingFG);
 		}
 
-		logger.debug("ending doPreFinish() in HAMTasklet");
+		logger.debug("ending doPreFinish() in HelptaghamTasklet");
 	}
 	
 	
@@ -484,7 +478,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 	public void beforeStep(StepExecution stepExecution){
 		super.beforeStep(stepExecution);
 
-		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in HAM Tasklet.beforeStep");
+		logger.debug("*****  StepExecutionListener beforeStep saving StepExecution in HelptaghamTasklet.beforeStep");
 		this.stepExecution = stepExecution;
 
 		ExecutionContext stepContext = this.stepExecution.getExecutionContext();

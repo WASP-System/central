@@ -20,7 +20,7 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.helptagham.batch.tasklet.HelptaghamTasklet" scope="step">
-					<constructor-arg name="jobIdAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).JOB_ID]}" />
+					<constructor-arg name="waspJobId" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).JOB_ID]}" />
 					<constructor-arg name="hpa2CellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).HPA2_LIBRARY_CELL_ID_LIST]}" />
 					<constructor-arg name="msp1CellLibraryIdListAsString" value="#{jobParameters[T(edu.yu.einstein.wasp.helptag.integration.messages.HelptagSoftwareJobParameters).MSP1_LIBRARY_CELL_ID_LIST]}" />
 				</bean>

@@ -25,6 +25,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>genericDnaSeq</module>
 		<module>picard</module>
 		<module>helptag</module>
+		<module>helptagHam</module>
 		<module>illumina</module>
 		<module>babraham</module>
 		<module>macsTwo</module>

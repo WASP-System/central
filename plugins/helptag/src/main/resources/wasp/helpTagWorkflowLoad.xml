@@ -42,6 +42,7 @@
       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
         <ref bean="helptagPipelineResourceType" />
+        <ref bean="helptagAngleMakerResourceType" />
         <ref bean="libraryStrategyResourceType" />
       </list>
     </property>
