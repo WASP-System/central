@@ -1,5 +1,6 @@
 package edu.yu.einstein.wasp.helptag.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import edu.yu.einstein.wasp.controller.JobSubmissionController;
+import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 import edu.yu.einstein.wasp.dao.JobDraftDao;
 import edu.yu.einstein.wasp.dao.JobDraftMetaDao;
 import edu.yu.einstein.wasp.dao.SampleDraftDao;
+import edu.yu.einstein.wasp.exception.MetadataTypeException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.JobDraft;
 import edu.yu.einstein.wasp.model.SampleDraft;
+import edu.yu.einstein.wasp.model.SampleDraftMeta;
 
 @Controller
 @Transactional
@@ -68,13 +72,22 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 
 		// helptag specific parameters needed on the JSP form
 		m.put("m_samples", helptagService.getAllMspISampleDraftsFromJobDraftId(jobDraftId));
-		m.put("h_samples", helptagService.getAllHpaIISampleDraftsFromJobDraftId(jobDraftId));
+		//m.put("h_samples", helptagService.getAllHpaIISampleDraftsFromJobDraftId(jobDraftId));		
+		m.put("h_samples", helptagService.getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId(jobDraftId));
+		
 		m.put("samplePairStrPrefix", SAMPLE_PAIR_STR_PREFIX);
 		m.put("selectedSamplePairs", selectedSampleDraftPairStringSet);
 
 		// generic parameters needed on the JSP form
 		m.put("jobDraft", jobDraft);
 		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		
+		boolean atLeastOneBetaGTMspISampleDraftPresent = false;
+		List<SampleDraft> betaGTMspISampleDraftList = helptagService.getAllbetaGTMspISampleDraftsFromJobDraftId(jobDraftId);
+		if(betaGTMspISampleDraftList.size()>0){
+			atLeastOneBetaGTMspISampleDraftPresent = true;
+		}
+		m.put("atLeastOneBetaGTMspISampleDraftPresent",atLeastOneBetaGTMspISampleDraftPresent);
 		
 		return "jobsubmit/helptagform";
 	}
@@ -118,5 +131,105 @@ public class HelpTagJobSubmissionController extends JobSubmissionController {
 	}
 
 
+	@RequestMapping(value="/helptagSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String helptagSpecificSampleReview (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		//THIS DEALS WITH SUBMISSION OF GENOMIC DNA BEING SUBMITTED TO FACILITY FOR CREATION OF HELP LIBRARIES
+		
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft,String> sampleDraftTypeOfHelpLibraryRequestedMap = new HashMap<SampleDraft,String>();
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			
+			if( !sampleDraft.getSampleType().getIName().toLowerCase().equals("dna") ){//we don't want to deal with libraries here, only dna macromolecules being submitted to be converted to help libraries by the facility
+				continue;
+			}			
+			String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+			for(SampleDraftMeta sdm : sampleDraft.getSampleDraftMeta()){
+				 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+					typeOfHelpLibraryRequested = sdm.getV();
+				}
+			}		
+			sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));
+			sampleDraftList.add(sampleDraft);
+		}
+	
+		m.addAttribute("jobDraft", jobDraft);
+		m.addAttribute("sampleDraftList", sampleDraftList);
+		m.addAttribute("sampleDraftTypeOfHelpLibraryRequestedMap", sampleDraftTypeOfHelpLibraryRequestedMap);
+		m.put("pageFlowMap", getPageFlowMap(jobDraft));
+		return "jobsubmit/helptagSpecificSampleReview";
+	}
+
+	@RequestMapping(value="/helptagSpecificSampleReview/{jobDraftId}.do", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String helptagSpecificSampleReviewPost (@PathVariable("jobDraftId") Integer jobDraftId, ModelMap m) {
+		
+		//THIS DEALS WITH SUBMISSION OF GENOMIC DNA BEING SUBMITTED TO FACILITY FOR CREATION OF HELP LIBRARIES
+
+		JobDraft jobDraft = jobDraftDao.getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		
+		List<SampleDraft> sampleDraftList = new ArrayList<SampleDraft>();
+		Map<SampleDraft,String> sampleDraftTypeOfHelpLibraryRequestedMap = new HashMap<SampleDraft,String>();
+		boolean atLeastOneSampleConversionOccurred = false;
+		for(SampleDraft sampleDraft : jobDraft.getSampleDraft()){
+			
+			if( !sampleDraft.getSampleType().getIName().toLowerCase().equals("dna") ){//we don't want to deal with libraries here, only dna macromolecules being submitted to be converted to help libraries by the facility
+				continue;
+			}	
+			
+			List<String> typeOfHelpLibrariesRequestedList = helptagService.getTypeOfHelpLibrariesRequestedList(sampleDraft.getSampleDraftMeta());
+			if(typeOfHelpLibrariesRequestedList.size()>1){//convert
+				List<SampleDraft> newSampleDrafts = helptagService.createNewHelpDNASampleDrafts(sampleDraft, typeOfHelpLibrariesRequestedList);
+				//newSampleDrafts.size should equal typeOfHelpLibrariesRequestedList.size
+				if(typeOfHelpLibrariesRequestedList.size()!=newSampleDrafts.size()){
+					waspErrorMessage("helptag.helptagSpecificSampleReview_unexpectedProblemOccurredNewRecordHasErrors.error");
+					return "redirect:/dashboard.do";
+				}
+				for(SampleDraft newSampleDraft : newSampleDrafts){
+					String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+					for(SampleDraftMeta sdm : newSampleDraft.getSampleDraftMeta()){
+						 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+							typeOfHelpLibraryRequested = sdm.getV();
+						}
+					}
+					sampleDraftList.add(newSampleDraft);
+					sampleDraftTypeOfHelpLibraryRequestedMap.put(newSampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));
+				}
+				atLeastOneSampleConversionOccurred = true;
+				jobDraftService.removeSampleDraftAndAllDependencies(jobDraft, sampleDraft);
+			}
+			else {//no conversion required for this one
+				String typeOfHelpLibraryRequested = "unexpectedly not found - please fix";
+				for(SampleDraftMeta sdm : sampleDraft.getSampleDraftMeta()){
+					 if(sdm.getK().endsWith("typeOfHelpLibraryRequested")){
+						typeOfHelpLibraryRequested = sdm.getV();
+					}
+				}
+				sampleDraftList.add(sampleDraft);
+				sampleDraftTypeOfHelpLibraryRequestedMap.put(sampleDraft, typeOfHelpLibraryRequested.replaceAll(",", ", "));				
+			}
+		}
+		
+		if(atLeastOneSampleConversionOccurred){
+			m.addAttribute("jobDraft", jobDraft);
+			m.addAttribute("sampleDraftList", sampleDraftList);
+			m.addAttribute("sampleDraftTypeOfHelpLibraryRequestedMap", sampleDraftTypeOfHelpLibraryRequestedMap);			
+			m.put("pageFlowMap", getPageFlowMap(jobDraft));
+			m.addAttribute("atLeastOneSampleConversionOccurred", atLeastOneSampleConversionOccurred);
+			waspMessage("helptag.helptagSpecificSampleReview_NewRecordsCreated.label");	
+			return "jobsubmit/helptagSpecificSampleReview";
+		}
+		
+		return nextPage(jobDraft);
+	}
 }
 

@@ -1,5 +1,32 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<script type="text/javascript">
+	(function($){ 
+		$(document).ready(function(){
+			//$("div[id^='divToDisplayPluginSpecificSamplePairs']").each(function(){ 
+			$("#divToDisplayPluginSpecificSamplePairs").each(function(){//only one
+				var theDiv = $( this );
+				$.ajax({
+			        type: "GET",
+			        //url: '<wasp:relativeUrl value="job/${job.getId()}/basic.do" />',
+			        url: '<wasp:relativeUrl value="${job.getWorkflow().getIName()}/${job.getId()}/plugInSpecificSamplePairingDataForDisplay.do" />',
+			        async:   false, //MUST BE SYNCHRONOUS!!!
+			        //dataType: "json",
+			        success: function (response) {
+			        	theDiv.append(response);
+			        	//$.each( response, function( key, val ) {			        		
+			        	//	theDiv.append("<label>"+key +":</label> "+val+"<br />");						 
+						 // });	
+			        },
+			        error: function (response) {
+			        	;
+			        }
+			    });				
+			});
+		});
+	})(jQuery);
+</script>
+
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <div id="user_requested_coverage_data" >
@@ -35,6 +62,11 @@
 </div>
 
 <c:if test='${onlyDisplayCellsRequested != "true"}'>
+
+	<!-- for displaying plugin specific pairing information; currently implemented only for HELP and ChIP-Seq -->
+	<div id="divToDisplayPluginSpecificSamplePairs" ></div>
+
+	<%-- 
 	<div>
 		<c:if test="${not empty controlList}">
 			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.samplePairingRequested.label"/>:</h2>		
@@ -57,7 +89,10 @@
 			</table>
 		</c:if>
 	</div>
-
+	
+	--%>
+	
+	<%--  currently not used; should be moved to a chipseq specific ajax call
 	<div>
 		<c:if test="${not empty replicatesListOfLists}">
 			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.sampleReplicatesRequested.label"/>:</h2>		
@@ -81,6 +116,8 @@
 		</c:if>
 	</div>
 
+	--%>
+	
 	<div>
 		<c:choose>
 			<c:when test="${empty softwareList}">
