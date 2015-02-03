@@ -49,7 +49,8 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.RunMeta;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaPlatformPlugin;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.illumina.util.IlluminaRunFolderNameParser;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
@@ -94,16 +95,33 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<String> getIlluminaRunFolders() throws GridException{
+	public String getIlluminaRunFolderPath(GridWorkService gws, String resourceCategoryIName) throws GridException {
+		String dataDir = null;
+		if (resourceCategoryIName.equals(IlluminaResourceCategory.HISEQ_2000) || resourceCategoryIName.equals(IlluminaResourceCategory.HISEQ_2500)){
+			dataDir = gws.getTransportConnection().getConfiguredSetting("localhost.settings.illumina.data.hiseq.dir");
+			if (!PropertyHelper.isSet(dataDir))
+				throw new GridException("illumina data folder 'localhost.settings.illumina.data.hiseq.dir' is not defined in properties!");
+		}
+		else if (resourceCategoryIName.equals(IlluminaResourceCategory.PERSONAL)){
+			dataDir = gws.getTransportConnection().getConfiguredSetting("localhost.settings.illumina.data.personalseq.dir");
+			if (!PropertyHelper.isSet(dataDir))
+				throw new GridException("illumina data folder 'localhost.settings.illumina.data.personalseq.dir' is not defined in properties!");
+		}
+		return dataDir;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<String> getIlluminaRunFolders(String resourceCategoryIName) throws GridException{
 		Set<String> folderNames = new LinkedHashSet<String>();
 		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
 		
 		c.setProcessMode(ProcessMode.SINGLE);
 		GridWorkService workService = hostResolver.getGridWorkService(c);
 		GridTransportConnection transportConnection = workService.getTransportConnection();
-		String dataDir = transportConnection.getConfiguredSetting("illumina.data.dir");
-		if (!PropertyHelper.isSet(dataDir))
-			throw new GridException("illumina.data.dir is not defined!");
+		String dataDir = getIlluminaRunFolderPath(workService, resourceCategoryIName);
 		c.setWorkingDirectory(dataDir);
 		WorkUnit w = new WorkUnit(c);
 		w.addCommand("ls -1t");
@@ -126,7 +144,7 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 			}
 			br.close();
 		} catch (Exception e) {
-			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder (illumina.data.dir): " + e.getLocalizedMessage());
+			throw new GridException("Caught " + e.getClass().getSimpleName() + " when trying to read Illumina run folder : " + e.getLocalizedMessage());
 		}
 		return folderNames;
 	}
@@ -296,7 +314,7 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 	public void startTrimOnlyWorkflow(Run run) throws WaspMessageBuildingException{
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, run.getId().toString());
-		launchBatchJob(WaspIlluminaHiseqPlugin.ILLUMINA_TRIM_ONLY_FLOW_NAME, jobParameters);
+		launchBatchJob(WaspIlluminaPlatformPlugin.ILLUMINA_TRIM_ONLY_FLOW_NAME, jobParameters);
 	}
 
 

@@ -26,12 +26,11 @@ import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.picard.software.Picard;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
-import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
  * @author calder
@@ -49,7 +48,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
 	
 	@Autowired
 	private WaspIlluminaService illuminaService;
@@ -60,14 +59,16 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 	
 	private Integer runId;
 	private Run run;
+	private String resourceCategoryIName;
 
 	/**
 	 * @throws WaspException 
 	 * 
 	 */
-	public ExtractIlluminaBarcodesTasklet(Integer runId) throws WaspException {
+	public ExtractIlluminaBarcodesTasklet(Integer runId, String resourceCategoryIName) throws WaspException {
 		logger.debug("ExtractIlluminaBarcodesTasklet initiated with runId " + runId);
 		this.runId = runId;
+		this.resourceCategoryIName = resourceCategoryIName;
 	}
 
 	/** 
@@ -88,14 +89,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		c.setMode(ExecutionMode.PROCESS);
 		
 		GridWorkService gws = hostResolver.getGridWorkService(c);
-		
-		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
-		if (!PropertyHelper.isSet(dataDir)) {
-			String mess = "Unable to determine illumina.data.stage for host: " + gws.getTransportConnection().getHostName();
-			logger.error(mess);
-			throw new WaspException(mess);
-		}
-		
+		String dataDir = illuminaService.getIlluminaRunFolderPath(gws, resourceCategoryIName);
 		String runFolder = dataDir + "/" + run.getName(); 
 		
 		c.setWorkingDirectory(runFolder);
@@ -104,8 +98,7 @@ public class ExtractIlluminaBarcodesTasklet extends WaspRemotingTasklet {
 		WorkUnit w = new WorkUnit(c);
 		w.setSecureResults(true); // 
 		w.setCommand(picard.getExtractIlluminaBarcodesCmd(run));
-		
-		
+
 		return hostResolver.execute(w);
 		
 

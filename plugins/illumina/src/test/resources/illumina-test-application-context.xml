@@ -15,20 +15,20 @@
       </list>
     </property>
   </bean> 
-	<import resource="classpath*:/waspIlluminaHiSeq-plugin-context-common.xml" />
+	<import resource="classpath*:/waspIlluminaPlatform-plugin-context-common.xml" />
 	<import resource="classpath*:/daemon-test-launch-context.xml" />
 	<import resource="classpath*:/RmiMessageSend-context.xml" /> 
-	<import resource="classpath:flows/waspIlluminaHiSeq.mainFlow.v1.xml" />
+	<import resource="classpath:flows/waspIlluminaPlatform.mainFlow.v1.xml" />
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
 	
 	<bean id="jltu" class="org.springframework.batch.test.JobLauncherTestUtils">
-		<property name="job" ref="waspIlluminaHiSeq.jobFlow" />
+		<property name="job" ref="waspIlluminaPlatform.jobFlow" />
 	</bean>
 
-	<mockito:mock id="casava" class="edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor" />
+	<mockito:mock id="casava" class="edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor" />
 	
 	<mockito:mock id="runService" class="edu.yu.einstein.wasp.service.RunService" />
 	

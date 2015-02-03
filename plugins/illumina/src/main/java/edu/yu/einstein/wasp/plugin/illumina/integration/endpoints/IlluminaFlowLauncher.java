@@ -17,8 +17,7 @@ import edu.yu.einstein.wasp.integration.messages.WaspStatus;
 import edu.yu.einstein.wasp.integration.messages.tasks.WaspTask;
 import edu.yu.einstein.wasp.integration.messages.templates.BatchJobLaunchMessageTemplate;
 import edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin;
+import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaPlatformPlugin;
 
 public class IlluminaFlowLauncher {
 	
@@ -43,11 +42,7 @@ public class IlluminaFlowLauncher {
 		logger.debug("Processing run message: runId=" + runId);
 		logger.debug("Processing run message: rcIname=" + rcIname);
 		logger.debug("Processing run message: runName=" + runName);
-		String flowName = null;
-		if (rcIname.equals(IlluminaResourceCategory.HISEQ_2000) || rcIname.equals(IlluminaResourceCategory.HISEQ_2500))
-			flowName = WaspIlluminaHiseqPlugin.ILLUMINA_MAIN_FLOW_NAME;
-		//else if (rcIname.equals(IlluminaResourceCategory.PERSONAL))
-		//	flowName = ;
+		String flowName = WaspIlluminaPlatformPlugin.getBatchJobNameForResourceCategory(rcIname);
 		if (flowName == null){
 			logger.debug("Run with id=" + runId + " has a resource-category iname=" + rcIname + " which is not applicable to this plugin");
 			return null;
@@ -56,6 +51,7 @@ public class IlluminaFlowLauncher {
 		Map<String, String> jobParameters = new HashMap<String, String>();
 		jobParameters.put(WaspJobParameters.RUN_ID, runId.toString() );
 		jobParameters.put(WaspJobParameters.RUN_NAME, runName);
+		jobParameters.put(WaspJobParameters.RUN_RESOURCE_CATEGORY_INAME, rcIname);
 		BatchJobLaunchMessageTemplate batchJobLaunchMessageTemplate = new BatchJobLaunchMessageTemplate(new BatchJobLaunchContext(flowName, jobParameters) );
 		try {
 			if (message.getHeaders().containsKey(MessageHeaders.REPLY_CHANNEL))

@@ -61,7 +61,7 @@ import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.impl.SampleServiceImpl;
 
 @Controller
-@RequestMapping("/waspIlluminaHiSeq")
+@RequestMapping("/waspIlluminaPlatform")
 public class WaspIlluminaController extends WaspController {
 	
 	@Autowired
@@ -236,7 +236,7 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("controlLibraryList", controlLibraryList);
 		
 		m.addAttribute("platformUnit", platformUnit);
-		return "waspIlluminaHiSeq/flowcell/showflowcell";
+		return "waspIlluminaPlatform/flowcell/showflowcell";
 	}
 	
 	/*
@@ -262,7 +262,7 @@ public class WaspIlluminaController extends WaspController {
 			logger.warn("Problem occurred setting library concentration on cell: " + e.getLocalizedMessage());
 			waspErrorMessage("platformunit.libUpdated.error");
 		}
-		return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+		return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 
 	}
 	
@@ -295,7 +295,7 @@ public class WaspIlluminaController extends WaspController {
 			waspErrorMessage("platformunit.libAdded.error");
 		}
 
-		return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+		return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 	}
 	
 	@RequestMapping(value="/flowcell/ajaxReadType.do", method=RequestMethod.POST)
@@ -353,14 +353,14 @@ public class WaspIlluminaController extends WaspController {
 		m.addAttribute("showAll", showAll);
 		Set<String> runFolderSet = new LinkedHashSet<String>();
 		if (showAll){
-			for (String runFolder : waspIlluminaService.getIlluminaRunFolders()){
+			for (String runFolder : waspIlluminaService.getIlluminaRunFolders(run.getResourceCategory().getIName())){
 				Map<String, String> searchMap = new HashMap<String, String>();
 				searchMap.put("name", runFolder);
 				if (runService.getRunDao().findByMap(searchMap).isEmpty() || (run.getName() != null && run.getName().equals(runFolder)))
 					runFolderSet.add(runFolder); // only record folders not already associated with runs in WASP
 			}
 		} else {
-			for (String runFolder : waspIlluminaService.getIlluminaRunFolders())
+			for (String runFolder : waspIlluminaService.getIlluminaRunFolders(run.getResourceCategory().getIName()))
 				if ( runFolder.toUpperCase().contains(run.getPlatformUnit().getSampleBarcode().get(0).getBarcode().getBarcode().toUpperCase()) )
 					runFolderSet.add(runFolder);
 		}
@@ -416,14 +416,14 @@ public class WaspIlluminaController extends WaspController {
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} 
 
-		return "waspIlluminaHiSeq/flowcell/createupdaterun";
+		return "waspIlluminaPlatform/flowcell/createupdaterun";
 
 	}
 	
@@ -472,7 +472,7 @@ public class WaspIlluminaController extends WaspController {
 				setCommonCreateUpdateRunModelData(m, runForm);
 				setRunFoldersInModel(m, runForm, showAll);
 				m.addAttribute("action", "create");
-				return "waspIlluminaHiSeq/flowcell/createupdaterun";
+				return "waspIlluminaPlatform/flowcell/createupdaterun";
 			}
 			runForm.setResourceCategory(resource.getResourceCategory());
 			if (isRunStart){
@@ -489,25 +489,25 @@ public class WaspIlluminaController extends WaspController {
 		} catch(GridException e1){
 			logger.warn("Caught unexpected " + e1.getClass().getName() + " exception: " + e1.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runFolderFind.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} catch(MessagingException e2){
 			logger.warn("Caught unexpected " + e2.getClass().getName() + " exception: " + e2.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runInitialize.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} catch (WaspMessageBuildingException e3){
 			logger.warn("Caught unexpected " + e3.getClass().getName() + " exception: " + e3.getMessage());
 			waspErrorMessage("waspIlluminaPlugin.runStatusMessaging.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		}
 		if (isRunStart)
 			waspMessage("runInstance.created_success.label");
 		else
 			waspMessage("runInstance.created_noStart_success.label");
-		return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+		return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 	}
 	
 	@RequestMapping(value="/run/{runId}/update.do", method=RequestMethod.GET)
@@ -528,10 +528,10 @@ public class WaspIlluminaController extends WaspController {
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnit.getId() + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnit.getId() + "/show.do";
 		}
 
-		return "waspIlluminaHiSeq/flowcell/createupdaterun";
+		return "waspIlluminaPlatform/flowcell/createupdaterun";
 	}
 	
 
@@ -563,16 +563,16 @@ public class WaspIlluminaController extends WaspController {
 				setCommonPlatformUnitDisplayInfoModelData(m, platformUnit);
 				setCommonCreateUpdateRunModelData(m, existingrun);
 				m.addAttribute("action", "update");
-				return "waspIlluminaHiSeq/flowcell/createupdaterun";
+				return "waspIlluminaPlatform/flowcell/createupdaterun";
 			}
 			runService.updateRun(existingrun);
 		}catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
 			waspErrorMessage("wasp.unexpected_error.error"); 
-			return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnit.getId() + "/show.do";
+			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnit.getId() + "/show.do";
 		}
 		waspMessage("runInstance.updated_success.label");
-		return "redirect:/waspIlluminaHiSeq/flowcell/" + platformUnit.getId() + "/show.do";
+		return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnit.getId() + "/show.do";
 	}
 
 

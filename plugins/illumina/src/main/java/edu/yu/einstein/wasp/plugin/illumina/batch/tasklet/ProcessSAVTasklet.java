@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.GridWorkService;
@@ -23,11 +22,11 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.illumina.software.SavR;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
-import edu.yu.einstein.wasp.util.PropertyHelper;
 
 /**
  * Determine if the Illumina pipeline is already running.  If not, create a new Work unit and monitor.  Requires 
@@ -43,12 +42,16 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 
 	private int runId;
 	private Run run;
+	private String resourceCategoryIName;
 	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
+	
+	@Autowired
+	private WaspIlluminaService waspIlluminaService;
 	
 	@Autowired
 	private SavR savR;
@@ -62,8 +65,9 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 	/**
 	 * 
 	 */
-	public ProcessSAVTasklet(Integer runId) {
+	public ProcessSAVTasklet(Integer runId, String resourceCategoryIName) {
 		this.runId = runId;
+		this.resourceCategoryIName = resourceCategoryIName;
 	}
 
 	@Override
@@ -84,9 +88,7 @@ public class ProcessSAVTasklet extends WaspRemotingTasklet {
 		GridWorkService gws = hostResolver.getGridWorkService(c);
 		Integer procs = 1;
 		c.setProcessorRequirements(procs);
-		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
-		if (!PropertyHelper.isSet(dataDir))
-			throw new GridException("illumina.data.dir is not defined!");
+		String dataDir = waspIlluminaService.getIlluminaRunFolderPath(gws, resourceCategoryIName);
 		
 		c.setWorkingDirectory(dataDir + "/" + run.getName() );
 		

@@ -20,7 +20,8 @@ import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.model.Run;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -38,12 +39,16 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 
 	private int runId;
 	private Run run;
+	private String resourceCategoryIName;
 
 	@Autowired
 	private GridHostResolver hostResolver;
 
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
+	
+	@Autowired
+	private WaspIlluminaService waspIlluminaService;
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -51,8 +56,9 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		// required by cglib
 	}
 	
-	public StageResultsTasklet(Integer runId) {
+	public StageResultsTasklet(Integer runId, String resourceCategoryIName) {
 		this.runId = runId;
+		this.resourceCategoryIName = resourceCategoryIName;
 	}
 
 	@Override
@@ -71,9 +77,7 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		c.setSoftwareDependencies(sd);
 		GridWorkService gws = hostResolver.getGridWorkService(c);
 		
-		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
-		if (!PropertyHelper.isSet(dataDir))
-			throw new GridException("illumina.data.dir is not defined!");
+		String dataDir = waspIlluminaService.getIlluminaRunFolderPath(gws, resourceCategoryIName);
 		String stageDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.stage");
 		if (!PropertyHelper.isSet(stageDir))
 			throw new GridException("illumina.data.stage is not defined!");
@@ -87,30 +91,30 @@ public class StageResultsTasklet extends WaspRemotingTasklet {
 		w.setCommand("mkdir -vp ${WASP_RESULT_DIR}/Project_WASP");
 		
 		// copy files from single barcode truseq run
-		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
-		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
-		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
-		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
-		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
-		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
-		w.addCommand("cp -vfR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
-		        "  cp -vfR " + IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
-		            IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		w.addCommand("if [ -e " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -vf " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vf " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vfR " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -vfR " + IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
 		        "fi");
 		w.addCommand("fi");
 		
 		// copy files from dual barcode truseq run
-		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
-		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
-		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
-		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
-		w.addCommand("cp -vf " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
-		        IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
-		w.addCommand("cp -vfR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
-		w.addCommand("if [ -e " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
-		        "  cp -vfR " + IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
-		            IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
+		w.addCommand("if [ -e " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/DemultiplexConfig.xml ]; then");
+		w.addCommand("mkdir -vp ${WASP_RESULT_DIR}/" + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME);
+		w.addCommand("cp -vf " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.xml ${WASP_RESULT_DIR}/" + 
+		        IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vf " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/*.txt ${WASP_RESULT_DIR}/" + 
+		        IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/");
+		w.addCommand("cp -vfR " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Project_WASP/* ${WASP_RESULT_DIR}/Project_WASP/");
+		w.addCommand("if [ -e " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ]; then\n" +
+		        "  cp -vfR " + IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/Undetermined_indices ${WASP_RESULT_DIR}/" + 
+		            IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME + "/\n" +
 		        "fi");
 		w.addCommand("fi");
 		

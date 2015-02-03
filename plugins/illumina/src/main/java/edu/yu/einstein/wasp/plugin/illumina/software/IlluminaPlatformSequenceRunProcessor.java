@@ -46,7 +46,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  * 
  */
-public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
+public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 	
 	private static final long serialVersionUID = -3322619814370790116L;
 		
@@ -75,7 +75,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	
 	public static final String ILLUMINA_DATA_STAGE_NAME = "illumina.data.stage";
 	
-	public IlluminaHiseqSequenceRunProcessor(){
+	public IlluminaPlatformSequenceRunProcessor(){
 		setSoftwareVersion("1.8.4"); // this default may be overridden in wasp.site.properties
 	}
 
@@ -122,9 +122,9 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		String sampleSheetName;
 		if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
 		}
 		
 		try {
