@@ -6,56 +6,56 @@
 
 
 	<definition name="waspillumina/description" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/description.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/description.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/description.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/description.jsp" />
 	</definition>
 	
 	<definition name="waspillumina/task/qc/list" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/illuminaQC.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/illuminaQC.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/illuminaQC.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/illuminaQC.jsp" />
 	</definition>
 
-	<definition name="waspIlluminaHiSeq/postrunqc/displayfocusqualitycharts" extends="template-base">
-		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayFocusQualityCharts.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/displayfocusqualitycharts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayFocusQualityCharts.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/postrunqc/displayinstensitycharts" extends="template-base">
-		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayIntensityQualityCharts.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/displayinstensitycharts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayIntensityQualityCharts.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/postrunqc/displaynumgt30charts" extends="template-base">
-		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayNumGT30Charts.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/displaynumgt30charts" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayNumGT30Charts.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/postrunqc/displayclusterdensitychart" extends="template-base">
-		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayClusterDensityChart.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/displayclusterdensitychart" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayClusterDensityChart.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/postrunqc/updatequalityreport" extends="template-base">
-		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/displayQualityCharts.css.jsp" />
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/updateQualityReport.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/updateQualityReport.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/updatequalityreport" extends="template-base">
+		<put-attribute name="head-style" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/displayQualityCharts.css.jsp" />
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/updateQualityReport.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/updateQualityReport.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/postrunqc/list" extends="template-base">
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/postRunQC/list.jsp" />
+	<definition name="waspIlluminaPlatform/postrunqc/list" extends="template-base">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/postRunQC/list.jsp" />
 	</definition>
-	<definition name="waspIlluminaHiSeq/flowcell/showflowcell" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/flowcell/showFlowcell.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/flowcell/showFlowcell.jsp" />
+	<definition name="waspIlluminaPlatform/flowcell/showflowcell" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/flowcell/showFlowcell.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/flowcell/showFlowcell.jsp" />
 	</definition>
 	
-	<definition name="waspIlluminaHiSeq/flowcell/createupdaterun" extends="template-base">
-		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaHiSeq/flowcell/createUpdateRun.js.jsp" />
-		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaHiSeq/flowcell/createUpdateRun.jsp" />
+	<definition name="waspIlluminaPlatform/flowcell/createupdaterun" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/waspIlluminaPlatform/flowcell/createUpdateRun.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/waspIlluminaPlatform/flowcell/createUpdateRun.jsp" />
 	</definition>
 
 

@@ -43,7 +43,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.fileformat.service.FastqService;
 import edu.yu.einstein.wasp.plugin.fileformat.service.impl.FastqServiceImpl;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties.ReadType;
 import edu.yu.einstein.wasp.service.FileService;
@@ -80,7 +80,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
     private GridHostResolver hostResolver;
 
     @Autowired
-    private IlluminaHiseqSequenceRunProcessor casava;
+    private IlluminaPlatformSequenceRunProcessor casava;
 
     private GridTransportConnection transportConnection;
 
@@ -88,7 +88,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
     private FileType fastqFileType;
 
     @Autowired
-    private FileType waspIlluminaHiseqQcMetricsFileType;
+    private FileType waspIlluminaPlatformQcMetricsFileType;
     
     @Autowired
     private WaspIlluminaService waspIlluminaService;
@@ -235,7 +235,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
             fileService.addFileGroup(pufg);
 
             FileGroup jobQCfg = new FileGroup();
-            jobQCfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
+            jobQCfg.setFileType(waspIlluminaPlatformQcMetricsFileType);
             jobQCfg.setSoftwareGeneratedBy(casava);
             fileService.addFileGroup(pufg);
 
@@ -377,7 +377,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
     private void createQCFiles(Run run, BufferedReader br) {
         String line;
         FileGroup qcfg = new FileGroup();
-        qcfg.setFileType(waspIlluminaHiseqQcMetricsFileType);
+        qcfg.setFileType(waspIlluminaPlatformQcMetricsFileType);
         qcfg.setSoftwareGeneratedBy(casava);
         qcfg.setIsActive(1);
         qcfg.setIsArchived(0);
@@ -391,7 +391,7 @@ public class RegisterFilesTasklet extends AbandonMessageHandlingTasklet {
                 file.setFileName(line);
                 line = br.readLine();
                 qcfg.getFileHandles().add(file);
-                file.setFileType(waspIlluminaHiseqQcMetricsFileType);
+                file.setFileType(waspIlluminaPlatformQcMetricsFileType);
                 fileService.addFile(file);
             }
             qcfg.setDescription("Illumina QC files");

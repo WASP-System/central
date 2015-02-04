@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 <br />
-<h1><fmt:message key="pageTitle.waspIlluminaHiSeq/postrunqc/list.label"/></h1>
+<h1><fmt:message key="pageTitle.waspIlluminaPlatform/postrunqc/list.label"/></h1>
 
 <ul class="navTabs">
 	
