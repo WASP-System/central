@@ -364,7 +364,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getRunsAwaitingQc(){
 		Set<Run> runsAwaitingQc = new LinkedHashSet<Run>();
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+			for (String stepName: plugin.getRunQcStepName())
+				stepExecutions.addAll(batchJobExplorer.getStepExecutions(stepName, ExitStatus.RUNNING));
 			for(StepExecution stepExec: stepExecutions){
 				try{
 					Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExec, WaspJobParameters.RUN_ID));
@@ -384,7 +386,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public boolean isRunsAwaitingQc(){
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+			for (String stepName: plugin.getRunQcStepName())
+				stepExecutions.addAll(batchJobExplorer.getStepExecutions(stepName, ExitStatus.RUNNING));
 			if (stepExecutions.size() > 0)
 				return true;
 		}

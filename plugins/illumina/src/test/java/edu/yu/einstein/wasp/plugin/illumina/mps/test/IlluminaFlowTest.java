@@ -44,7 +44,6 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleType;
-import edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaPlatformPlugin;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
@@ -57,6 +56,12 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
 @ContextConfiguration(locations = { "/illumina-test-application-context.xml"}) //, "classpath*:/META-INF/spring/core-common-config.xml" 
 public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		implements MessageHandler {
+	
+	public static final String STEP_NOTIFY_RUN_START = "waspIlluminaPlatform.mainFlow.notifyRunStart";
+	public static final String STEP_LISTEN_FOR_RUN_START = "waspIlluminaPlatform.mainFlow.listenForRunStart";
+	public static final String STEP_LISTEN_FOR_RUN_COMPLETION = "waspIlluminaPlatform.mainFlow.listenForRunCompletion";
+	public static final String STEP_LISTEN_FOR_QC = "waspIlluminaPlatform.mainFlow.listenForQCCompletion";
+	public static final String STEP_CREATE_SAMPLE_SHEET = "waspIlluminaPlatform.mainFlow.createSampleSheet";
 
 	@Autowired
 	private JobLauncherTestUtils jltu;
@@ -156,7 +161,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 
 	// @Test
 	public void testNotifyStart() throws Exception {
-			jltu.launchStep(WaspIlluminaPlatformPlugin.STEP_NOTIFY_RUN_START, getTestParameters());
+			jltu.launchStep(STEP_NOTIFY_RUN_START, getTestParameters());
 	}
 	
 	// @Test
@@ -169,7 +174,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
-		JobExecution je = jltu.launchStep(WaspIlluminaPlatformPlugin.STEP_LISTEN_FOR_RUN_START, getTestParameters());
+		JobExecution je = jltu.launchStep(STEP_LISTEN_FOR_RUN_START, getTestParameters());
 		
 		Thread.sleep(1000);
 		
@@ -189,7 +194,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(false);
 		
-		JobExecution je = jltu.launchStep(WaspIlluminaPlatformPlugin.STEP_LISTEN_FOR_RUN_START, getTestParameters());
+		JobExecution je = jltu.launchStep(STEP_LISTEN_FOR_RUN_START, getTestParameters());
 		
 		Thread.sleep(1000);
 		
@@ -208,7 +213,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		PowerMockito.when(hostResolver.getHostname(Mockito.any(WorkUnitGridConfiguration.class))).thenReturn("remote.host");
 		PowerMockito.when(fileService.exists(Mockito.anyString())).thenReturn(true);
 		
-		JobExecution je = jltu.launchStep(WaspIlluminaPlatformPlugin.STEP_LISTEN_FOR_RUN_COMPLETION, getTestParameters());
+		JobExecution je = jltu.launchStep(STEP_LISTEN_FOR_RUN_COMPLETION, getTestParameters());
 		
 		Thread.sleep(1000);
 		
@@ -261,7 +266,7 @@ public class IlluminaFlowTest extends AbstractTestNGSpringContextTests
 		
 		PowerMockito.doNothing().when(fileService, "put", Mockito.any(File.class), Mockito.anyString());
 		
-		jltu.launchStep(WaspIlluminaPlatformPlugin.STEP_CREATE_SAMPLE_SHEET, getTestParameters());
+		jltu.launchStep(STEP_CREATE_SAMPLE_SHEET, getTestParameters());
 		
 	}
 	
