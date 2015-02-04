@@ -32,6 +32,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 		<module>genericFileViewing</module>
 		<module>star</module>
 		<module>bioanalyzer</module>
+		<module>rnaseq</module>
 	</modules>
 
 	<build>

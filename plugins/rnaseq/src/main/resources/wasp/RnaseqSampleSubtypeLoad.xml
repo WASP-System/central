@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+    default-autowire="byName">
+   
+     <!-- rnaseq RNA sample -->
+ 
+   <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqRnaUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="rnaseqRna" />
+  </bean>
+  
+  <bean id="rnaseqRnaSpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+	        <!-- rnaSeq Specific -->
+	        <bean parent="rnaseqRnaUiFieldWrapper">
+	          <property name="baseName" value="type" />
+	          <property name="label" value="rnaseq.type.label" />
+	          <property name="metaposition" value="10" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.type.control" />
+	          <property name="tooltip" value="rnaseq.type.tt" />
+	          <property name="error" value="rnaseq.type.error" />
+	        </bean>
+	        <bean parent="rnaseqRnaUiFieldWrapper">
+	          <property name="baseName" value="range" />
+	          <property name="label" value="rnaseq.range.label" />
+	          <property name="metaposition" value="20" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.range.control" />
+	          <property name="tooltip" value="rnaseq.range.tt" />
+	          <property name="error" value="rnaseq.range.error" />
+	        </bean>
+	        <bean parent="rnaseqRnaUiFieldWrapper">
+	          <property name="baseName" value="directionality" />
+	          <property name="label" value="rnaseq.directionality.label" />
+	          <property name="metaposition" value="30" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.directionality.control" />
+	          <property name="tooltip" value="rnaseq.directionality.tt" />
+	          <property name="error" value="rnaseq.directionality.error" />
+	        </bean>
+	      </list>
+      </property>
+  </bean>
+
+
+  <bean id="rnaseqRnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+  	<property name="name" value="RNA Seq RNA" />
+    <property name="area" value="rnaseqRNASample" />
+    <property name="sampleType" ref="rnaSampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="rnaseqRnaSpecificUiFields" />
+    		<ref bean="genericDNAUiFields" />   			
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft,lu" />
+    
+  </bean>
+  
+  <!-- rnaseq Library sample -->
+
+  <bean id="rnaseqLibraryUiFieldWrapper" class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="rnaseqLibrary" />
+  </bean>
+
+  <bean id="rnaseqLibrarySpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+			<bean parent="rnaseqLibraryUiFieldWrapper">
+	          <property name="baseName" value="ribosomeDepletion" />
+	          <property name="label" value="rnaseq.ribosomeDepletion.label" />
+	          <property name="metaposition" value="10" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.ribosomeDepletion.control" />
+	          <property name="tooltip" value="rnaseq.ribosomeDepletion.tt" />
+	          <property name="error" value="rnaseq.ribosomeDepletion.error" />
+	        </bean>
+			<bean parent="rnaseqLibraryUiFieldWrapper">
+	          <property name="baseName" value="directionality" />
+	          <property name="label" value="rnaseq.directionality.label" />
+	          <property name="metaposition" value="20" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.directionality.control" />
+	          <property name="tooltip" value="rnaseq.directionality.tt" />
+	          <property name="error" value="rnaseq.directionality.error" />
+	        </bean>
+	      </list>
+      </property>
+  </bean>
+ 
+  <bean id="rnaseqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="RNA Seq Library" />
+    <property name="area" value="rnaseqLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="genericLibraryUiFields" />
+    		<ref bean="rnaseqLibrarySpecificUiFields" />
+    	</list>
+    </property>
+    <property name="applicableRoles" value="lu" />
+  </bean>
+  
+  <bean id="rnaseqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="RNA Seq Facility Library" />
+    <property name="area" value="rnaseqFacilityLibrarySample" />
+    <property name="sampleType" ref="librarySampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericLibraryUiFields" />
+    		<ref bean="rnaseqLibrarySpecificUiFields" />
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft" />
+  </bean>
+  
+</beans>

@@ -49,7 +49,8 @@ public class RnaseqTasklet extends WaspRemotingTasklet {
 	 */
 	@Override
 	@Transactional("entityManager")
-	public void doExecute(ChunkContext context) throws Exception {
+	public GridResult doExecute(ChunkContext context) throws Exception {
+		/*
 		WorkUnit w = new WorkUnit();
 		
 		//configure
@@ -60,6 +61,9 @@ public class RnaseqTasklet extends WaspRemotingTasklet {
 		
 		//place the grid result in the step context
 		storeStartedResult(context, result);
+		*/
+		GridResult result = null;
+		return result;
 	}
 	
 	/**
@@ -93,5 +97,11 @@ public class RnaseqTasklet extends WaspRemotingTasklet {
 	
 		return exitStatus;
 	}
-	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void doCleanupBeforeRestart(StepExecution stepExecution) throws Exception {
+		//TODO:
+	}
 }
