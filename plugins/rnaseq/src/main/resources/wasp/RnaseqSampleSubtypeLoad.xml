@@ -27,15 +27,6 @@
 	          <property name="error" value="rnaseq.type.error" />
 	        </bean>
 	        <bean parent="rnaseqRnaUiFieldWrapper">
-	          <property name="baseName" value="range" />
-	          <property name="label" value="rnaseq.range.label" />
-	          <property name="metaposition" value="20" />
-	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="rnaseq.range.control" />
-	          <property name="tooltip" value="rnaseq.range.tt" />
-	          <property name="error" value="rnaseq.range.error" />
-	        </bean>
-	        <bean parent="rnaseqRnaUiFieldWrapper">
 	          <property name="baseName" value="directionality" />
 	          <property name="label" value="rnaseq.directionality.label" />
 	          <property name="metaposition" value="30" />

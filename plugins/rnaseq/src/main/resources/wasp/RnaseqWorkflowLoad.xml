@@ -80,7 +80,7 @@
           <property name="label" value="rnaseq.cells.title" />
         </bean>
         <bean parent="rnaseqUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/referenceBasedAligner" />
+          <property name="baseName" value="jobsubmit/software/referenceBasedRNAAligner" />
           <property name="label" value="rnaseq.aligner.title" />
         </bean>
         <bean parent="rnaseqUiFieldWrapper">
