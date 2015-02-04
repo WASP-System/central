@@ -12,10 +12,10 @@ public class IlluminaExternalFileExists extends ExternalFileExistsTasklet {
 	
 	private String resourceCategoryIName;
 	
-	@Value("localhost.settings.illumina.data.hiseq.dir")
+	@Value("illumina.data.hiseq.dir")
 	String hiseqDataDir;
 	
-	@Value("localhost.settings.illumina.data.personalseq.dir")
+	@Value("illumina.data.personalseq.dir")
 	String miseqDataDir;
 	
 	public IlluminaExternalFileExists() {

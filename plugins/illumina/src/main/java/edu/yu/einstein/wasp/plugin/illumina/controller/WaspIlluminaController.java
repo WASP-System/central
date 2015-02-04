@@ -392,6 +392,7 @@ public class WaspIlluminaController extends WaspController {
 			
 			MetaHelperWebapp metaHelperWebapp = new MetaHelperWebapp(PlatformUnitController.RUN_INSTANCE_AREA, RunMeta.class, request.getSession());
 			run.setRunMeta(metaHelperWebapp.getMasterList(RunMeta.class));
+			logger.debug("runFolderName=" + runFolderName + ", runFolderNameManual=" + runFolderNameManual);
 			if (!runFolderNameManual.isEmpty())
 				runFolderName = runFolderNameManual;
 			if (!runFolderName.isEmpty()){
@@ -403,11 +404,15 @@ public class WaspIlluminaController extends WaspController {
 					if (resource.getId() == null){
 						m.addAttribute("resourceNameError", messageService.getMessage(metaHelperWebapp.getArea()+".resourceNameNotFound.error"));
 						resource.setName(runFolderParser.getMachineName());
+						resource.setResourceCategory(platformUnit.getSampleSubtype().getSampleSubtypeResourceCategory().get(0).getResourceCategory());
 					} 
 					run.setResource(resource);
+					run.setResourceCategory(resource.getResourceCategory());
 				} catch (IlluminaRunFolderParseException e) {
 					waspErrorMessage("run.invalid_id.error"); 
 				} 
+			} else {
+				run.setResourceCategory(platformUnit.getSampleSubtype().getSampleSubtypeResourceCategory().get(0).getResourceCategory());
 			}
 			setCommonCreateUpdateRunModelData(m, run);
 			setRunFoldersInModel(m, run, showAll);
@@ -419,6 +424,7 @@ public class WaspIlluminaController extends WaspController {
 			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} catch(Exception e){
 			logger.warn("Caught unexpected " + e.getClass().getName() + " exception: " + e.getMessage());
+			e.printStackTrace();
 			waspErrorMessage("wasp.unexpected_error.error"); 
 			return "redirect:/waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 		} 

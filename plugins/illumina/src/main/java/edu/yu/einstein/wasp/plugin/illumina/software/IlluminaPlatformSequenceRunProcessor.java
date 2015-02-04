@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.MpsIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
@@ -54,6 +55,9 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
 
 	@Autowired
 	private AdaptorService adaptorService;
@@ -128,7 +132,7 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 		}
 		
 		try {
-			directory = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
+			directory = illuminaService.getIlluminaRunFolderPath(gws, run.getResourceCategory().getIName()) + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(run, method);
 			String newDir = directory + "/Data/Intensities/BaseCalls/";

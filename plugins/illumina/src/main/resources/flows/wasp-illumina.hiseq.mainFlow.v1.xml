@@ -23,7 +23,7 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.IlluminaExternalFileExists" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
-					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" />
+					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" type="String" />
 					<constructor-arg name="filename" value="#{jobParameters[waspJobParameters.RUN_NAME]}/runParameters.xml" />
 				</bean>
 			</batch:tasklet>
@@ -33,7 +33,7 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.IlluminaExternalFileExists" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="softwarePackage" ref="casava" />
-					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" />
+					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" type="String" />
 					<constructor-arg name="filename" value="#{jobParameters[waspJobParameters.RUN_NAME]}/RTAComplete.txt" />
 				</bean>
 			</batch:tasklet>

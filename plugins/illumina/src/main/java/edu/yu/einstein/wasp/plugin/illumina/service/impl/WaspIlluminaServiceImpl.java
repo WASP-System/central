@@ -98,14 +98,14 @@ public class WaspIlluminaServiceImpl extends WaspMessageHandlingServiceImpl impl
 	public String getIlluminaRunFolderPath(GridWorkService gws, String resourceCategoryIName) throws GridException {
 		String dataDir = null;
 		if (resourceCategoryIName.equals(IlluminaResourceCategory.HISEQ_2000) || resourceCategoryIName.equals(IlluminaResourceCategory.HISEQ_2500)){
-			dataDir = gws.getTransportConnection().getConfiguredSetting("localhost.settings.illumina.data.hiseq.dir");
+			dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.hiseq.dir");
 			if (!PropertyHelper.isSet(dataDir))
-				throw new GridException("illumina data folder 'localhost.settings.illumina.data.hiseq.dir' is not defined in properties!");
+				throw new GridException("illumina data folder 'illumina.data.hiseq.dir' is not defined in properties!");
 		}
 		else if (resourceCategoryIName.equals(IlluminaResourceCategory.PERSONAL)){
-			dataDir = gws.getTransportConnection().getConfiguredSetting("localhost.settings.illumina.data.personalseq.dir");
+			dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.personalseq.dir");
 			if (!PropertyHelper.isSet(dataDir))
-				throw new GridException("illumina data folder 'localhost.settings.illumina.data.personalseq.dir' is not defined in properties!");
+				throw new GridException("illumina data folder 'illumina.data.personalseq.dir' is not defined in properties!");
 		}
 		return dataDir;
 	}
