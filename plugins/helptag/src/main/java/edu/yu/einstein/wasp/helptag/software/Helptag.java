@@ -90,7 +90,7 @@ public class Helptag extends SoftwarePackage{
 		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
 		WorkUnit w = new WorkUnit(c);
 		w.setRequiredFiles(fhlist);
-		w.setSecureResults(false);
+		w.setSecureResults(true);
 
 		return w;
 	}
@@ -155,14 +155,13 @@ public class Helptag extends SoftwarePackage{
 			}
 			
 			// output hcount file name
-			String hcountFile = fileService.generateUniqueBaseFileName(cl) + "hcount";
+			String outputHcountFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 			
 			// set the command
-			String cmd = "bam2hcount.pl " +
-					"-i " + mergedBamFile + " " +
-					"-o " + hcountFile + " " +
-					"-g " + getGenomeBuild(cl).getGenome().getAlias();
+			String cmd = "bam2hcount.pl -i " + mergedBamFile + " -o " + outputHcountFilename + " -g " + getGenomeBuild(cl).getGenome().getAlias();
 			w.addCommand(cmd);
+
+			logger.info("Helptag Hpaii Counter commands: \n" + w.getCommand());
 		} catch (SampleTypeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
