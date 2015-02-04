@@ -19,7 +19,7 @@ import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 
 /**
@@ -36,7 +36,7 @@ public class SampleSheetTasklet extends WaspRemotingTasklet {
 	private IndexingStrategy method;
 	
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
 	
 	@Autowired
 	private WaspIlluminaService illuminaService;

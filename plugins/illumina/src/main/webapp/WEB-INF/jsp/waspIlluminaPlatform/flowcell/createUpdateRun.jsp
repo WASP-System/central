@@ -6,7 +6,7 @@
 <%@ taglib prefix="wasp" uri="http://einstein.yu.edu/wasp" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
  <br />
-<title><fmt:message key="pageTitle./waspIlluminaHiSeq/flowcell/createUpdateRun.label"/></title>
+<title><fmt:message key="pageTitle./waspIlluminaPlatform/flowcell/createUpdateRun.label"/></title>
 <c:choose>
 	<c:when test="${action == 'create'}">
 		<h1><fmt:message key="runInstance.headerCreate.label"/></h1>
@@ -141,9 +141,9 @@
    	    		<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="resource/list.do" />';" value="<fmt:message key='resource.resource_list.label'/>" /> 
 			</c:if>
     		<c:if test="${run.getId() > 0}">
-    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaHiSeq/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
+    			&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaPlatform/run/${run.getId()}/update.do" />';" value="<fmt:message key='runInstance.reset.label'/>" /> 
     		</c:if>
-    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaHiSeq/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
+    		&nbsp;<input class="fm-button" type="button" onClick="location.href='<wasp:relativeUrl value="waspIlluminaPlatform/flowcell/${run.getPlatformUnit().getId()}/show.do" />';" value="<fmt:message key='runInstance.cancel.label'/>" /> 
     	</div>
     </td></tr>
 

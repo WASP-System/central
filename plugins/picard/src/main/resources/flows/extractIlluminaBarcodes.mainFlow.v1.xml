@@ -10,6 +10,7 @@
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.picard.tasklet.ExtractIlluminaBarcodesTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" />
 				</bean>
 			</batch:tasklet>
 			<batch:fail on="FAILED" />

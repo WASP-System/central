@@ -36,6 +36,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
+import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
 import edu.yu.einstein.wasp.plugin.mps.MpsIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.mps.software.sequencer.SequenceRunProcessor;
 import edu.yu.einstein.wasp.service.AdaptorService;
@@ -46,7 +47,7 @@ import edu.yu.einstein.wasp.software.SoftwarePackage;
  * @author calder
  * 
  */
-public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
+public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 	
 	private static final long serialVersionUID = -3322619814370790116L;
 		
@@ -54,6 +55,9 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 
 	@Autowired
 	private SampleService sampleService;
+	
+	@Autowired
+	private WaspIlluminaService illuminaService;
 
 	@Autowired
 	private AdaptorService adaptorService;
@@ -75,7 +79,7 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 	
 	public static final String ILLUMINA_DATA_STAGE_NAME = "illumina.data.stage";
 	
-	public IlluminaHiseqSequenceRunProcessor(){
+	public IlluminaPlatformSequenceRunProcessor(){
 		setSoftwareVersion("1.8.4"); // this default may be overridden in wasp.site.properties
 	}
 
@@ -122,13 +126,13 @@ public class IlluminaHiseqSequenceRunProcessor extends SequenceRunProcessor {
 		
 		String sampleSheetName;
 		if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
 		}
 		
 		try {
-			directory = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir") + "/" + run.getName();
+			directory = illuminaService.getIlluminaRunFolderPath(gws, run.getResourceCategory().getIName()) + "/" + run.getName();
 			logger.debug("configured remote directory as " + directory);
 			File f = createSampleSheet(run, method);
 			String newDir = directory + "/Data/Intensities/BaseCalls/";

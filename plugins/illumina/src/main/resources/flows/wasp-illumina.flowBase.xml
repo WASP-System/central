@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	<bean id="baseIlluminaTasklet" abstract="true">
+		<!-- Sets indicators to listen for that instruct the flow should terminate such as if the wasp job flow has been aborted or -->
+		<!-- if the flow completes (broadcasting an COMPLETED status message) or is aborted e.g. via a message from the web layer -->
+		<property name="abandonMessages">
+			<set>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="COMPLETED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="ABANDONED" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<property name="status" value="FAILED" />
+				</bean>
+			</set>
+		</property>	
+	</bean>
+	
+	<!-- This flow is for use when a run has been added manually (may not have a real run folder but fastq files have been registered) -->
+	<!-- for job, call with parameter 'runID' -->
+	<batch:job id="waspIlluminaPlatform.trimOnly.jobFlow">
+		<batch:step id="waspIlluminaPlatform.trimOnly.notifyRunStart" next="waspIlluminaPlatform.trimOnly.trim">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		
+		<batch:step id="waspIlluminaPlatform.trimOnly.trim" next="waspIlluminaPlatform.trimOnly.listenForTrimCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.analysis.SimpleFlowLaunchTasklet" scope="step">
+					<constructor-arg name="flowName" value="#{T(edu.yu.einstein.wasp.plugin.babraham.software.TrimGalore).FLOW_NAME}" />
+					<property name="jobParameters">
+						<map key-type="java.lang.String">
+							<entry key="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<entry key="#{T(edu.yu.einstein.wasp.integration.messages.WaspJobParameters).BEAN_NAME}" value="casava" />
+						</map>
+					</property>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="waspIlluminaPlatform.trimOnly.listenForTrimCompletion">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForStatusTasklet" parent="baseIlluminaTasklet" scope="step">
+					<constructor-arg name="messageTemplates">
+						<list>
+							<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
+								<constructor-arg name="id" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+								<property name="task" value="#{babrahamBatchJobTask.TRIM_GALORE}" />
+								<property name="status" value="COMPLETED" />
+							</bean>
+							<bean class="edu.yu.einstein.wasp.plugin.babraham.integration.messages.BabrahamStatusMessageTemplate">
+								<constructor-arg name="id" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+								<property name="task" value="#{babrahamBatchJobTask.TRIM_GALORE}" />
+								<property name="status" value="FAILED" />
+							</bean>
+						</list>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+			<batch:fail on="FAILED" exit-code="TRIM_FAILED"/>
+			<batch:next on="*" to="waspIlluminaPlatform.trimOnly.notifyRunComplete" />
+		</batch:step>
+		
+		<batch:step id="waspIlluminaPlatform.trimOnly.notifyRunComplete">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.RunStatusMessageTemplate">
+							<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+	</batch:job>
+
+</beans>

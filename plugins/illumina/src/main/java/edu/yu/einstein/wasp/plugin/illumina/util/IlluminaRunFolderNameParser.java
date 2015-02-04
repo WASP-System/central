@@ -23,7 +23,11 @@ public class IlluminaRunFolderNameParser {
 	
 	private String flowcellPrefix;
 	
-	private static Pattern RUN_FOLDER_PATTERN = Pattern.compile("^(\\d{6})_([^_].+?)_(\\d{4})_([AB])([a-zA-Z0-9]+)$");
+	// Miseq: 140109_M01243_0089_000000000-A6EE3
+	// Hiseq: 141217_SN844_0295_AC5RM1ACXX
+	private static Pattern RUN_FOLDER_PATTERN = Pattern.compile("^(\\d{6})_([^_].+?)_(\\d{4})_([AB])?(\\d+)?-?([a-zA-Z0-9-]+)$");
+	
+	
 	
 	public IlluminaRunFolderNameParser(String runFolderName) throws IlluminaRunFolderParseException{
 		setRunFolderName(runFolderName);
@@ -34,8 +38,8 @@ public class IlluminaRunFolderNameParser {
 		Matcher m = RUN_FOLDER_PATTERN.matcher(runFolderName);
 		if (!m.matches())
 			throw new IlluminaRunFolderParseException(runFolderName + " is not a valid run folder name");
-		if (m.groupCount() != 5)
-			throw new IlluminaRunFolderParseException("Expected 5 properties but got " + m.groupCount());
+		if (m.groupCount() != 6)
+			throw new IlluminaRunFolderParseException("Expected 6 properties but got " + m.groupCount());
 		
 		DateFormat df = new SimpleDateFormat("yyMMdd");
 		try {
@@ -52,7 +56,7 @@ public class IlluminaRunFolderNameParser {
 		
 		flowcellPrefix = m.group(4);
 		
-		flowcellName = m.group(5);
+		flowcellName = m.group(6);
 	}
 	
 	public String getRunFolderName() {

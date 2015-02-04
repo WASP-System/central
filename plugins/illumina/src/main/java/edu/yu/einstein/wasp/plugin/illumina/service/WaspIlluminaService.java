@@ -11,6 +11,7 @@ import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
+import edu.yu.einstein.wasp.grid.work.GridWorkService;
 import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.SampleSource;
@@ -26,7 +27,7 @@ public interface WaspIlluminaService extends WaspService {
 	 * @return
 	 * @throws GridException
 	 */
-	public Set<String> getIlluminaRunFolders() throws GridException;
+	public Set<String> getIlluminaRunFolders(String resourceCategoryIName) throws GridException;
 	
 	public void setIlluminaRunXml(GridResult result, Run run, String runXML) throws GridException, IOException, MetadataException;
 	
@@ -64,5 +65,14 @@ public interface WaspIlluminaService extends WaspService {
 	 * @throws WaspMessageBuildingException
 	 */
 	public void startTrimOnlyWorkflow(Run run) throws WaspMessageBuildingException;
+
+	/**
+	 * Get the illumina run folder path for the given resource category
+	 * @param gws
+	 * @param resourceCategoryIName
+	 * @return
+	 * @throws GridException
+	 */
+	public String getIlluminaRunFolderPath(GridWorkService gws,	String resourceCategoryIName) throws GridException;
 
 }

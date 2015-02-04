@@ -34,7 +34,7 @@ import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
 
 @Controller
-@RequestMapping("/waspIlluminaHiSeq/postRunQC")
+@RequestMapping("/waspIlluminaPlatform/postRunQC")
 public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	Logger logger = LoggerFactory.getLogger(WaspIlluminaPostRunQcController.class);
@@ -56,7 +56,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	
 	private int getCycleCount(Run run) throws SampleTypeException{
 		int cycleCount = 0;
-		for (FileGroup fileGroup : fileService.getFilesForPlatformUnitByType(run.getPlatformUnit(), fileService.getFileType("waspIlluminaHiseqQcMetrics")) ){
+		for (FileGroup fileGroup : fileService.getFilesForPlatformUnitByType(run.getPlatformUnit(), fileService.getFileType("waspIlluminaPlatformQcMetrics")) ){
 			for (FileHandle fh : fileGroup.getFileHandles()){
 				String name = fh.getFileName();
 				if (name.startsWith("Intensity") && name.endsWith("a.png"))
@@ -69,7 +69,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	private Map<String, FileHandle> getFileHandlesByName(Run run, String subFolder) throws SampleTypeException{
 		Map<String, FileHandle> fileHandlesByName = new HashMap<String, FileHandle>();
 		for (FileGroup fileGroup : run.getPlatformUnit().getFileGroups()){
-			if (fileGroup.getFileType().equals(fileService.getFileType("waspIlluminaHiseqQcMetrics"))){
+			if (fileGroup.getFileType().equals(fileService.getFileType("waspIlluminaPlatformQcMetrics"))){
 				for (FileHandle fh : fileGroup.getFileHandles()){
 					String name = fh.getFileName();
 					if (subFolder.isEmpty() && !name.contains("/") && name.endsWith(".png"))
@@ -163,7 +163,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.notPu.error");
 			return "redirect:/dashboard.do";
 		}
-		return "waspIlluminaHiSeq/postrunqc/displayfocusqualitycharts";
+		return "waspIlluminaPlatform/postrunqc/displayfocusqualitycharts";
 	}
 	
 	@RequestMapping(value="/run/{runId}/displayFocusQualityCharts", method=RequestMethod.POST)
@@ -188,7 +188,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.update.error");
 			return "redirect:/dashboard.do";
 		}
-		return "redirect:/waspIlluminaHiSeq/postRunQC/run/" + runId + "/displayIntensityCharts.do";
+		return "redirect:/waspIlluminaPlatform/postRunQC/run/" + runId + "/displayIntensityCharts.do";
 	}
 	
 	@RequestMapping(value="/run/{runId}/displayIntensityCharts", method=RequestMethod.GET)
@@ -206,7 +206,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.notPu.error");
 			return "redirect:/dashboard.do";
 		}
-		return "waspIlluminaHiSeq/postrunqc/displayinstensitycharts";
+		return "waspIlluminaPlatform/postrunqc/displayinstensitycharts";
 	}
 	
 	@RequestMapping(value="/run/{runId}/displayIntensityCharts", method=RequestMethod.POST)
@@ -227,7 +227,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.update.error");
 			return "redirect:/dashboard.do";
 		}
-		return "redirect:/waspIlluminaHiSeq/postRunQC/run/" + runId + "/displayNumGT30Charts.do";
+		return "redirect:/waspIlluminaPlatform/postRunQC/run/" + runId + "/displayNumGT30Charts.do";
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -254,7 +254,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.notPu.error");
 			return "redirect:/dashboard.do";
 		}
-		return "waspIlluminaHiSeq/postrunqc/displaynumgt30charts";
+		return "waspIlluminaPlatform/postrunqc/displaynumgt30charts";
 	}
 	
 	
@@ -280,7 +280,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.update.error");
 			return "redirect:/dashboard.do";
 		}
-		return "redirect:/waspIlluminaHiSeq/postRunQC/run/" + runId + "/displayClusterDensityChart.do";
+		return "redirect:/waspIlluminaPlatform/postRunQC/run/" + runId + "/displayClusterDensityChart.do";
 	}
 	
 	@RequestMapping(value="/run/{runId}/displayClusterDensityChart", method=RequestMethod.GET)
@@ -300,7 +300,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.notPu.error");
 			return "redirect:/dashboard.do";
 		}
-		return "waspIlluminaHiSeq/postrunqc/displayclusterdensitychart";
+		return "waspIlluminaPlatform/postrunqc/displayclusterdensitychart";
 	}
 	
 	@RequestMapping(value="/run/{runId}/displayClusterDensityChart", method=RequestMethod.POST)
@@ -325,7 +325,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 			waspErrorMessage("waspIlluminaPlugin.update.error");
 			return "redirect:/dashboard.do";
 		}
-		return "redirect:/waspIlluminaHiSeq/postRunQC/run/" + runId + "/updateQualityReport.do";
+		return "redirect:/waspIlluminaPlatform/postRunQC/run/" + runId + "/updateQualityReport.do";
 	}
 	
 	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.GET)
@@ -369,7 +369,7 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 		}
 		m.addAttribute("qcHeadingsByMetaKey", qcHeadingsByMetaKey);
 		m.addAttribute("qcDataMap", qcDataMap);
-		return "waspIlluminaHiSeq/postrunqc/updatequalityreport";
+		return "waspIlluminaPlatform/postrunqc/updatequalityreport";
 	}
 	
 	@RequestMapping(value="/run/{runId}/updateQualityReport", method=RequestMethod.POST)
@@ -414,10 +414,10 @@ public class WaspIlluminaPostRunQcController extends WaspController{
 	public String listRunsRequiringQc(ModelMap m){
 		List<Hyperlink> hyperlinks = new ArrayList<Hyperlink>();
 		for (Run run: runService.getRunsAwaitingQc())
-			hyperlinks.add(new Hyperlink(run.getName(), "/waspIlluminaHiSeq/postRunQC/run/" + run.getId() + "/displayFocusQualityCharts.do"));
+			hyperlinks.add(new Hyperlink(run.getName(), "/waspIlluminaPlatform/postRunQC/run/" + run.getId() + "/displayFocusQualityCharts.do"));
 		m.addAttribute("taskHyperlinks", hyperlinks);
 		m.addAttribute("isTasks", (hyperlinks.isEmpty()) ? false : true);
-		return "waspIlluminaHiSeq/postrunqc/list";
+		return "waspIlluminaPlatform/postrunqc/list";
 	}
 
 
