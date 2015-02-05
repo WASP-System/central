@@ -27,7 +27,7 @@
 			<batch:tasklet>
 				<batch:transaction-attributes propagation="NEVER"/>
 				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.AggrAngleMakerTasklet" scope="step">
-					<constructor-arg name="softwareResourceType" ref="anglemakerResourceType" />
+					<constructor-arg name="softwareResourceType" ref="helptagAngleMakerResourceType" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>

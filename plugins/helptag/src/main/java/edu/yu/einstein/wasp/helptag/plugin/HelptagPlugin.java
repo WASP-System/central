@@ -4,7 +4,7 @@
  */
 package edu.yu.einstein.wasp.helptag.plugin;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 	}
 
 	public static final String PREPROCESS_ANALYSIS_JOB = "helptag.library.preProcess.job";
-	public static final String AGREGATE_ANALYSIS_JOB = "helptag.library.aggrFlow.job";
+	public static final String AGGREGATE_ANALYSIS_JOB = "helptag.library.aggrFlow.job";
 
 	public HelptagPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -110,11 +110,11 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 		return MessageBuilder.withPayload(mstr).build();
 	}
 
-	public Message<String> launchTestFlow(Message<String> m) {
+	public Message<String> launchHpaiiCountingFlow(Message<String> m) {
 		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
-			return launchTestFlowHelp();
+			return launchHpaiiCountingFlowHelp();
 		
-		logger.info("launching test flow");
+		logger.info("Launching Hpaii Counting flow for HELPtag pipeline");
 		
 		try {
 			Integer id = getIDFromMessage(m);
@@ -123,26 +123,59 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 			
 			Map<String, String> jobParameters = new HashMap<String, String>();
 			logger.info("Sending launch message with flow " + PREPROCESS_ANALYSIS_JOB + " and id: " + id);
+			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.CELL_LIBRARY_ID_LIST, id.toString());
 //			jobParameters.put(WaspSoftwareJobParameters.GENOME, "10090::GRCm38::70");
-			jobParameters.put("test", new Date().toString());
-			
-			jobParameters.put(WaspJobParameters.CELL_LIBRARY_ID, id.toString());
+
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+
 			waspMessageHandlingService.launchBatchJob(PREPROCESS_ANALYSIS_JOB, jobParameters);
-			return (Message<String>) MessageBuilder.withPayload("Initiating helptag test flow on id " + id).build();
+			return (Message<String>) MessageBuilder.withPayload("Initiating HELPtag HpaII Counting flow on cell-lib id " + id).build();
 		} catch (WaspMessageBuildingException e1) {
-			logger.warn("unable to build message to launch batch job " + PREPROCESS_ANALYSIS_JOB);
+			logger.warn("Unable to build message to launch batch job " + PREPROCESS_ANALYSIS_JOB);
 			return MessageBuilder.withPayload("Unable to launch batch job " + PREPROCESS_ANALYSIS_JOB).build();
 		}
 		
 	}
 	
-	private Message<String> launchTestFlowHelp() {
-		String mstr = "\nHelptag plugin: launch the test flow.\n" +
-				"wasp -T helptag -t launchTestFlow -m \'{id:\"1\"}\'\n";
+	private Message<String> launchHpaiiCountingFlowHelp() {
+		String mstr = "\nHelptag plugin: launch the Hpaii Counting flow.\n";
+		mstr += "wasp -T helptag -t launchHpaiiCountingFlow -m \'{id:\"1\"}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
+	public Message<String> launchAngleMakerFlow(Message<String> m) {
+		if (m.getPayload() == null || m.getHeaders().containsKey("help") || m.getPayload().toString().equals("help"))
+			return launchAngleMakerFlowHelp();
+
+		logger.info("Launching Angle Maker flow for HELPtag pipeline");
+
+		try {
+			Integer id = getIDFromMessage(m);
+			if (id == null)
+				return MessageBuilder.withPayload("Unable to determine job id from message: " + m.getPayload().toString()).build();
+
+			Map<String, String> jobParameters = new HashMap<String, String>();
+			logger.info("Sending launch message with flow " + AGGREGATE_ANALYSIS_JOB + " and job id: " + id);
+			jobParameters.put(WaspJobParameters.JOB_ID, id.toString());
+
+			jobParameters.put("uniqCode", Long.toString(Calendar.getInstance().getTimeInMillis())); // overcomes limitation of job being run only once
+
+			waspMessageHandlingService.launchBatchJob(AGGREGATE_ANALYSIS_JOB, jobParameters);
+			return (Message<String>) MessageBuilder.withPayload("Initiating HELPtag Angle Maker flow on job id " + id).build();
+		} catch (WaspMessageBuildingException e1) {
+			logger.warn("Unable to build message to launch batch job " + AGGREGATE_ANALYSIS_JOB);
+			return MessageBuilder.withPayload("Unable to launch batch job " + AGGREGATE_ANALYSIS_JOB).build();
+		}
+
+	}
+
+	private Message<String> launchAngleMakerFlowHelp() {
+		String mstr = "\nHelptag plugin: launch angle maker flow with provided job id.\n";
+		mstr += "wasp -T helptag -t launchAngleMakerFlow -m \'{id:\"1\"}\'\n";
+		return MessageBuilder.withPayload(mstr).build();
+	}
+
 	/**
 	 * 
 	 * @param m
@@ -172,7 +205,7 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 		if (batchJobType.equals(BatchJobTask.ANALYSIS_LIBRARY_PREPROCESS)) 
 			return PREPROCESS_ANALYSIS_JOB;
 		else if (batchJobType.equals(BatchJobTask.ANALYSIS_AGGREGATE))
-			return AGREGATE_ANALYSIS_JOB;
+			return AGGREGATE_ANALYSIS_JOB;
 		return null;
 	}
 	
@@ -224,10 +257,8 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 		Set<String> jobIdStringSet = new LinkedHashSet<String>();
 		jobIdStringSet.add(job.getId().toString());
 		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
-		JobExecution je = batchJobExplorer
-				.getMostRecentlyStartedJobExecutionInList(batchJobExplorer
-						.getJobExecutions(AGREGATE_ANALYSIS_JOB, parameterMap,
-								false));
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(AGGREGATE_ANALYSIS_JOB, parameterMap,
+																													  false));
 		if (je == null)
 			return Status.UNKNOWN;
 		ExitStatus jobExitStatus = je.getExitStatus();

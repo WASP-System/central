@@ -81,6 +81,7 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 		List<SampleSource> approvedCellLibraryList = null;
 		try{
 			approvedCellLibraryList = sampleService.getCellLibrariesPassQCAndNoAggregateAnalysis(job);	
+			logger.debug("approvedCellLibraryList for jobId " + jobIdFromJobParameter + ":\n" + approvedCellLibraryList.toString());
 		}catch(Exception e){
 			logger.debug("unable to obtain approvedCellLibraryList in AngleMakerTasklet; message = " + e.getMessage());
 		}
