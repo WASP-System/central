@@ -45,7 +45,7 @@
 	<!-- added 2-5-15 to deal with multiple sampleTypes; replaced buttons with selects -->
 	<tr>
 		<td colspan="5" class="value-centered button-padding">			
-			<b>ADD MORE SAMPLES OF TYPE:</b> 
+			<b><fmt:message key="jobsubmitSample.addMoreSamplesOfType.label" />:</b> 
 			<select class="FormElement ui-widget-content ui-corner-all" name="urlForAddMoreSamplesOfType"  id="urlForAddMoreSamplesOfType"  >
 				<option value=""><fmt:message key="wasp.default_select.label"/></option>
 					<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">
@@ -58,7 +58,7 @@
 		    	<c:set value="" var="librarySampleSubtypeId" />
 		    	
 		    	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;			
-				<b>EDIT YOUR SAMPLES OF TYPE:</b> 
+				<b><fmt:message key="jobsubmitSample.editYourSamplesOfType.label" />:</b> 
 				<select class="FormElement ui-widget-content ui-corner-all" name="urlForEditYourSamplesOfType"  id="urlForEditYourSamplesOfType"  >
 					<option value=""><fmt:message key="wasp.default_select.label"/></option>
 					<c:forEach items="${ sampleSubtypesOfExistingSampleDraftsList }" var="sampleSubtype">
