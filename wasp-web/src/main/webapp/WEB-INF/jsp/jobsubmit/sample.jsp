@@ -44,8 +44,15 @@
 	
 	<!-- added 2-5-15 to deal with multiple sampleTypes; replaced buttons with selects -->
 	<tr>
-		<td colspan="5" class="value-centered button-padding">			
-			<b><fmt:message key="jobsubmitSample.addMoreSamplesOfType.label" />:</b> 
+		<td colspan="5" class="value-centered button-padding">	
+		    <c:choose>
+				<c:when test="${empty sampleDraftList }">
+					<b><fmt:message key="jobsubmitSample.addSamplesOfType.label" />:</b> 
+				</c:when>
+				<c:otherwise>		
+					<b><fmt:message key="jobsubmitSample.addMoreSamplesOfType.label" />:</b> 
+				</c:otherwise>
+			</c:choose>
 			<select class="FormElement ui-widget-content ui-corner-all" name="urlForAddMoreSamplesOfType"  id="urlForAddMoreSamplesOfType"  >
 				<option value=""><fmt:message key="wasp.default_select.label"/></option>
 					<c:forEach items="${ sampleSubtypeList }" var="sampleSubtype">

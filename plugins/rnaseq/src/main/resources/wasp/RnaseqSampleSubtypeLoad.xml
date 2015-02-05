@@ -6,7 +6,7 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd"
     default-autowire="byName">
    
-     <!-- rnaseq RNA sample -->
+     <!-- rnaseq cDNA sample -->
  
      <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqCDNAUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
@@ -34,6 +34,7 @@
 	          <property name="tooltip" value="rnaseq.directionality.tt" />
 	          <property name="error" value="rnaseq.directionality.error" />
 	        </bean>
+	        
 	      </list>
       </property>
   </bean>
@@ -53,7 +54,7 @@
   </bean>
   
  
- 
+ <!-- rnaseq RNA sample -->
  
    <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqRnaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
@@ -78,7 +79,7 @@
 	          <property name="label" value="rnaseq.directionality.label" />
 	          <property name="metaposition" value="30" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="rnaseq.directionality.control" />
+	          <property name="control" value="rnaseq.directionality2.control" />
 	          <property name="tooltip" value="rnaseq.directionality.tt" />
 	          <property name="error" value="rnaseq.directionality.error" />
 	        </bean>
