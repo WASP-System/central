@@ -48,6 +48,7 @@
     <property name="sampleSubtypes">
       <list>
         <ref bean="rnaseqRnaSampleSubtypeResource" />
+        <ref bean="rnaseqCDNASampleSubtypeResource" />
         <ref bean="rnaseqLibrarySampleSubtypeResource" />
         <ref bean="rnaseqFacilityLibrarySampleSubtypeResource" />
       </list>

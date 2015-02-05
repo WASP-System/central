@@ -1416,6 +1416,14 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("fileGroups", fileGroups);
 		m.addAttribute("fileGroupFileHandlesMap", fileGroupFileHandlesMap);
 		m.addAttribute("adaptorSetsUsedOnThisJobDraft", getAdaptorSets(jobDraft));
+		
+		//for editing existing samples (dubin;2-5-15)
+		Set<SampleSubtype> sampleSubtypesOfExistingSampleDraftsSet = new HashSet<SampleSubtype>();
+		for(SampleDraft sd : sampleDraftList){
+			sampleSubtypesOfExistingSampleDraftsSet.add(sd.getSampleSubtype());
+		}
+		m.addAttribute("sampleSubtypesOfExistingSampleDraftsList", new ArrayList<SampleSubtype>(sampleSubtypesOfExistingSampleDraftsSet));
+		
 		return "jobsubmit/sample";
 	}
 	

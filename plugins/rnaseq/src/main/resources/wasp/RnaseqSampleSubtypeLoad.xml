@@ -8,6 +8,53 @@
    
      <!-- rnaseq RNA sample -->
  
+     <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqCDNAUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" value="rnaseqCDna" />
+  </bean>
+  
+   <bean id="rnaseqCDNASpecificUiFields" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+     	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
+			<bean parent="rnaseqCDNAUiFieldWrapper">
+	          <property name="baseName" value="ribosomeDepletion" />
+	          <property name="label" value="rnaseq.ribosomeDepletion.label" />
+	          <property name="metaposition" value="10" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.ribosomeDepletion.control" />
+	          <property name="tooltip" value="rnaseq.ribosomeDepletion.tt" />
+	          <property name="error" value="rnaseq.ribosomeDepletion.error" />
+	        </bean>
+			<bean parent="rnaseqCDNAUiFieldWrapper">
+	          <property name="baseName" value="directionality" />
+	          <property name="label" value="rnaseq.directionality.label" />
+	          <property name="metaposition" value="20" />
+	          <property name="constraint" value="NotEmpty" />
+	          <property name="control" value="rnaseq.directionality.control" />
+	          <property name="tooltip" value="rnaseq.directionality.tt" />
+	          <property name="error" value="rnaseq.directionality.error" />
+	        </bean>
+	      </list>
+      </property>
+  </bean>
+  
+    <bean id="rnaseqCDNASampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
+  	<property name="name" value="RNA-Seq cDNA" />
+    <property name="area" value="rnaseqCDNASample" />
+    <property name="sampleType" ref="cdnaSampleType" />
+    <property name="uiFieldGroupsFromWrapper">
+    	<list>
+    		<ref bean="genericBiomoleculeUiFields" /> 
+    		<ref bean="rnaseqCDNASpecificUiFields" />
+    		<ref bean="genericDNAUiFields" />   			
+    	</list>
+    </property>
+    <property name="applicableRoles" value="ft,lu" />    
+  </bean>
+  
+ 
+ 
+ 
    <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqRnaUiFieldWrapper">
     <property name="baseLocale" value="en_US" />
     <property name="baseArea" value="rnaseqRna" />
@@ -41,7 +88,7 @@
 
 
   <bean id="rnaseqRnaSampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory" >
-  	<property name="name" value="RNA Seq RNA" />
+  	<property name="name" value="RNA-Seq RNA" />
     <property name="area" value="rnaseqRNASample" />
     <property name="sampleType" ref="rnaSampleType" />
     <property name="uiFieldGroupsFromWrapper">
@@ -88,7 +135,7 @@
   </bean>
  
   <bean id="rnaseqLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
-  	<property name="name" value="RNA Seq Library" />
+  	<property name="name" value="RNA-Seq Library" />
     <property name="area" value="rnaseqLibrarySample" />
     <property name="sampleType" ref="librarySampleType" />
     <property name="uiFieldGroupsFromWrapper">
@@ -102,7 +149,7 @@
   </bean>
   
   <bean id="rnaseqFacilityLibrarySampleSubtypeResource" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
-  	<property name="name" value="RNA Seq Facility Library" />
+  	<property name="name" value="RNA-Seq Facility Library" />
     <property name="area" value="rnaseqFacilityLibrarySample" />
     <property name="sampleType" ref="librarySampleType" />
     <property name="uiFieldGroupsFromWrapper">
@@ -114,4 +161,8 @@
     <property name="applicableRoles" value="ft" />
   </bean>
   
+    
+    
+    
+
 </beans>
