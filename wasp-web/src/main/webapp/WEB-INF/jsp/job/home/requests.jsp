@@ -127,7 +127,7 @@
 				<h2 style="font-weight:bold"><fmt:message key="analysisParameters.software_requested.label"/>:</h2>
 				<table class="EditTable ui-widget ui-widget-content">
 	    			<c:forEach items="${softwareList}" var="software">
-	   	  				<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;text-decoration:underline"><c:out value="${software.getResourceType().getName()}" />: <c:out value="${software.name}" /></td></tr>
+	   	  				<tr class="FormData"><td colspan="2" class="label-centered" style="font-weight:bold;"><c:out value="${software.getResourceType().getName()}" />: <c:out value="${software.name}" /></td></tr>
 	   	  				<c:set var="_area" value = "${parentArea}" scope="request"/>
 	   	  				<c:set value="${softwareAndSyncdMetaMap.get(software)}" var="_metaList" scope="request" />
 		  				<c:import url="/WEB-INF/jsp/meta_ro.jsp" />

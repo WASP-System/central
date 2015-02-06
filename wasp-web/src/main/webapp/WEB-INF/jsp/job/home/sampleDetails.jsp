@@ -9,9 +9,23 @@
 <div class="fixed-width_scrollable">
 <c:if test="${fn:length(submittedMacromoleculeList)>0}">
 <h2><fmt:message key="sampleDetails.submittedSamples.label" />: <c:out value="${fn:length(submittedMacromoleculeList)}" /></h2>
+  <c:set var="theCounterForAllSubmittedMacromolecules" value = "${0}" />
+  <c:forEach items="${sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries}" var="sampleTypeOfSubmittedMacromolecule" varStatus="statusSampleTypeOfSubmittedMacromolecule">
+   <%-- <c:if test="${ not statusSampleTypeOfSubmittedMacromolecule.first }">
+   	<br />
+   </c:if>
+   --%>
+   <c:if test="${fn:length(sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries) > 1 }">
+    <c:if test="${ not statusSampleTypeOfSubmittedMacromolecule.first }"><br /></c:if>
+   	<span style="font-weight:bold">&nbsp;&nbsp;&nbsp;&nbsp;---Submitted Sample Type <c:out value="${statusSampleTypeOfSubmittedMacromolecule.count}" />: <c:out value="${sampleTypeOfSubmittedMacromolecule.getName()}" /></span>
+   </c:if> 
 	<table class="data" style="margin: 0px 0px" >	
+	    <c:set var="theCounterForAnySpecificTypeOfSubmittedMacromolecule" value = "${0}" /> 
 		<c:forEach items="${submittedMacromoleculeList}" var="submittedMacromolecule" varStatus="statusSubmittedMacromolecule">		
-			<c:if test="${statusSubmittedMacromolecule.first}">
+		 <c:if test="${submittedMacromolecule.getSampleType().getId() == sampleTypeOfSubmittedMacromolecule.getId()}">
+		    <c:set var="theCounterForAllSubmittedMacromolecules" value = "${theCounterForAllSubmittedMacromolecules + 1}" />
+		 	<c:set var="theCounterForAnySpecificTypeOfSubmittedMacromolecule" value = "${theCounterForAnySpecificTypeOfSubmittedMacromolecule + 1}" />		 		
+			<c:if test="${theCounterForAnySpecificTypeOfSubmittedMacromolecule==1}">
 				<tr class="FormData">
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"> </td> 
 					<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="sampleDetails.sampleName.label" /><br />(<fmt:message key="sampleDetails.internalID.label" />)</label></td> 
@@ -59,7 +73,7 @@
 				</tr>
 			</c:if>
 			<tr class="FormData">
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${statusSubmittedMacromolecule.count}" /></td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${theCounterForAllSubmittedMacromolecules}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedMacromolecule.getName()}" /><br />(<fmt:message key="sampleDetails.ID.label" />:<c:out value="${submittedMacromolecule.getId()}" />)</td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedMacromolecule.getSampleType().getName()}" /></td>
 				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${submittedObjectOrganismMap.get(submittedMacromolecule)}" /></td>
@@ -96,8 +110,10 @@
 					</c:if>
 				</c:forEach>
 			</tr>
+		 </c:if>
 		</c:forEach>
 	</table>
+  </c:forEach>	
 </c:if>	
 </div>
 

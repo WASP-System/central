@@ -100,6 +100,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.SampleSubtype;
+import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -3784,14 +3785,29 @@ public class JobController extends WaspController {
 		}
 		getSampleLibraryRunData(job, m);
 		Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();
+		List<SampleType> sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries = new ArrayList<SampleType>();//2-6-15; to deal with display of multiple sample types within (currently) submitted samples (that are not libraries) -- specifically to deal with RNA and cDNA submitted samples for RNA seq
 		for(Sample s : job.getSample()){
+			if(s.getParent()==null){//a submitted macromolecule or submitted library
+				if(!s.getSampleType().getIName().toLowerCase().contains("library")){//a submitted macromolecule
+					if(!sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries.contains(s.getSampleType())){//not already in list
+						sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries.add(s.getSampleType());//2-6-15
+					}
+				}
+			}
+			
 			List<SampleMeta> normalizedMeta = new ArrayList<SampleMeta>();
 			try{
 				normalizedMeta.addAll(SampleAndSampleDraftMetaHelper.templateMetaToSubtypeAndSynchronizeWithMaster(s.getSampleSubtype(), s.getSampleMeta(), SampleMeta.class));
 			}catch(Exception e){logger.debug("unable to normalize sample meta in jobController.sampleDetailsPage for sample id: " + s.getId());}
 			sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
 		}
+		
+		
+		for(SampleType st : sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries){
+			logger.debug("dubin 2-5-15 sample type :  " + st.getName());
+		}
 		m.addAttribute("sampleNormalizedSampleMetaListMap", sampleNormalizedSampleMetaListMap);
+		m.addAttribute("sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries", new ArrayList<SampleType>(sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries));//2-6-15
 		return "job/home/sampleDetails";
 	}
 	
