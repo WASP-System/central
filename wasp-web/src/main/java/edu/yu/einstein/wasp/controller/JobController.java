@@ -3802,10 +3802,6 @@ public class JobController extends WaspController {
 			sampleNormalizedSampleMetaListMap.put(s, normalizedMeta);
 		}
 		
-		
-		for(SampleType st : sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries){
-			logger.debug("dubin 2-5-15 sample type :  " + st.getName());
-		}
 		m.addAttribute("sampleNormalizedSampleMetaListMap", sampleNormalizedSampleMetaListMap);
 		m.addAttribute("sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries", new ArrayList<SampleType>(sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries));//2-6-15
 		return "job/home/sampleDetails";
