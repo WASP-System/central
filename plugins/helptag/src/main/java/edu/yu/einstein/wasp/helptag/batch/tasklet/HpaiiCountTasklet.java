@@ -99,7 +99,7 @@ public class HpaiiCountTasklet extends WaspRemotingTasklet  implements StepExecu
 		hcountF.setFileName(hcountFileName);
 		hcountF.setFileType(hcountFileType);
 		hcountF = fileService.addFile(hcountF);
-		hcountG.setIsActive(0);
+		hcountG.setIsActive(1);
 		hcountG.addFileHandle(hcountF);
 		files.add(hcountF);
 

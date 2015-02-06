@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context.xsd"
     default-autowire="byName">
     
-  <bean id="helptagPipelineArea" class="java.lang.String">
+<!--   <bean id="helptagPipelineArea" class="java.lang.String">
   	<constructor-arg><value>helptagPipeline</value></constructor-arg>
   </bean>
 
@@ -20,11 +20,6 @@
   
   <bean id="helptagPipelineResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
     <property name="name" value="HELP tagging Pipeline" />
-    <property name="area" ref="helptagPipelineArea" />
-  </bean>
-
-  <bean id="helptagAngleMakerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
-    <property name="name" value="HELP tagging angle maker" />
     <property name="area" ref="helptagPipelineArea" />
   </bean>
 
@@ -71,5 +66,5 @@
     </property>
 
   </bean> 
-
+ -->
 </beans>

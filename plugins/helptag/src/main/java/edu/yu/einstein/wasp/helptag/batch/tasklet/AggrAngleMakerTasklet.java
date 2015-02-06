@@ -130,6 +130,7 @@ public class AggrAngleMakerTasklet extends LaunchManyJobsTasklet {
 		try{
 			//this used to work in next line, but it no longer functions; instead we get error: lazy load problem    new WaspJobContext(jobId, jobService)
 			WaspJobContext waspJobContext = new WaspJobContext(jobService.getJobAndSoftware(job));
+			logger.debug("softwareResourceType iname=" + this.softwareResourceType.getIName());
 			SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(this.softwareResourceType);
 			if (softwareConfig == null){
 				throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname=" + softwareResourceType.getIName());
