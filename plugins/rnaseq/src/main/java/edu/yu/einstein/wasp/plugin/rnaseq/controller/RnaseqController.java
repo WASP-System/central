@@ -67,13 +67,40 @@ public class RnaseqController extends WaspController {
 		  }
 		  if(sample != null){
 			  Map<String,String> map = new LinkedHashMap<String,String>();
-			  if(sample.getSampleType().getIName().toLowerCase().equals("dna")){//HELP macromolecule
-				  //String typeOfHelpLibraryRequested = rnaseqService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
-				  //if(typeOfHelpLibraryRequested!=null && !typeOfHelpLibraryRequested.isEmpty()){
-				//	  map.put(messageService.getMessage("helptag.typeOfHelpLibraryRequested.label"), typeOfHelpLibraryRequested);					  
-				 // } 
+			  if(sample.getSampleType().getIName().toLowerCase().equals("rna")){
+				  String rnaFraction = rnaseqService.getRNAFraction(sample);
+				  if(rnaFraction!=null && !rnaFraction.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.fraction.label"), rnaFraction);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.requestedDirectionality.label"), rnaDirectionality);
+				  }
 			  }
-			  
+			  if(sample.getSampleType().getIName().toLowerCase().equals("cdna")){
+				  String ribosomeDepleteionMethod = rnaseqService.getRibosomeDepletionMethod(sample);
+				  if(ribosomeDepleteionMethod!=null && !ribosomeDepleteionMethod.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.ribosomeDepletion.label"), ribosomeDepleteionMethod);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.directionality2.label"), rnaDirectionality);
+				  }
+			  }
+			  //logger.debug("dubin--2-9-15 sampleName = " + sample.getName());
+			  ///logger.debug("dubin--2-9-15 sampletype to lower = " + sample.getSampleType().getIName().toLowerCase());
+			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//user-submitted and facility library  
+				 // logger.debug("dubin--2-9-15 sampleName = " + sample.getName() + " IS A LIBRARY");
+				  String ribosomeDepleteionMethod = rnaseqService.getRibosomeDepletionMethod(sample);
+				 // logger.debug("dubin--2-9-15 ribosomeDepleteionMethod = " + ribosomeDepleteionMethod);
+				  if(ribosomeDepleteionMethod!=null && !ribosomeDepleteionMethod.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.ribosomeDepletion.label"), ribosomeDepleteionMethod);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  map.put(messageService.getMessage("rnaseq.directionality2.label"), rnaDirectionality);	
+				  }
+			  }
 			  if(!map.isEmpty()){
 				  try{
 					  outputJSON(map, response);

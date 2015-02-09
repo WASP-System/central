@@ -30,7 +30,7 @@
 	          <property name="label" value="rnaseq.directionality.label" />
 	          <property name="metaposition" value="20" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="rnaseq.directionality.control" />
+	          <property name="control" value="rnaseq.directionality3.control" />
 	          <property name="tooltip" value="rnaseq.directionality.tt" />
 	          <property name="error" value="rnaseq.directionality.error" />
 	        </bean>
@@ -66,13 +66,13 @@
      	<list value-type="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader">
 	        <!-- rnaSeq Specific -->
 	        <bean parent="rnaseqRnaUiFieldWrapper">
-	          <property name="baseName" value="type" />
-	          <property name="label" value="rnaseq.type.label" />
+	          <property name="baseName" value="fraction" />
+	          <property name="label" value="rnaseq.fraction.label" />
 	          <property name="metaposition" value="10" />
 	          <property name="constraint" value="NotEmpty" />
-	          <property name="control" value="rnaseq.type.control" />
-	          <property name="tooltip" value="rnaseq.type.tt" />
-	          <property name="error" value="rnaseq.type.error" />
+	          <property name="control" value="rnaseq.fraction.control" />
+	          <property name="tooltip" value="rnaseq.fraction.tt" />
+	          <property name="error" value="rnaseq.fraction.error" />
 	        </bean>
 	        <bean parent="rnaseqRnaUiFieldWrapper">
 	          <property name="baseName" value="directionality" />
