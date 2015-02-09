@@ -91,8 +91,8 @@ $(document).ready(function(){
 			$(location).attr('href',href);
 			return;
 		}
-		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft == "0"){
-			alert("Unexpected Error (should not occur): sampleType is a library, but number of adaptors used on this job draft is 0");
+		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft == "0"){//bioanalyzer libraryftheSelectedAdaptorset
+			$(location).attr('href',href);
 			return;
 		}
 		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft == "1"){

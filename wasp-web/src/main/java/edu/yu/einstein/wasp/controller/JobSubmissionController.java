@@ -1816,7 +1816,9 @@ public class JobSubmissionController extends WaspController {
 		sampleDraft.setSampleTypeId(sampleSubtype.getSampleType().getId());
 		sampleDraft.setSampleType(sampleType);
 		if (sampleService.isLibrary(sampleDraft)){
-			prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+			if(!jobDraft.getWorkflow().getIName().equalsIgnoreCase("bioanalyzer")){//no adaptorsets/adaptors for bioanalyzer libraries
+				prepareAdaptorsetsAndAdaptors(jobDraft, normalizedMeta, m);
+			}
 		}
 		
 		return "jobsubmit/manysamples";
@@ -1853,7 +1855,7 @@ public class JobSubmissionController extends WaspController {
 					logger.warn("Could not get meta for class 'SampleDraftMeta':" + e.getMessage());
 				}
 				sampleDraft.setSampleDraftMeta(normalizedMeta);
-				if(sampleService.isLibrary(sampleDraft)){
+				if(sampleService.isLibrary(sampleDraft) && theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){//all libraries except bioanalyzer libraries
 					try{	
 						Adaptorset adaptorset = adaptorsetDao.getAdaptorsetByAdaptorsetId(Integer.valueOf( MetaHelper.getMetaValue("genericLibrary", "adaptorset", sampleDraft.getSampleDraftMeta())) );
 						if(adaptorset.getId().intValue() == Integer.parseInt(theSelectedAdaptorset)){
@@ -1863,7 +1865,7 @@ public class JobSubmissionController extends WaspController {
 						logger.warn("Could not get adaptor set from sampledraftmeta: "+ e.getMessage());
 					}
 				}
-				else{
+				else{//all samples that are not libraries AS Well As bioanalyzer libraries
 					sampleDraftList.add(sampleDraft);
 				}
 			}
@@ -1877,7 +1879,7 @@ public class JobSubmissionController extends WaspController {
 		m.addAttribute("organisms",  genomeService.getOrganismsPlusOther()); // required for metadata control element (select:${organisms}:name:name)
 		m.addAttribute("heading", messageService.getMessage("jobDraft.sample_add_heading.label"));
 		
-		if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+		if(theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
 			m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
 		}
 		else{
@@ -1885,7 +1887,7 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		///manysamples/edit
-		if (! sampleDraftList.isEmpty() && sampleService.isLibrary(sampleDraftList.get(0))){
+		if (! sampleDraftList.isEmpty() && sampleService.isLibrary(sampleDraftList.get(0)) && theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
 			prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
 		}
 		
@@ -2049,9 +2051,11 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftList.get(0).setSampleSubtype(sampleSubtype);
 			sampleDraftList.get(0).setSampleTypeId(sampleSubtype.getSampleType().getId());
 			sampleDraftList.get(0).setSampleType(sampleType);
-			if (sampleService.isLibrary(sampleDraftList.get(0))){
-				prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
-				if(theSelectedAdaptorset!=null & theSelectedAdaptorset != ""){
+			if (sampleService.isLibrary(sampleDraftList.get(0)) ){
+				if(theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
+					prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+				}
+				if(theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
 					m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
 				}
 				else{

@@ -73,6 +73,11 @@
 							<c:when test="${sampleSubtype.getSampleType().getIName() !='library'}">
 								<option value="<c:out value="${ fn:length(adaptorSetsUsedOnThisJobDraft)  }"/>::<c:out value="${ sampleSubtype.getSampleType().getIName()  }"/>::<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />" ><c:out value="${ sampleSubtype.getSampleType().getName()  }"/> (<c:out value="${ sampleSubtype.getName()  }"/>)</option>				
 							</c:when>
+							<%--THIS NEXT ONE, where length==0 is designed ONLY to handle bioanalyzer libraries, whcih have no adaptors!!! --%>
+							<c:when test="${sampleSubtype.getSampleType().getIName() =='library' && fn:length(adaptorSetsUsedOnThisJobDraft)==0}">
+								<c:set value="${sampleSubtype.getId() }" var="librarySampleSubtypeId" />
+								<option value="0::<c:out value="${ sampleSubtype.getSampleType().getIName()  }"/>::<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do' />" ><c:out value="${ sampleSubtype.getSampleType().getName()  }"/> (<c:out value="${ sampleSubtype.getName()  }"/>)</option>
+							</c:when>
 							<c:when test="${sampleSubtype.getSampleType().getIName() =='library' && fn:length(adaptorSetsUsedOnThisJobDraft)==1}">
 								<c:set value="${sampleSubtype.getId() }" var="librarySampleSubtypeId" />
 								<option value="<c:out value="${ fn:length(adaptorSetsUsedOnThisJobDraft)  }"/>::<c:out value="${ sampleSubtype.getSampleType().getIName()  }"/>::<wasp:relativeUrl value='jobsubmit/manysamples/edit/${ jobDraft.getJobDraftId() }/${ sampleSubtype.getSampleSubtypeId() }.do?theSelectedAdaptorset=${ adaptorSetsUsedOnThisJobDraft.get(0).getId()}' />" ><c:out value="${ sampleSubtype.getSampleType().getName()  }"/> (<c:out value="${ sampleSubtype.getName()  }"/>)</option>
