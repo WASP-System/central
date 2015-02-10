@@ -4,6 +4,8 @@
  */
 package edu.yu.einstein.wasp.plugin.rnaseq.service;
 
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.service.WaspService;
 
@@ -31,4 +33,5 @@ public interface RnaseqService extends WaspService {
 		public String getRNAFraction(Sample sample);
 		public String getRibosomeDepletionMethod(Sample sample);
 		public String getDirectionality(Sample sample);
+		public boolean isRNALibraryDirectional(Sample sample) throws SampleSubtypeException;
 }

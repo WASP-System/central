@@ -7,6 +7,8 @@ package edu.yu.einstein.wasp.plugin.rnaseq.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.SampleSubtypeException;
+import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.plugin.rnaseq.service.RnaseqService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
@@ -71,5 +73,23 @@ public class RnaseqServiceImpl extends WaspServiceImpl implements RnaseqService 
 		}
 		catch(Exception e){}
 		return "";
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isRNALibraryDirectional(Sample sample) throws SampleSubtypeException{
+		if(!sample.getSampleSubtype().getIName().equals("rnaseqLibrarySample") && !sample.getSampleType().getIName().equals("rnaseqFacilityLibrarySample")){
+			throw new SampleSubtypeException("sample subtype is not rnaseq library or facilityLibrary");
+		}
+		
+		try{
+			if(MetaHelper.getMetaValue(RNASEQ_LIBRARY_AREA, DIRECTIONALITY_META_KEY, sample.getSampleMeta()).toLowerCase().startsWith("directional")){
+				return true;
+			}
+		}
+		catch(Exception e){}
+		return false;
 	}
 }

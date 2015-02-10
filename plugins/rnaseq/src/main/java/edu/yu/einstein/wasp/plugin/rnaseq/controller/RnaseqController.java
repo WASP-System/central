@@ -66,6 +66,12 @@ public class RnaseqController extends WaspController {
 			  }
 		  }
 		  if(sample != null){
+			  try{
+				  logger.debug("dubin - 2-9-15 sample " + sample.getName());
+				  logger.debug("dubin - 2-9-15 and isRNALibraryDirectional returned: " + rnaseqService.isRNALibraryDirectional(sample));
+			  }
+			  catch(Exception e){logger.debug("dubin - 2-9-15 and excpetion: " + e.getMessage());}
+			  
 			  Map<String,String> map = new LinkedHashMap<String,String>();
 			  if(sample.getSampleType().getIName().toLowerCase().equals("rna")){
 				  String rnaFraction = rnaseqService.getRNAFraction(sample);
@@ -87,12 +93,8 @@ public class RnaseqController extends WaspController {
 					  map.put(messageService.getMessage("rnaseq.directionality2.label"), rnaDirectionality);
 				  }
 			  }
-			  //logger.debug("dubin--2-9-15 sampleName = " + sample.getName());
-			  ///logger.debug("dubin--2-9-15 sampletype to lower = " + sample.getSampleType().getIName().toLowerCase());
 			  if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//user-submitted and facility library  
-				 // logger.debug("dubin--2-9-15 sampleName = " + sample.getName() + " IS A LIBRARY");
 				  String ribosomeDepleteionMethod = rnaseqService.getRibosomeDepletionMethod(sample);
-				 // logger.debug("dubin--2-9-15 ribosomeDepleteionMethod = " + ribosomeDepleteionMethod);
 				  if(ribosomeDepleteionMethod!=null && !ribosomeDepleteionMethod.isEmpty()){
 					  map.put(messageService.getMessage("rnaseq.ribosomeDepletion.label"), ribosomeDepleteionMethod);	
 				  }
