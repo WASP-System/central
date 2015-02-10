@@ -63,6 +63,8 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	@Override
 	public boolean confirmCellLibrariesAssociatedWithHcountFiles(List<SampleSource> cellLibraryList) {
 		for (SampleSource cellLibrary : cellLibraryList) {
+			logger.debug("cellLibrary id: " + cellLibrary.getId());
+			logger.debug("hcountFileType : " + hcountFileType.getIName());
 			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, hcountFileType);
 			if (fileGroupSetFromCellLibrary.isEmpty()) {
 				logger.debug("no hcount files associated with cellLibrary id: " + cellLibrary.getId());
@@ -86,7 +88,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		FileGroup fileGroup = new FileGroup();
 		fileGroup.setDescription(description);
 		fileGroup.setFileType(fileHandle.getFileType());
-		fileGroup.setSoftwareGeneratedBy(software);
+		fileGroup.setSoftwareGeneratedById(software.getId());
 		fileGroup.setIsActive(0);
 
 		Set<FileHandle> fileHandleSet = new HashSet<FileHandle>();

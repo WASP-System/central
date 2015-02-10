@@ -20,13 +20,18 @@
     <property name="description" value="Methylation score calculator for HELP tagging pipeline" />
     <property name="area" ref="helptaghamPluginArea" />
     <property name="resourceType" ref="helptagAngleMakerResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+	<property name="softwareDependencies">
+		<list>
+			<ref bean="helptagPipeline" />
+		</list>
+	</property>
 	
 	<property name="metaFromWrapper">
        <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
          <property name="area" ref="helptaghamPluginArea" />
           <property name="metaList">
          	<list>
-         		<value>#{waspSoftware['currentVersion']}=1.0</value>
+         		<value>#{waspSoftware['currentVersion']}=0.0.1</value>
          		<value>#{waspSoftware['priorVersions']}=</value>
          	</list>
        	 </property>

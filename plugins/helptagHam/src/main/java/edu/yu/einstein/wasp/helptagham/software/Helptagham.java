@@ -54,12 +54,14 @@ public class Helptagham extends SoftwarePackage{
 		// require 4GB memory
 		c.setMemoryRequirements(4);
 		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
+		SoftwarePackage helptag = this.getSoftwareDependencyByIname("helptag");
+		Assert.assertParameterNotNull(helptag);
+		sd.add(helptag);
 		c.setSoftwareDependencies(sd);
 		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
 		WorkUnit w = new WorkUnit(c);
 		w.setRequiredFiles(fhlist);
-		w.setSecureResults(false);
+		w.setSecureResults(true);
 
 		return w;
 	}
@@ -120,7 +122,7 @@ public class Helptagham extends SoftwarePackage{
 
 		tempCommand.append(" -o " + prefixForFileName);
 
-		tempCommand.append("-g " + genome);
+		tempCommand.append(" -g " + genome);
 
 		w.addCommand(new String(tempCommand));
 

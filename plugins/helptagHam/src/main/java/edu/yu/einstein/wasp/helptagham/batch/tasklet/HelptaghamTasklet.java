@@ -334,7 +334,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		FileGroup helptaghamAnalysisFileGroup = fileService.createFileGroupCollection(helptagHAMFileGroups);
 
 		helptaghamAnalysisFileGroup.setDescription(prefixForFileName);
-		helptaghamAnalysisFileGroup.setSoftwareGeneratedBy(helptagHAM);
+		helptaghamAnalysisFileGroup.setSoftwareGeneratedById(helptagHAM.getId());
 		helptaghamAnalysisFileGroup.setDerivedFrom(derrivedFromFileGroups);
 		helptaghamAnalysisFileGroup.setIsActive(0);
 		helptaghamAnalysisFileGroup = fileService.addFileGroup(helptaghamAnalysisFileGroup);
@@ -413,10 +413,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 
 		logger.debug("getting ready to save hpa2Sample metadata  in HelptaghamTasklet");
 
-		// register commandLineCall, testCellLibraryIdList, controlCellLibraryIdList and controlId and testId with fileGroupMeta
-		// and record totalCountMappedReads, totalCountMappedReadsInPeaks, [FRIP statistic - will be derived from totalCountMappedReadsInPeaks /
-		// totalCountMappedReadsInPeaks]
-		// new 6-18-14
+		// register commandLineCall, hpa2CellLibraryIdList, msp1CellLibraryIdList and hpa2Id and msp1Id with fileGroupMeta
 		if (this.helptaghamAnalysisFileGroupId != null && hpa2Sample.getId() != 0) {
 			FileGroup enclosingFG = fileService.getFileGroupById(this.helptaghamAnalysisFileGroupId);
 			enclosingFG.setIsActive(1);
