@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.plugin.illumina.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -66,12 +68,6 @@ public class WaspIlluminaPlatformPlugin extends WaspPlugin implements ClientMess
 	
 	public static final String ILLUMINA_TRIM_ONLY_FLOW_NAME = "waspIlluminaPlatform.trimOnly.jobFlow";
 	
-	
-	public static final String STEP_NOTIFY_RUN_START = "waspIlluminaPlatform.mainFlow.notifyRunStart";
-	public static final String STEP_LISTEN_FOR_RUN_START = "waspIlluminaPlatform.mainFlow.listenForRunStart";
-	public static final String STEP_LISTEN_FOR_RUN_COMPLETION = "waspIlluminaPlatform.mainFlow.listenForRunCompletion";
-	public static final String STEP_LISTEN_FOR_QC = "waspIlluminaPlatform.mainFlow.listenForQCCompletion";
-	public static final String STEP_CREATE_SAMPLE_SHEET = "waspIlluminaPlatform.mainFlow.createSampleSheet";
 
 	public WaspIlluminaPlatformPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
@@ -230,8 +226,11 @@ public class WaspIlluminaPlatformPlugin extends WaspPlugin implements ClientMess
 	}
 
 	@Override
-	public String getRunQcStepName() {
-		return STEP_LISTEN_FOR_QC;
+	public List<String> getRunQcStepName() {
+		List<String> qcStepNames = new ArrayList<String>();
+		qcStepNames.add("waspIlluminaHiSeq.mainFlow.listenForQCCompletion");
+		qcStepNames.add("waspIlluminaPersonal.mainFlow.listenForQCCompletion");
+		return qcStepNames;
 	}
 
 	@Override

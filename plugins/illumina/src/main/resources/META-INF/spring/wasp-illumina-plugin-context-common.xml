@@ -22,15 +22,9 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="hiseqPluginArea" class="java.lang.String">
+	<bean id="waspIlluminaPlatformPluginArea" class="java.lang.String">
 		<constructor-arg>
 			<value>waspIlluminaPlatform</value>
-		</constructor-arg>
-	</bean>
-	
-	<bean id="personalSeqPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>waspIlluminaPersonalSeq</value>
 		</constructor-arg>
 	</bean>
 	
@@ -42,7 +36,7 @@
 	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaPlatform" ref="waspIlluminaPlatformPlugin" method="process" />
 	
 	<bean id="waspIlluminaPlatformPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaPlatformPlugin" depends-on="mps-tools">
-		<constructor-arg name="iName" ref="hiseqPluginArea" />
+		<constructor-arg name="iName" ref="waspIlluminaPlatformPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
 		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaPlatform" />
 		<property name="name" value="CASAVA" />

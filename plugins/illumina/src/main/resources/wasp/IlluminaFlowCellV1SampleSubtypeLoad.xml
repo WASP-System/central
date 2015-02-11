@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+    default-autowire="byName">
+   
+  <bean id="illuminaFlowcellv1UiFieldArea" class="java.lang.String">
+  	<constructor-arg><value>illuminaFlowcellv1</value></constructor-arg>
+  </bean>
+   
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaFlowcellv1UiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="illuminaFlowcellv1UiFieldArea" />
+  </bean>
+  
+   
+
+  <bean id="illuminaFlowcellv1SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="Illumina Flow Cell Version 1" />
+    <property name="area" ref="illuminaFlowcellv1UiFieldArea" />
+    <property name="sampleType" ref="puSampleType" />
+    <property name="compatibleResources">
+  		<list>
+  			<ref bean="illuminaHiSeq2000" />
+  			<ref bean="illuminaHiSeq2500" />
+  		</list>
+  	</property>
+  	
+  	<property name="uiFieldsFromWrapper">
+  		<list>
+	  		<bean parent="illuminaFlowcellv1UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
+	          <property name="label" value="illumina.cell.label" />
+	        </bean>
+	        <bean parent="illuminaFlowcellv1UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
+	          <property name="label" value="illumina.pu.label" />
+	        </bean>
+        </list>
+  	</property>
+  	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="illuminaFlowcellv1UiFieldArea" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspPlatformUnit['maxCellNumber']}=8</value>
+         		<value>#{waspPlatformUnit['multiplicationFactor']}=2</value>
+         	</list>
+         </property>
+       </bean>
+    </property> 
+  	
+  </bean>
+  
+</beans>

@@ -629,6 +629,7 @@ public class TaskController extends WaspController {
 				logger.warn("Unable to retrieve a taskmapping with name '" + name + "' from the TaskMappingRegistry");
 				continue;
 			}
+			logger.debug("evaluating task " + name + " to see if it should be shown");
 			if (taskMapping.isLinkToBeShown(activeJobs)){				
 					taskMappingHyperlinksToDisplay.add(taskMapping);
 			}
@@ -943,9 +944,15 @@ public class TaskController extends WaspController {
 	  for(Job job : jobService.getActiveJobs()){
 		  List<SampleSource> allCellLibrariesForJob = new ArrayList<SampleSource>();
 		  //make certain that aggregateAnalysis has not yet been kicked-off for this job
-		  if(jobService.isAnySampleCurrentlyBeingProcessed(job) || jobService.isAggregationAnalysisBatchJob(job)){
+		  boolean isAnySampleCurrentlyBeingProcessed =  jobService.isAnySampleCurrentlyBeingProcessed(job);
+		  boolean isAggregationAnalysisBatchJob = jobService.isAggregationAnalysisBatchJob(job);
+		  if (isAnySampleCurrentlyBeingProcessed || isAggregationAnalysisBatchJob){
+			  logger.trace("Job with id=" + job.getId() + " skipped because isAnySampleCurrentlyBeingProcessed=" + isAnySampleCurrentlyBeingProcessed + 
+					  " and isAggregationAnalysisBatchJob=" + isAggregationAnalysisBatchJob);
 			  continue;
 		  }
+		  logger.trace("Job with id=" + job.getId() + " is being processed because isAnySampleCurrentlyBeingProcessed=" + isAnySampleCurrentlyBeingProcessed + 
+				  " and isAggregationAnalysisBatchJob=" + isAggregationAnalysisBatchJob);
 		  Map<SampleSource, ExitStatus> jobCellLibrariesWithPreprocessingStatus = sampleService.getCellLibrariesWithPreprocessingStatus(job);//a preprocessed library is one that is sequenced and aligned
 		  for (SampleSource cellLibrary: jobCellLibrariesWithPreprocessingStatus.keySet()){
 			  cellLibraryWithPreprocessingStatusMap.put(cellLibrary, jobCellLibrariesWithPreprocessingStatus.get(cellLibrary).getExitCode());
