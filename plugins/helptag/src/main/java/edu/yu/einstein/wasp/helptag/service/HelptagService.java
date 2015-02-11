@@ -6,15 +6,19 @@ package edu.yu.einstein.wasp.helptag.service;
 
 import java.util.List;
 
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
+import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.service.WaspService;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 /**
  * 
@@ -53,5 +57,7 @@ public interface HelptagService extends WaspService {
 	public String getTypeOfHelpLibraryRequestedForMacromolecule(Sample sample);
 	public String getTypeOfHelpLibrary(Sample sample);
 	public List<String> getTypeOfHelpLibrariesRequestedList(List<SampleDraftMeta> sampleDraftMetaList);
+
+	public JobDataTabViewing getHAMPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException;
 		
 }

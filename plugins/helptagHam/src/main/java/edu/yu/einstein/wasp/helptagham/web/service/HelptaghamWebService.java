@@ -17,6 +17,6 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
 public interface HelptaghamWebService extends HelptaghamService {
 
 		
-	public Set<PanelTab> getHelptagDataToDisplay(Job job) throws PanelException;
+	public Set<PanelTab> getHAMDataToDisplay(Job job) throws PanelException;
 
 }

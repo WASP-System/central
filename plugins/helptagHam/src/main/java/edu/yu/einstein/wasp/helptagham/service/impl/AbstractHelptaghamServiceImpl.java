@@ -46,7 +46,7 @@ public abstract class AbstractHelptaghamServiceImpl extends WaspServiceImpl impl
 		fileGroup.setFileType(fileHandle.getFileType());
 		fileGroup.setSoftwareGeneratedById(software.getId());
 		fileGroup.setIsActive(0);
-		// modelScriptFG.setDerivedFrom(derrivedFromFileGroups);
+
 		Set<FileHandle> fileHandleSet = new HashSet<FileHandle>();
 		fileHandleSet.add(fileHandle);
 		fileGroup.setFileHandles(fileHandleSet);

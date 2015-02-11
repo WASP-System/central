@@ -24,7 +24,7 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.helptagham.service.HelptaghamService;
+import edu.yu.einstein.wasp.helptagham.web.service.HelptaghamWebService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
@@ -77,7 +77,7 @@ public class HelptaghamPlugin extends WaspPlugin
 	private Software helptagham;
 	
 	@Autowired
-	private HelptaghamService helptagHAMService;
+	private HelptaghamWebService helptagHAMWebService;
 
 	public static final String FLOW_NAME = "edu.yu.einstein.wasp.helptagham.mainFlow";
 
@@ -208,7 +208,7 @@ public class HelptaghamPlugin extends WaspPlugin
 	 */
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException {
-		return null;
+		return helptagHAMWebService.getHAMDataToDisplay(job);
 	}
 	
 	

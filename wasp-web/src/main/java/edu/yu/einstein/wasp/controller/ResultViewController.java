@@ -533,8 +533,7 @@ public class ResultViewController extends WaspController {
 				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, fg.getId().toString()));
 
 			List<GenomeBrowserProviding> plugins = new ArrayList<>();
-			plugins.addAll(waspPluginRegistry
-					.getPlugins(GenomeBrowserProviding.class));
+			plugins.addAll(waspPluginRegistry.getPlugins(GenomeBrowserProviding.class));
 			for (GenomeBrowserProviding plugin : plugins) {
 				Action action = plugin.getAction(fg);
 				if (action != null) {

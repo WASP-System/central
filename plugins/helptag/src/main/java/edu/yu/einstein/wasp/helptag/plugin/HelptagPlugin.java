@@ -29,6 +29,7 @@ import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
+import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
@@ -67,6 +68,9 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 
 	@Autowired
 	private GridFileService waspGridFileService;
+
+	@Autowired
+	private HelptagService helptagService;
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
@@ -271,7 +275,19 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 
 	@Override
 	public Set<PanelTab> getViewPanelTabs(Job job) throws PanelException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			// the summary panelTab is now provided directly from within the web: ResultViewController()
+			Set<PanelTab> panelTabSet = new LinkedHashSet<PanelTab>();
+			if (this.getStatus(job).toString().equals(Status.COMPLETED.toString())) {
+				JobDataTabViewing angleMakerPlugin = helptagService.getHAMPlugin(job);
+				Set<PanelTab> downstreamPanelTabSet = angleMakerPlugin.getViewPanelTabs(job);
+				if (downstreamPanelTabSet != null && !downstreamPanelTabSet.isEmpty()) {
+					panelTabSet.addAll(downstreamPanelTabSet);
+				}
+			}
+			return panelTabSet;
+		} catch (Exception e) {
+			throw new PanelException(e.getMessage());
+		}
 	}
 }

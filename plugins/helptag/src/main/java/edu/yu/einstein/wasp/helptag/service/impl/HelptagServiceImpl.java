@@ -14,22 +14,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetadataException;
+import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 @Service
 @Transactional("entityManager")
@@ -39,11 +48,20 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	private JobDraftService jobDraftService;
 	
 	@Autowired
+	private JobService jobService;
+
+	@Autowired
 	private FileService fileService;
 
 	@Autowired
 	private SampleService sampleService;
 	
+	@Autowired
+	ResourceType helptagAngleMakerResourceType;
+
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
 	@Autowired
 	private FileType hcountFileType;
 
@@ -54,6 +72,21 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public String performAction() {
 		// do something
 		return "done";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public JobDataTabViewing getHAMPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException {
+		WaspJobContext waspJobContext = new WaspJobContext(job.getId(), jobService);
+		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(helptagAngleMakerResourceType);
+		if (softwareConfig == null) {
+			throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname="
+													 + helptagAngleMakerResourceType.getIName());
+		}
+		return waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);
 	}
 
 	/**

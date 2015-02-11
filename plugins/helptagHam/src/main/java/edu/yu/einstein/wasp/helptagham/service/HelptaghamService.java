@@ -28,6 +28,12 @@ public interface HelptaghamService extends WaspService {
 	public static final String WORKING_DIRECTORY = "workingDirectory";
 	public static final String RESULTS_DIRECTORY = "resultsDirectory";
 
+	public static final String HELPTAG_LIB_AREA = "helptagLibrary";
+	public static final String HELPTAG_DNA_AREA = "helptagDNA";
+
+	public static final String RESTRICTION_ENZYME_META_KEY = "enzyme";
+	public static final String TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY = "typeOfHelpLibraryRequested";
+
 	public FileHandle createAndSaveInnerFileHandle(String fileName, FileType fileType);
 
 	public FileGroup createAndSaveInnerFileGroup(FileHandle fileHandle, Software software, String description);

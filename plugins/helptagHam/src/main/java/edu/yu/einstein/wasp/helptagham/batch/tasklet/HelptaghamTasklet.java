@@ -277,7 +277,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(wigFileHandle);
 		FileGroup wigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(wigFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated wiggle track file showing methylation histograms on hpaii loci");
+											 "xxx.wig is a wiggle-format file showing methylation histograms on hpaii loci when loaded into genome browser");
 		helptagHAMFileGroups.add(wigFileGroup);
 
 		FileHandle angleFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".angle", htgAngleFileType);
@@ -285,7 +285,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(angleFileHandle);
 		FileGroup angleFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(angleFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated tab-delimited file storing methylation scores on hpaii loci");
+											 "xxx.angle is a HELP-tagging pipeline specific tab-delimited file storing methylation scores on hpaii loci");
 		helptagHAMFileGroups.add(angleFileGroup);
 
 		FileHandle confInfoFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".conf.txt", textFileType);
@@ -293,7 +293,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(confInfoFileHandle);
 		FileGroup confInfoFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(confInfoFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated plain text file storing confidence scores' distribution information");
+											 "xxx.conf.txt is a plain text file storing confidence scores' distribution information");
 		helptagHAMFileGroups.add(confInfoFileGroup);
 
 		FileHandle bedFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".conf.bed", bedFileType);
@@ -301,7 +301,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(bedFileHandle);
 		FileGroup bedFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(bedFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated bed track showing the trimmed reads aligned to hpaii loci");
+ "xxx.conf.bed is a BED-format file showing the trimmed reads aligned to hpaii loci");
 		helptagHAMFileGroups.add(bedFileGroup);
 
 		FileHandle hcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".hc.wig", wigFileType);
@@ -309,7 +309,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(hcWigFileHandle);
 		FileGroup hcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(hcWigFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with high confidence scores");
+											 "xxx.hc.wig is a wiggle-format file only showing the hpaii loci with high confidence scores");
 		helptagHAMFileGroups.add(hcWigFileGroup);
 
 		FileHandle mcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".mc.wig", wigFileType);
@@ -317,7 +317,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(mcWigFileHandle);
 		FileGroup mcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(mcWigFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with medium confidence scores");
+											 "xxx.mc.wig is a wiggle-format file only showing the hpaii loci with medium confidence scores");
 		helptagHAMFileGroups.add(mcWigFileGroup);
 
 		FileHandle lcWigFileHandle = helptagHAMService.createAndSaveInnerFileHandle(prefixForFileName + ".lc.wig", wigFileType);
@@ -325,7 +325,7 @@ public class HelptaghamTasklet extends WaspRemotingTasklet implements StepExecut
 		files.add(lcWigFileHandle);
 		FileGroup lcWigFileGroup = helptagHAMService
 				.createAndSaveInnerFileGroup(lcWigFileHandle, helptagHAM,
-											 "HELP-tagging pipeline generated wiggle track only showing the hpaii loci with low confidence scores");
+											 "xxx.lc.wig is a wiggle-format file only showing the hpaii loci with low confidence scores");
 		helptagHAMFileGroups.add(lcWigFileGroup);
 
 		// will create enclosing fileGroup, save it to db, and
