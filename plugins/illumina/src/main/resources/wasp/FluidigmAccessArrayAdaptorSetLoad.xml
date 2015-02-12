@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="fluidigmAccessArrayIlluminaSingle384DNAAdaptorLoadArea" class="java.lang.String">
+		<constructor-arg><value>fluidigmAccessArrayIlluminaSingle384DNAAdaptors</value></constructor-arg>
+	</bean>
+
+	<bean id="fluidigmAccessArrayIlluminaSingle384DNAAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="fluidigmAccessArrayIlluminaSingle384DNAAdaptorLoadArea" />
+		<property name="name" value="Fluidigm Access Array (Illumina;SingleDirection;384)" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).NONE }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="multiple" />
+					<property name="name" value="multiple" />
+					<property name="sequence" value="AGACCAAGTCTCTGCTACCGTA" /> <!-- I think this is correct. Regardless, WASP will not be this sequence analysis -->
+					<property name="barcodesequence" value="multiple" />
+					<property name="barcodenumber" value="0" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+
