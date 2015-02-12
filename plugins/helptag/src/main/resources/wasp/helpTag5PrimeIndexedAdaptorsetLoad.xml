@@ -31,6 +31,13 @@
   	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed0" />
+  				<property name="name" value="No Index" />
+  				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
+  				<property name="barcodesequence" value="" />
+  				<property name="barcodenumber" value="0" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaHelptag5PrimeIndexedLibraryIndexed1" />
   				<property name="name" value="Index 1 (TATGACGT)" />
   				<property name="sequence" value="CTGCTGTCGTATGCCGTCTTCTGCTTG" />
