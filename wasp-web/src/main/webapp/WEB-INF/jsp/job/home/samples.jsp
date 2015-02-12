@@ -131,7 +131,7 @@
 							<c:set value="${libraryAdaptorsetMap.get(library)}" var="adaptorSet"/>
 							<label><fmt:message key="jobHomeSamples.adaptor.label" />:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
-							<label><fmt:message key="jobHomeSamples.index.label" />:</label> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]<br />
+							<label><fmt:message key="jobHomeSamples.index.label" />:</label> <c:out value="${adaptor.getName()}" /> <br />
 							<c:if test="${not empty receivedStatusMap.get(library)}">
 								<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>

@@ -203,7 +203,7 @@
 				<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
 				  <td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${adaptorSet.getName()}" /><br />
-					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
+					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getName()}" /> 
 				  </td>
 				</c:if>
 				<c:set var="_area" value = "sample" scope="request"/>
@@ -302,7 +302,7 @@
 				<c:if test="${fn:length(libraryAdaptorsetMap) > 1 }">
 				  <td class="DataTD"  style="text-align:center; white-space:nowrap;">
 					<c:out value="${adaptorSet.getName()}" /><br />
-					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getBarcodenumber()}" /> [<c:out value="${adaptor.getBarcodesequence()}" />]
+					<fmt:message key="sampleDetails.index.label" /> <c:out value="${adaptor.getName()}" /> 
 				  </td>
 				</c:if>
 				<c:set var="_area" value = "sample" scope="request"/>
