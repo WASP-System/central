@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,8 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 	private static final long serialVersionUID = -3322619814370790116L;
 		
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private final IndexingStrategy STRATEGY_MIXED = new IndexingStrategy("MIXED");
 
 	@Autowired
 	private SampleService sampleService;
@@ -206,6 +209,8 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 		Map<Integer, Sample> cells = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 		
 		logger.debug(cells.size() + " cells on platform unit " + platformUnit.getName());
+		
+		Map<Sample, IndexingStrategy> cellStrategy = new HashMap<Sample, IndexingStrategy>();	
 
 		for (Integer cellid : cells.keySet()) { // for each cell in platform unit
 			Sample cell = cells.get(cellid);
@@ -217,14 +222,13 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 			cellMarked[cellid-1] = false;
 			
 			for (SampleSource cellLibrary : all) {
-			    				
-				logger.debug("working with cell library: " + cellLibrary.getId() + " representing " + 
-						cellLibrary.getSourceSample().getId() +":"+ cellLibrary.getSourceSample().getName());
+				Sample library = sampleService.getLibrary(cellLibrary);
+				logger.debug("working with cell library: " + cellLibrary.getId() + " representing cell " + 
+						cell.getId() +" and library "+ library.getId());
 								
 				// if there is one control sample in the lane and no libraries, set the control flag
                 // the control library will be processed irrespective of method type.
                 if ((libraries.size() == 0) && (all.size() == 1)) {
-                                        
                 	SampleSource controlCellLib = all.get(0);
                 	logger.debug("looking to register lone control cell library: " + controlCellLib.getId() + " on cell: " + cellid );
                                         
@@ -245,7 +249,12 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 				// the cell library source sample is the library itself (cellLibrary.getSample() == cell).
 				Adaptor adaptor = adaptorService.getAdaptor(cellLibrary.getSourceSample());
 				IndexingStrategy strategy = adaptorService.getIndexingStrategy(adaptor.getAdaptorsetId());
-
+				if (!cellStrategy.containsKey(cell))
+					cellStrategy.put(cell, strategy);
+				else if ( !isTrueSeqStrategyMatch(cellStrategy.get(cell), strategy) )
+					cellStrategy.put(cell, STRATEGY_MIXED);
+				// else leave as it is
+				
 				// TRUSEQ processing includes all but TRUSEQ_DUAL
 				if (method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
 				    if (strategy.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL))
@@ -304,25 +313,39 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 				cellMarked[cellid-1] = true;
 			}
 			
-			// if the cell has not been marked (has TruSeq sample), create a dummy sample for 
+			// if the cell has not been marked (and has contains TRUSEQ or TRUSEQ_DUAL adaptor containing libraries matching method), create a dummy sample for 
 			// the lane if further demultiplexing is required
 			// or a single sample for the entire lane
 			
 				
-			if (cellMarked[cellid-1] == false && method.equals(IlluminaIndexingStrategy.TRUSEQ)) {
+			if (cellMarked[cellid-1] == false && cellStrategy.containsKey(cell) && isTrueSeqStrategyMatch(cellStrategy.get(cell), method)) {
 				logger.debug("setting dummy sample cell: " + cellid);
 				SampleSource placeholder = new SampleSource();
-				//Adaptor adaptor = new Adaptor();
 				placeholder.setId(-1);
-				
 				String line = buildLine(platformUnit, cell, "", placeholder, "N", "WASP", true);
-				
 				sampleSheet += "\n" + line;
 			}
 			
 		}
 		return sampleSheet;
 		
+	}
+	
+	/**
+	 * returns true if strategies equal (and either TRUSEQ or TRUSEQ_DUAL) or if one is STRATEGY_MIXED
+	 * @param strategy
+	 * @return
+	 */
+	private boolean isTrueSeqStrategyMatch(IndexingStrategy strategy1, IndexingStrategy strategy2){
+		if (strategy1 != IlluminaIndexingStrategy.TRUSEQ && strategy1 != IlluminaIndexingStrategy.TRUSEQ_DUAL && strategy1 != STRATEGY_MIXED)
+			return false;
+		if (strategy2 != IlluminaIndexingStrategy.TRUSEQ && strategy2 != IlluminaIndexingStrategy.TRUSEQ_DUAL && strategy2 != STRATEGY_MIXED)
+			return false;
+		if (strategy1.equals(strategy2))
+			return true;
+		if (strategy1.equals(STRATEGY_MIXED) || strategy2.equals(STRATEGY_MIXED))
+			return true;
+		return false;
 	}
 
 	private String buildLine(Sample platformUnit, Sample cell, String genome, SampleSource cellLibrary, String control, String recipe, boolean isSingleton) {

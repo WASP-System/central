@@ -58,13 +58,33 @@
 				</bean>
 			</batch:tasklet>
 		</batch:step>
-		<batch:step id="waspIlluminaPersonal.mainFlow.startIlluminaPipeline" next="waspIlluminaPersonal.mainFlow.barcodeStats">
+		<batch:step id="waspIlluminaPersonal.mainFlow.startIlluminaPipeline" next="waspIlluminaPersonal.mainFlow.createSampleSheetDual">
 			<!-- initiate the illumina pipeline -->
 			<batch:tasklet>
 				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" parent="baseIlluminaTasklet" scope="step">
 					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
 					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" />
 					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="waspIlluminaPersonal.mainFlow.createSampleSheetDual" next="waspIlluminaPersonal.mainFlow.startIlluminaPipelineDual">
+			<!-- task to create a sample sheet. Should do some rudimentary checking on samples. -->
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.SampleSheetTasklet" parent="baseIlluminaTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL}" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="waspIlluminaPersonal.mainFlow.startIlluminaPipelineDual" next="waspIlluminaPersonal.mainFlow.barcodeStats">
+			<!-- initiate the illumina pipeline -->
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.plugin.illumina.batch.tasklet.PipelineTasklet" parent="baseIlluminaTasklet" scope="step">
+					<constructor-arg name="runId" value="#{jobParameters[waspJobParameters.RUN_ID]}" />
+					<constructor-arg name="resourceCategoryIName" value="#{jobParameters[waspJobParameters.RUN_RESOURCE_CATEGORY_INAME]}" />
+					<constructor-arg name="method" value="#{T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).TRUSEQ_DUAL}" />
 				</bean>
 			</batch:tasklet>
 		</batch:step>
