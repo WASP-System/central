@@ -319,6 +319,7 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 			
 				
 			if (cellMarked[cellid-1] == false && cellStrategy.containsKey(cell) && isTrueSeqStrategyMatch(cellStrategy.get(cell), method)) {
+				logger.debug("No library is marked against cell and strategy '" + cellStrategy.get(cell) + "' matches method '" + method + "' so going to add entry for whole cell");
 				logger.debug("setting dummy sample cell: " + cellid);
 				SampleSource placeholder = new SampleSource();
 				placeholder.setId(-1);
@@ -337,9 +338,9 @@ public class IlluminaPlatformSequenceRunProcessor extends SequenceRunProcessor {
 	 * @return
 	 */
 	private boolean isTrueSeqStrategyMatch(IndexingStrategy strategy1, IndexingStrategy strategy2){
-		if (strategy1 != IlluminaIndexingStrategy.TRUSEQ && strategy1 != IlluminaIndexingStrategy.TRUSEQ_DUAL && strategy1 != STRATEGY_MIXED)
+		if (!strategy1.equals(IlluminaIndexingStrategy.TRUSEQ) && !strategy1.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL) && !strategy1.equals(STRATEGY_MIXED))
 			return false;
-		if (strategy2 != IlluminaIndexingStrategy.TRUSEQ && strategy2 != IlluminaIndexingStrategy.TRUSEQ_DUAL && strategy2 != STRATEGY_MIXED)
+		if (!strategy2.equals(IlluminaIndexingStrategy.TRUSEQ) && !strategy2.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL) && !strategy2.equals(STRATEGY_MIXED))
 			return false;
 		if (strategy1.equals(strategy2))
 			return true;
