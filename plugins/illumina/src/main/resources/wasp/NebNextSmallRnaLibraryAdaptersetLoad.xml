@@ -29,6 +29,13 @@
 		<property name="adaptorList">
 			<list>
 				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nebNextSmallRnaLibrary0" />
+					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, No Index" />
+					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />
+					<property name="barcodesequence" value="" />
+					<property name="barcodenumber" value="0" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
 					<property name="IName" value="nebNextSmallRnaLibrary1" />
 					<property name="name" value="NEBNext Multiplex Small RNA Library Prep, Index 1 (ATCACG)" />
 					<property name="sequence" value="AGATCGGAAGAGCACACGTCT" />

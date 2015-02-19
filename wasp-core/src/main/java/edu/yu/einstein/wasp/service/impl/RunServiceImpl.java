@@ -239,7 +239,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		genericParamValStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, genericParamValStringSet);
 		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING);
 		for(JobExecution jobExecution: jobExecutions){
 			try{
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -267,7 +267,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		genericParamValStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
-		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING));
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING));
 		if (je == null)
 			return ExitStatus.UNKNOWN;
 		return je.getExitStatus();
@@ -287,7 +287,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		genericParamValStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
 		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
-		if (! batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.RUNNING).isEmpty())
+		if (! batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.RUNNING).isEmpty())
 			return true;
 		return false;
 	}
@@ -303,7 +303,7 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 		genericParamValStringSet.add("*");
 		parameterMap.put(WaspJobParameters.RUN_ID, genericParamValStringSet);
 		parameterMap.put(WaspJobParameters.RUN_NAME, genericParamValStringSet);
-		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.COMPLETED);
+		List<JobExecution> jobExecutions = batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED);
 		for(JobExecution jobExecution: jobExecutions){
 			try {
 				Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(jobExecution, WaspJobParameters.RUN_ID));
@@ -364,7 +364,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	public Set<Run> getRunsAwaitingQc(){
 		Set<Run> runsAwaitingQc = new LinkedHashSet<Run>();
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+			for (String stepName: plugin.getRunQcStepName())
+				stepExecutions.addAll(batchJobExplorer.getStepExecutions(stepName, ExitStatus.RUNNING));
 			for(StepExecution stepExec: stepExecutions){
 				try{
 					Integer runId = Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(stepExec, WaspJobParameters.RUN_ID));
@@ -384,7 +386,9 @@ public class RunServiceImpl extends WaspMessageHandlingServiceImpl implements Ru
 	@Override
 	public boolean isRunsAwaitingQc(){
 		for (RunQcProviding plugin : waspPluginRegistry.getPlugins(RunQcProviding.class)){
-			List<StepExecution> stepExecutions = batchJobExplorer.getStepExecutions(plugin.getRunQcStepName(), ExitStatus.RUNNING);
+			List<StepExecution> stepExecutions = new ArrayList<StepExecution>();
+			for (String stepName: plugin.getRunQcStepName())
+				stepExecutions.addAll(batchJobExplorer.getStepExecutions(stepName, ExitStatus.RUNNING));
 			if (stepExecutions.size() > 0)
 				return true;
 		}

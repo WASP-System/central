@@ -4,7 +4,7 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
-	$( "#dialog-form" ).dialog({
+	$( "#dialog-form2" ).dialog({
 	    autoOpen: false,
 	    height: 270,
 	    width: 300,
@@ -55,7 +55,65 @@ $(document).ready(function(){
 	    	$("#validateTipForThisModalDialogForm").text("");	 
 	    	$( this ).dialog( "close" );
 	    }
-	  });	
+	  });
+	
+	
+	$( "#urlForAddMoreSamplesOfType" ).change(function(){
+		//alert("dubin testing new ADD SAMPLES method of change");
+		var href = $( this ).val();
+		//alert("value of href = " + href);
+		if(href == ""){//--select-- was selected; should not happen 
+			return false;
+		}
+		$(location).attr('href',href);
+		return;
+	});
+	
+	$( "#urlForEditYourSamplesOfType" ).change(function(){
+		//alert("dubin testing new EDIT EDIT EDIT method of change");
+		var numberOfAdaptorSetsUsedOnThisJobDraftAndSampleTypeAndHref = $( this ).val();
+		if(numberOfAdaptorSetsUsedOnThisJobDraftAndSampleTypeAndHref==""){//--select-- was selected; should not happen 
+			return false;
+		}
+		//alert("value of numberOfAdaptorSetsUsedOnThisJobDraftAndSampleTypeAndHref = " + numberOfAdaptorSetsUsedOnThisJobDraftAndSampleTypeAndHref);
+		var splitArray = numberOfAdaptorSetsUsedOnThisJobDraftAndSampleTypeAndHref.split("::",3);
+		var numberOfAdaptorSetsUsedOnThisJobDraft = splitArray[0];
+		var sampleType = splitArray[1];
+		var href = splitArray[2];
+		if(numberOfAdaptorSetsUsedOnThisJobDraft == null || numberOfAdaptorSetsUsedOnThisJobDraft == "" || sampleType == null || sampleType == "" || href == null || href == ""){
+			alert("Unexpected Error; should not occur");
+			return false;
+		}
+		//alert("numberOfAdaptorSetsUsedOnThisJobDraft = " + numberOfAdaptorSetsUsedOnThisJobDraft);
+		//alert("value of href = " + href);
+		if(sampleType.toLowerCase() != "library"){
+			//alert("sampleType is NOT library, so can go to next page");
+			$(location).attr('href',href);
+			return;
+		}
+		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft == "0"){//bioanalyzer libraryftheSelectedAdaptorset
+			$(location).attr('href',href);
+			return;
+		}
+		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft == "1"){
+			//alert("sampleType is a library AND number of adaptors used on this job draft is 1, and it's in the url, so go to next page");
+			$(location).attr('href',href);
+			return;
+		}		
+		else if(sampleType.toLowerCase() == "library" && numberOfAdaptorSetsUsedOnThisJobDraft != "0" && numberOfAdaptorSetsUsedOnThisJobDraft != "1"){
+			//alert("sampleType is a library AND number of adaptors used on this job draft is > 1 so MUST DISPLAY DIALOG-FORM2");
+			//delegate (pull href and assign to location) to dialog-form2
+			$( "#dialog-form2" ).dialog( "open" );//if a url is selected, this will go to next page via code in dialog-form2
+			$( this ).val("");//in case the user selects cancel on the dialog-from, I want to reset this select box back to choice: --select--  
+			return;
+		}	
+		else{
+			alert("Unexpected Error (should never occur)");
+			return false;
+		}
+	});
+	
+	
 });
 
 function verifyRemove(targetURL){

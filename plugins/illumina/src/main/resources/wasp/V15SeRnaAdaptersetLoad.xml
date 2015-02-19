@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+
+	<bean id="v1_5SeRnaLibraryArea" class="java.lang.String">
+		<constructor-arg><value>v1_5SeRnaLibrary</value></constructor-arg>
+	</bean>
+
+	<bean id="v1_5SeRnaLibraryAdaptorsetLoad" class="edu.yu.einstein.wasp.load.AdaptorsetLoaderAndFactory">
+		<property name="area" ref="v1_5SeRnaLibraryArea" />
+		<property name="name" value="V1.5 SE RNA" />
+		<property name="sampleType" ref="dnaSampleType" />
+		<property name="indexingStrategy" value="#{ T(edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy).NONE }" />
+		<property name="compatibleResources">
+			<list>
+				<ref bean="illuminaHiSeq2000" />
+				<ref bean="illuminaHiSeq2500" />
+				<ref bean="illuminaMiSeqPersonalSequencer" />
+			</list>
+		</property>
+
+		<property name="adaptorList">
+			<list>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="v1_5SeRnaLibrary0" />
+					<property name="name" value="V1.5 SE RNA" />
+					<property name="sequence" value="ATCTCGTATGCCGTCTTCTGCTTG" />
+					<property name="barcodesequence" value="" />
+					<property name="barcodenumber" value="0" />
+				</bean>
+			</list>
+  		</property>
+	</bean> 
+
+</beans>
+

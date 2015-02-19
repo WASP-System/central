@@ -3,6 +3,8 @@
  */
 package edu.yu.einstein.wasp.plugin.illumina.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.json.JSONException;
@@ -17,7 +19,6 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.grid.GridHostResolver;
 import edu.yu.einstein.wasp.grid.file.GridFileService;
-import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.ConfigureablePropertyProviding;
@@ -29,7 +30,7 @@ import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.WaspModel;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.plugin.mps.SequenceReadProperties;
 import edu.yu.einstein.wasp.service.RunService;
 
@@ -37,9 +38,9 @@ import edu.yu.einstein.wasp.service.RunService;
  * @author calder
  * 
  */
-public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessageI, RunQcProviding, SequencingViewProviding, ConfigureablePropertyProviding {
+public class WaspIlluminaPlatformPlugin extends WaspPlugin implements ClientMessageI, RunQcProviding, SequencingViewProviding, ConfigureablePropertyProviding {
 
-	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaHiseqPlugin.class);
+	private static Logger logger = LoggerFactory.getLogger(WaspIlluminaPlatformPlugin.class);
 
 	@Autowired
 	private GridHostResolver waspGridHostResolver;
@@ -50,28 +51,25 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 	@Autowired
 	private RunService runService;
 
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
 	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
-
+	
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -654454985142070980L;
 
-	public static final String ILLUMINA_MAIN_FLOW_NAME = "waspIlluminaHiSeq.jobFlow";
+	public static final String ILLUMINA_HISEQ_FLOW_NAME = "waspIlluminaHiSeq.jobFlow";
 	
-	public static final String ILLUMINA_TRIM_ONLY_FLOW_NAME = "waspIlluminaHiSeq.trimOnly.jobFlow";
+	public static final String ILLUMINA_PERSONAL_FLOW_NAME = "waspIlluminaPersonal.jobFlow";
 	
+	public static final String ILLUMINA_TRIM_ONLY_FLOW_NAME = "waspIlluminaPlatform.trimOnly.jobFlow";
 	
-	public static final String STEP_NOTIFY_RUN_START = "waspIlluminaHiSeq.mainFlow.notifyRunStart";
-	public static final String STEP_LISTEN_FOR_RUN_START = "waspIlluminaHiSeq.mainFlow.listenForRunStart";
-	public static final String STEP_LISTEN_FOR_RUN_COMPLETION = "waspIlluminaHiSeq.mainFlow.listenForRunCompletion";
-	public static final String STEP_LISTEN_FOR_QC = "waspIlluminaHiSeq.mainFlow.listenForQCCompletion";
-	public static final String STEP_CREATE_SAMPLE_SHEET = "waspIlluminaHiSeq.mainFlow.createSampleSheet";
 
-	public WaspIlluminaHiseqPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
+	public WaspIlluminaPlatformPlugin(String iName, Properties waspSiteProperties, MessageChannel channel) {
 		super(iName, waspSiteProperties, channel);
 	}
 
@@ -170,60 +168,69 @@ public class WaspIlluminaHiseqPlugin extends WaspPlugin implements ClientMessage
 
 	private Message<String> bcl2fastqHelp() {
 		String mstr = "\nIllumina Pipeline plugin: demultiplex and convert bcl to qseq/fastq:\n" +
-				"wasp -T waspIlluminaHiSeq -t bcl2qseq -m \'{runId:\"101\"}\'\n" +
-				"wasp -T waspIlluminaHiSeq -t bcl2qseq -m \'{runName:101010_RUN_ID}\'\n";
+				"wasp -T waspIlluminaPlatform -t bcl2qseq -m \'{runId:\"101\"}\'\n" +
+				"wasp -T waspIlluminaPlatform -t bcl2qseq -m \'{runName:101010_RUN_ID}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 	private Message<String> getSampleSheetHelp() {
 		String mstr = "\nIllumina Pipeline plugin: output sample sheet for a given run:\n" +
-				"wasp -T waspIlluminaHiSeq -t getSampleSheet -m \'{runId:\"101\"}\'\n" +
-				"wasp -T waspIlluminaHiSeq -t getSampleSheet -m \'{runName:101010_RUN_ID}\'\n";
+				"wasp -T waspIlluminaPlatform -t getSampleSheet -m \'{runId:\"101\"}\'\n" +
+				"wasp -T waspIlluminaPlatform -t getSampleSheet -m \'{runName:101010_RUN_ID}\'\n";
 		return MessageBuilder.withPayload(mstr).build();
 	}
 	
 //	private Message<String> getFlowcellHelp() {
 //		String mstr = "\nIllumina Pipeline plugin: output sample sheet for a given run:\n" +
-//				"wasp -T waspIlluminaHiSeq -t getAvailablePU";
+//				"wasp -T waspIlluminaPlatform -t getAvailablePU";
 //		return MessageBuilder.withPayload(mstr).build();
 //	}
 	
 	
 	@Override
-	public String getBatchJobName(String batchJobType) {
-		if (batchJobType.equals(BatchJobTask.GENERIC))
-			return ILLUMINA_MAIN_FLOW_NAME;
+	public String getBatchJobName(String illuminaResourceCategory) {
+		return getBatchJobNameForResourceCategory(illuminaResourceCategory);
+	}
+	
+	public static String getBatchJobNameForResourceCategory(String illuminaResourceCategory) {
+		if (illuminaResourceCategory.equals(IlluminaResourceCategory.HISEQ_2000) || illuminaResourceCategory.equals(IlluminaResourceCategory.HISEQ_2500))
+			return ILLUMINA_HISEQ_FLOW_NAME;
+		if (illuminaResourceCategory.equals(IlluminaResourceCategory.PERSONAL))
+			return ILLUMINA_PERSONAL_FLOW_NAME;
 		return null;
 	}
-
+	
 	@Override
 	public Hyperlink getDescriptionPageHyperlink(){
-		return new Hyperlink("waspIlluminaPlugin.hyperlink.label", "/waspIlluminaHiSeq/description.do");
+		return new Hyperlink("waspIlluminaPlugin.hyperlink.label", "/waspIlluminaPlatform/description.do");
 	}
 	
 	@Override
 	public String getShowPlatformUnitViewLink(Integer platformUnitId) {
-		return "waspIlluminaHiSeq/flowcell/" + platformUnitId + "/show.do";
+		return "waspIlluminaPlatform/flowcell/" + platformUnitId + "/show.do";
 	}
 
 
 	/**
 	 * @return the casava
 	 */
-	public IlluminaHiseqSequenceRunProcessor getCasava() {
+	public IlluminaPlatformSequenceRunProcessor getCasava() {
 		return casava;
 	}
 
 	/**
 	 * @param casava the casava to set
 	 */
-	public void setCasava(IlluminaHiseqSequenceRunProcessor casava) {
+	public void setCasava(IlluminaPlatformSequenceRunProcessor casava) {
 		this.casava = casava;
 	}
 
 	@Override
-	public String getRunQcStepName() {
-		return STEP_LISTEN_FOR_QC;
+	public List<String> getRunQcStepName() {
+		List<String> qcStepNames = new ArrayList<String>();
+		qcStepNames.add("waspIlluminaHiSeq.mainFlow.listenForQCCompletion");
+		qcStepNames.add("waspIlluminaPersonal.mainFlow.listenForQCCompletion");
+		return qcStepNames;
 	}
 
 	@Override

@@ -78,11 +78,11 @@ public class TrimGalore extends SoftwarePackage {
     @Autowired
     private SampleService sampleService;
 
-    // cannot autowire as IlluminaHiseqSequenceRunProcessor here which is all we
+    // cannot autowire as IlluminaPlatformSequenceRunProcessor here which is all we
     // really need. Beans referenced by base type so must
     // as Software and use @Qualifier to specify the casava bean.
     // Seems to be an issue for batch but not Web which accepts
-    // IlluminaHiseqSequenceRunProcessor.
+    // IlluminaPlatformSequenceRunProcessor.
     @Autowired
     @Qualifier("casava")
     private SoftwarePackage casava;

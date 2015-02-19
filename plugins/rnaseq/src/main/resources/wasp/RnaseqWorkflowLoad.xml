@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="rnaseqUiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="rnaseqPluginArea" />
+  </bean>
+
+
+  <bean id="rnaseqWorkflow" class="edu.yu.einstein.wasp.load.WorkflowLoaderAndFactory" >
+    <property name="area" ref="rnaseqPluginArea" />
+    <property name="name" value="RNA Seq" />
+    <property name="pageFlowOrder">
+      <list>
+		<!-- <value>/jobsubmit/modifymeta/{n}</value> -->
+		<value>/jobsubmit/resource/#{mpsResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/samples/{n}</value>
+		<value>/jobsubmit/genomes/{n}</value>
+		<value>/jobsubmit/cells/{n}</value>
+		<!-- <value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>-->
+		<value>/jobsubmit/software/#{referenceBasedRNAAlignerResourceType.getIName()}/{n}</value> 
+		<value>/jobsubmit/comment/{n}</value>
+		<value>/jobsubmit/verify/{n}</value>
+		<value>/jobsubmit/submit/{n}</value>
+		<value>/jobsubmit/ok</value>
+      </list>
+    </property>
+    
+    <property name="jobFlowBatchJob" value="default.waspJob.jobflow.v1"  />
+
+    <property name="dependencies">
+      <list>
+      	<ref bean="mpsResourceType" />
+        <!--  <ref bean="referenceBasedAlignerResourceType" /> -->
+        <ref bean="referenceBasedRNAAlignerResourceType" />
+        <ref bean="libraryStrategyResourceType" />
+      </list>
+    </property>
+
+    <property name="sampleSubtypes">
+      <list>
+        <ref bean="rnaseqRnaSampleSubtypeResource" />
+        <ref bean="rnaseqCDNASampleSubtypeResource" />
+        <ref bean="rnaseqLibrarySampleSubtypeResource" />
+        <ref bean="rnaseqFacilityLibrarySampleSubtypeResource" />
+      </list>
+    </property>
+    
+    <property name="uiFieldsFromWrapper">
+      <list>
+      	<bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="workflow" />
+          <property name="label" value="rnaseq.wf.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/modifymeta" />
+          <property name="label" value="rnaseq.modifyMeta.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/resource/mps" />
+          <property name="label" value="rnaseq.mps.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/samples" />
+          <property name="label" value="rnaseq.samples.title" />
+        </bean>       
+		<bean parent="rnaseqUiFieldWrapper">
+			<property name="baseName" value="jobsubmit/genomes" />
+			<property name="label" value="rnaseq.genomes.title" />
+		</bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/cells" />
+          <property name="label" value="rnaseq.cells.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/referenceBasedRNAAligner" />
+          <property name="label" value="rnaseq.aligner.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/software/rnaseqPipeline" />
+          <property name="label" value="rnaseq.pipeline.title" />
+        </bean>
+         <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/comment" />
+          <property name="label" value="rnaseq.comments.title" />
+        </bean>
+        <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/verify" />
+          <property name="label" value="rnaseq.verify.title" />
+        </bean>
+         <bean parent="rnaseqUiFieldWrapper">
+          <property name="baseName" value="jobsubmit/submit" />
+          <property name="label" value="rnaseq.submit.title" />
+        </bean>
+     </list>
+ 
+    </property>
+  </bean>
+
+</beans>

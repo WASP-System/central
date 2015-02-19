@@ -16,6 +16,12 @@
     <property name="area" value="rna" />
     <property name="sampleTypeCategory" ref="biomaterialSampleTypeCategory" />
   </bean>
+
+  <bean id="cdnaSampleType" class="edu.yu.einstein.wasp.load.SampleTypeLoaderAndFactory">
+    <property name="name" value="cDNA" />
+    <property name="area" value="cdna" />
+    <property name="sampleTypeCategory" ref="biomaterialSampleTypeCategory" />
+  </bean>
  
 </beans>
 

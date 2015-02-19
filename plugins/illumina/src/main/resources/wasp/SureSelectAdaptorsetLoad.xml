@@ -30,6 +30,13 @@
   	<property name="adaptorList">
   		<list>
   			<bean class="edu.yu.einstein.wasp.model.Adaptor">
+  				<property name="IName" value="illuminaSureSelectDnaIndexed0" />
+  				<property name="name" value="sureSelect Adapter, No Index" />
+  				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />
+  				<property name="barcodesequence" value="" />
+  				<property name="barcodenumber" value="0" />
+  			</bean>
+  			<bean class="edu.yu.einstein.wasp.model.Adaptor">
   				<property name="IName" value="illuminaSureSelectDnaIndexed1" />
   				<property name="name" value="sureSelect Adapter, Index 1 (ATCACG)" />
   				<property name="sequence" value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC" />

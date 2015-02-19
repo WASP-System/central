@@ -22,29 +22,23 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="hiseqPluginArea" class="java.lang.String">
+	<bean id="waspIlluminaPlatformPluginArea" class="java.lang.String">
 		<constructor-arg>
-			<value>waspIlluminaHiSeq</value>
-		</constructor-arg>
-	</bean>
-	
-	<bean id="personalSeqPluginArea" class="java.lang.String">
-		<constructor-arg>
-			<value>waspIlluminaPersonalSeq</value>
+			<value>waspIlluminaPlatform</value>
 		</constructor-arg>
 	</bean>
 	
 	<bean id="illuminaResourceCategory" class="edu.yu.einstein.wasp.plugin.illumina.plugin.IlluminaResourceCategory" />
 	
 	<!-- channel for communications with this plugin. -->
-	<int:channel id="wasp.channel.plugin.waspIlluminaHiSeq" />
+	<int:channel id="wasp.channel.plugin.waspIlluminaPlatform" />
 
-	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaHiSeq" ref="waspIlluminaHiseqPlugin" method="process" />
+	<int:service-activator input-channel="wasp.channel.plugin.waspIlluminaPlatform" ref="waspIlluminaPlatformPlugin" method="process" />
 	
-	<bean id="waspIlluminaHiseqPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaHiseqPlugin" depends-on="mps-tools">
-		<constructor-arg name="iName" ref="hiseqPluginArea" />
+	<bean id="waspIlluminaPlatformPlugin" class="edu.yu.einstein.wasp.plugin.illumina.plugin.WaspIlluminaPlatformPlugin" depends-on="mps-tools">
+		<constructor-arg name="iName" ref="waspIlluminaPlatformPluginArea" />
 		<constructor-arg name="waspSiteProperties" ref="waspSiteProperties" />
-		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaHiSeq" />
+		<constructor-arg name="channel" ref="wasp.channel.plugin.waspIlluminaPlatform" />
 		<property name="name" value="CASAVA" />
 		<property name="description" value="Processes sequencing reads provied by RTA or OLB" />
 		<property name="provides" >
@@ -56,6 +50,7 @@
 			<set>
 				<value>#{illuminaResourceCategory.HISEQ_2000}</value> 
 				<value>#{illuminaResourceCategory.HISEQ_2500}</value>
+				<value>#{illuminaResourceCategory.PERSONAL}</value>
 			</set>
 		</property>
 		<property name="casava" ref="casava" />

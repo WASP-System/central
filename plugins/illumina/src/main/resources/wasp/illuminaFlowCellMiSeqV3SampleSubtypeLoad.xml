@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+    default-autowire="byName">
+   
+  <bean id="illuminaFlowcellMiSeqV3UiFieldArea" class="java.lang.String">
+  	<constructor-arg><value>illuminaFlowcellMiSeqV3</value></constructor-arg>
+  </bean>
+   
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="illuminaFlowcellMiSeqV3UiFieldWrapper">
+    <property name="baseLocale" value="en_US" />
+    <property name="baseArea" ref="illuminaFlowcellMiSeqV3UiFieldArea" />
+  </bean>
+  
+   
+
+  <bean id="illuminaFlowcellMiSeqV3SampleLoad" class="edu.yu.einstein.wasp.load.SampleSubtypeLoaderAndFactory">
+  	<property name="name" value="Illumina Flow Cell MiSeq V3" />
+    <property name="area" ref="illuminaFlowcellMiSeqV3UiFieldArea" />
+    <property name="sampleType" ref="puSampleType" />
+    <property name="compatibleResources">
+  		<list>
+  			<ref bean="illuminaMiSeqPersonalSequencer" />
+  		</list>
+  	</property>
+  	
+  	<property name="uiFieldsFromWrapper">
+  		<list>
+	  		<bean parent="illuminaFlowcellMiSeqV3UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['cellName']}" />
+	          <property name="label" value="illumina.cell.label" />
+	        </bean>
+	        <bean parent="illuminaFlowcellMiSeqV3UiFieldWrapper">
+	          <property name="baseName" value="#{waspPlatformUnit['platformUnitName']}" />
+	          <property name="label" value="illumina.pu.label" />
+	        </bean>
+        </list>
+  	</property>
+  	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="illuminaFlowcellMiSeqV3UiFieldArea" />
+         <property name="metaList">
+         	<list>
+         		<value>#{waspPlatformUnit['maxCellNumber']}=1</value>
+         		<value>#{waspPlatformUnit['multiplicationFactor']}=1</value>
+         	</list>
+         </property>
+       </bean>
+    </property> 
+  	
+  </bean>
+  
+</beans>

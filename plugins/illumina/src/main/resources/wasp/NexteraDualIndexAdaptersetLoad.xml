@@ -29,6 +29,13 @@
 		<property name="adaptorList">
 			<list>
 				<bean class="edu.yu.einstein.wasp.model.Adaptor">
+					<property name="IName" value="nexteraDualIndex0" />
+					<property name="name" value="No Index" />
+					<property name="sequence" value="CTGTCTCTTATACACATCT" />
+					<property name="barcodesequence" value="" />
+					<property name="barcodenumber" value="0" />
+				</bean>
+				<bean class="edu.yu.einstein.wasp.model.Adaptor">
 					<property name="IName" value="nexteraDualIndex1" />
 					<property name="name" value="N701-N501, Index 1 (TAAGGCGA-TAGATCGC)" />
 					<property name="sequence" value="CTGTCTCTTATACACATCT" />

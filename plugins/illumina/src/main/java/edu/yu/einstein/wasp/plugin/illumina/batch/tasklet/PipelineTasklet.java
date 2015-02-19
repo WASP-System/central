@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.yu.einstein.wasp.daemon.batch.tasklets.WaspRemotingTasklet;
-import edu.yu.einstein.wasp.exception.GridException;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.exception.WaspRuntimeException;
 import edu.yu.einstein.wasp.grid.GridHostResolver;
@@ -30,7 +29,7 @@ import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.plugin.illumina.IlluminaIndexingStrategy;
 import edu.yu.einstein.wasp.plugin.illumina.service.WaspIlluminaService;
-import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaHiseqSequenceRunProcessor;
+import edu.yu.einstein.wasp.plugin.illumina.software.IlluminaPlatformSequenceRunProcessor;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 import edu.yu.einstein.wasp.util.PropertyHelper;
@@ -52,11 +51,13 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	
 	private IndexingStrategy method;
 	
+	private String resourceCategoryIName;
+	
 	@Autowired
 	private GridHostResolver hostResolver;
 	
 	@Autowired
-	private IlluminaHiseqSequenceRunProcessor casava;
+	private IlluminaPlatformSequenceRunProcessor casava;
 	
 	@Autowired
 	private WaspIlluminaService waspIlluminaService;
@@ -73,13 +74,14 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 	/**
 	 * 
 	 */
-	public PipelineTasklet(Integer runId, IndexingStrategy method) {
+	public PipelineTasklet(Integer runId, String resourceCategoryIName, IndexingStrategy method) {
 		this.runId = runId;
 		if (! method.equals(IlluminaIndexingStrategy.TRUSEQ) && ! method.equals(IlluminaIndexingStrategy.TRUSEQ_DUAL)) {
 		    logger.error("unable to run illumina pipeline in mode " + method);
 		    throw new WaspRuntimeException("unknown illumina pipeline mode: " + method);
 		}
 		this.method = method;
+		this.resourceCategoryIName = resourceCategoryIName;
 		logger.debug("PipelineTasklet with method type " + method);
 	}
 
@@ -99,11 +101,11 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String sampleSheetName;
 		
 		if (method == IlluminaIndexingStrategy.TRUSEQ) {
-		    outputFolder = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME;
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
+		    outputFolder = IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME;
 		} else {
-		    outputFolder = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME;
-		    sampleSheetName = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
+		    outputFolder = IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_OUTPUT_FOLDER_NAME;
+		    sampleSheetName = IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_SAMPLE_SHEET_NAME;
 		}
 		
 		// TODO: handle single and dual situations.
@@ -121,12 +123,8 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 			procs = new Integer(p);
 		}
 		c.setProcessorRequirements(procs);
-		String dataDir = gws.getTransportConnection().getConfiguredSetting("illumina.data.dir");
-		if (!PropertyHelper.isSet(dataDir))
-			throw new GridException("illumina.data.dir is not defined!");
-		
-		c.setWorkingDirectory(dataDir + "/" + run.getName() 
-				+ "/Data/Intensities/BaseCalls/" );
+		String dataDir = waspIlluminaService.getIlluminaRunFolderPath(gws, resourceCategoryIName);
+		c.setWorkingDirectory(dataDir + "/" + run.getName() + "/Data/Intensities/BaseCalls/" );
 		
 		c.setResultsDirectory(dataDir + "/" + run.getName() + "/" + outputFolder);
 		WorkUnit w = new WorkUnit(c);
@@ -147,8 +145,8 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String missingControl = sm.getConfiguredSetting("casava.ignore-missing-control");
 		String fastqNclusters = sm.getConfiguredSetting("casava.fastq-cluster-count");
 		
-		String semaphore = sampleSheetName.equals(IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME) ? 
-		        IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE : IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
+		String semaphore = sampleSheetName.equals(IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SAMPLE_SHEET_NAME) ? 
+		        IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE : IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
 		
 		String retval = "if [ ! -e " + semaphore + " ]; then\n\n touch " + semaphore + "\n\n";
 		
@@ -261,9 +259,9 @@ public class PipelineTasklet extends WaspRemotingTasklet {
 		String workingDir = result.getWorkingDirectory();
 		String semaphore;
 		if (method == IlluminaIndexingStrategy.TRUSEQ) {
-			semaphore = IlluminaHiseqSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE;
+			semaphore = IlluminaPlatformSequenceRunProcessor.SINGLE_INDEX_SEMAPHORE;
 		} else {
-			semaphore = IlluminaHiseqSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
+			semaphore = IlluminaPlatformSequenceRunProcessor.DUAL_INDEX_SEMAPHORE;
 		}
 		String remoteFile = workingDir + "/" + semaphore;
 		hostResolver.getGridWorkService(result).getGridFileService().delete(remoteFile);

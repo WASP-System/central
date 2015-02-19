@@ -42,10 +42,10 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 	
 	private GridHostResolver gridHostResolver;
 	
-	private SoftwarePackage softwarePackage;
-	private String rootDirectory;
+	protected SoftwarePackage softwarePackage;
+	protected String rootDirectory;
+	protected String filename;
 	private String subDirectory;
-	private String filename;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -80,14 +80,14 @@ public class ExternalFileExistsTasklet extends WaspHibernatingTasklet {
 	 * Tasklet to continuously look for the presence of a file on a remote host.
 	 * 
 	 * @param softwarePackage
-	 * @param directoryId Identifying string, key of root directory on remote host.
+	 * @param dataDir Identifying string, key of root directory on remote host.
 	 * @param filename
 	 */
-	public ExternalFileExistsTasklet(SoftwarePackage softwarePackage, String directoryId, String filename) {
+	public ExternalFileExistsTasklet(SoftwarePackage softwarePackage, String dataDir, String filename) {
 		this.softwarePackage = softwarePackage;
-		this.rootDirectory = directoryId;
+		this.rootDirectory = dataDir;
 		this.filename = filename;
-		logger.debug("root " + directoryId);
+		logger.debug("root " + dataDir);
 		logger.debug("filename " + filename);
 	}
 
