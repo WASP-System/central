@@ -116,7 +116,7 @@ public class HelptaghamJobLaunchTests extends AbstractTestNGSpringContextTests i
 	 * in the correct order. 
 	 * Finally we check that the job execution exited with a success status of COMPLETED.
 	 */
-	@Test (groups = "helptagham-tests")
+	//@Test (groups = "helptagham-tests")
 	public void testSuccessfulHelptaghamJobLaunch() throws Exception{
 		try{
 			Map<String, String> jobParameters = new HashMap<String, String>();
