@@ -28,7 +28,7 @@
 		<value>/jobsubmit/cells/{n}</value>
 		<value>/jobsubmit/helptag/pair/{n}</value> 
 		<value>/jobsubmit/software/#{referenceBasedAlignerResourceType.getIName()}/{n}</value>
-		<value>/jobsubmit/software/#{helptagPipelineResourceType.getIName()}/{n}</value>
+		<value>/jobsubmit/software/#{helptagAngleMakerResourceType.getIName()}/{n}</value>
 		<value>/jobsubmit/comment/{n}</value>
 		<value>/jobsubmit/verify/{n}</value>
 		<value>/jobsubmit/submit/{n}</value>
@@ -42,7 +42,8 @@
       <list>
       	<ref bean="mpsResourceType" />
         <ref bean="referenceBasedAlignerResourceType" />
-        <ref bean="helptagPipelineResourceType" />
+        <!-- <ref bean="helptagPipelineResourceType" /> -->
+        <ref bean="helptagAngleMakerResourceType" />
         <ref bean="libraryStrategyResourceType" />
       </list>
     </property>
@@ -94,8 +95,8 @@
           <property name="label" value="helptag.aligner.title" />
         </bean>
         <bean parent="helptagUiFieldWrapper">
-          <property name="baseName" value="jobsubmit/software/helptagPipeline" />
-          <property name="label" value="helptag.pipeline.title" />
+          <property name="baseName" value="jobsubmit/software/helptagAngleMaker" />
+          <property name="label" value="helptag.anglemaker.title" />
         </bean>
          <bean parent="helptagUiFieldWrapper">
           <property name="baseName" value="jobsubmit/comment" />

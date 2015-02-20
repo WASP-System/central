@@ -22,4 +22,13 @@
     <property name="resourceType" ref="genericPluginResourceType" /> <!-- TODO: choose a more appropriate resource type -->
   </bean> 
 
+  <bean id="helptagAngleMakerArea" class="java.lang.String">
+  	<constructor-arg><value>helptagAngleMaker</value></constructor-arg>
+  </bean>
+
+  <bean id="helptagAngleMakerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="HELPtagging Angle Maker" />
+    <property name="area" ref="helptagAngleMakerArea" />
+  </bean>
+
 </beans>

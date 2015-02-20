@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-autowire="byName"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="htgAngleFileType" class="edu.yu.einstein.wasp.load.FileTypeLoaderAndFactory" >
+    <property name="name" value="Angle-like methylation score" />
+    <property name="area" value="angle" />
+    <property name="description" value="Tab delimited format for storing methylation score from HELPtagging pipeline" />
+    <property name="extensions" value="angle" />
+  </bean>
+
+</beans>
+

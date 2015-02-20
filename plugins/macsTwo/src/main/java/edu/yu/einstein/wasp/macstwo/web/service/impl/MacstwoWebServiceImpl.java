@@ -181,7 +181,8 @@ public class MacstwoWebServiceImpl extends MacstwoServiceImpl implements Macstwo
 			Panel fripCalculationByAnalysisPanel = MacstwoWebPanels.getFripCalculationByAnalysisPanel(macs2AnalysisFileGroupList, outerCollectionFileGroupFripCalculationMap);
 			panelTab.addPanel(fripCalculationByAnalysisPanel);			
 			// 9-30-14
-			Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(pluginRegistry, fileUrlResolver, macs2AnalysisFileGroupList, outerCollectionFileGroupInnerFileGroupListMap, outerCollectionFileGroupFripMap);
+		Panel filesByAnalysisPanel = MacstwoWebPanels.getFilesByAnalysisPanel(pluginRegistry, fileUrlResolver, fileService, macs2AnalysisFileGroupList,
+																			  outerCollectionFileGroupInnerFileGroupListMap, outerCollectionFileGroupFripMap);
 			panelTabSet.add(panelTab);
 			panelTab.addPanel(filesByAnalysisPanel);
 						

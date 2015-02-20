@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.plugin.mps.genomebrowser.GenomeBrowserProviding;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
 import edu.yu.einstein.wasp.viewpanel.Action;
 import edu.yu.einstein.wasp.viewpanel.Action.CallbackFunctionType;
@@ -286,7 +288,9 @@ public class MacstwoWebPanels {
 	}
 	
 	//9-30-14
-	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, FileUrlResolver fileUrlResolver, List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap, Map<FileGroup, Double>outerCollectionFileGroupFripMap){
+	public static GridPanel getFilesByAnalysisPanel(WaspPluginRegistry pluginRegistry, FileUrlResolver fileUrlResolver, FileService fileService,
+			List<FileGroup> macs2AnalysisFileGroupList, Map<FileGroup, List<FileGroup>> outerCollectionFileGroupInnerFileGroupListMap,
+			Map<FileGroup, Double> outerCollectionFileGroupFripMap) {
 		//create the panel
 		GridPanel panel = new GridPanel();
 		panel.setTitle("Files By Analysis");
@@ -343,9 +347,10 @@ public class MacstwoWebPanels {
 					resolvedURL = fileUrlResolver.getURL(fileHandle).toString();
 				}catch(Exception e){logger.debug("UNABLE TO RESOLVE URL for file: " + fileHandle.getFileName());}
 				actionList.add(new Action("icon-download", "Download", CallbackFunctionType.DOWNLOAD, resolvedURL));
-				///actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, new ArrayList<FileGroup>(fileHandle.getFileGroup()).get(0).getId().toString()));
-				actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, innerFileGroup.getId().toString()));
 				
+				if (!fileService.getTabViewProvidingPluginsByFileGroup(innerFileGroup).isEmpty())
+					actionList.add(new Action("icon-view-file", "View", CallbackFunctionType.OPEN_IN_CSS_WIN, innerFileGroup.getId().toString()));
+
 				List<GenomeBrowserProviding> plugins = new ArrayList<>();				
 				plugins.addAll(pluginRegistry.getPlugins(GenomeBrowserProviding.class));
 				for(GenomeBrowserProviding plugin : plugins){

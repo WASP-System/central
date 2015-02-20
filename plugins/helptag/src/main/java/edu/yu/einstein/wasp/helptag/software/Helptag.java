@@ -26,6 +26,7 @@ import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.GenomeService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.software.SoftwarePackage;
 // Un-comment the following if using the plugin service
@@ -51,11 +52,14 @@ public class Helptag extends SoftwarePackage{
 	SampleService sampleService;
 	
 	@Autowired
+	JobService jobService;
+
+	@Autowired
 	private GenomeService genomeService;	
 	
 	@Autowired
 	private FileType bamFileType;
-	
+
 	@Autowired
 	private FileType fastqFileType;
 
@@ -72,8 +76,46 @@ public class Helptag extends SoftwarePackage{
 	public Helptag() {
 	}
 
+	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
+		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
+
+		c.setProcessMode(ProcessMode.MAX);
+		c.setMode(ExecutionMode.PROCESS);
+
+		// require 4GB memory
+		c.setMemoryRequirements(4);
+		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
+		sd.add(this);
+		c.setSoftwareDependencies(sd);
+		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
+		WorkUnit w = new WorkUnit(c);
+		w.setRequiredFiles(fhlist);
+		w.setSecureResults(true);
+
+		return w;
+	}
+
+	private Build getGenomeBuild(SampleSource cellLibrary) {
+		Build build = null;
+		try {
+			Sample library = sampleService.getLibrary(cellLibrary);
+			logger.debug("looking for genome build associated with sample: " + library.getId());
+			build = genomeService.getBuild(library);
+			if (build == null) {
+				String mess = "cell library does not have associated genome build metadata annotation";
+				logger.error(mess);
+				throw new NullResourceException(mess);
+			}
+			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+		} catch (ParameterValueRetrievalException e) {
+			logger.error(e.toString());
+			e.printStackTrace();
+		}
+		return build;
+	}
+
 	@Transactional("entityManager")
-	public WorkUnit getHelptag(Integer cellLibraryId) {
+	public WorkUnit getHpaiiCounter(Integer cellLibraryId) {
 		WorkUnit w = null;
 		SampleSource cl;
 		try {
@@ -113,14 +155,13 @@ public class Helptag extends SoftwarePackage{
 			}
 			
 			// output hcount file name
-			String hcountFile = fileService.generateUniqueBaseFileName(cl) + "hcount";
+			String outputHcountFilename = "${" + WorkUnit.OUTPUT_FILE + "[0]}";
 			
 			// set the command
-			String cmd = "bam2hcount.pl " +
-					"-i " + mergedBamFile + " " +
-					"-o " + hcountFile + " " +
-					"-g " + getGenomeBuild(cl).getGenome().getAlias();
-			w.setCommand(cmd);
+			String cmd = "bam2hcount.pl -i " + mergedBamFile + " -o " + outputHcountFilename + " -g " + getGenomeBuild(cl).getGenome().getAlias();
+			w.addCommand(cmd);
+
+			logger.info("Helptag Hpaii Counter commands: \n" + w.getCommand());
 		} catch (SampleTypeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,45 +169,4 @@ public class Helptag extends SoftwarePackage{
 		
 		return w;
 	}
-
-	
-	private WorkUnit prepareWorkUnit(List<FileHandle> fhlist) {
-		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
-		
-		c.setProcessMode(ProcessMode.SINGLE);
-		c.setMode(ExecutionMode.PROCESS);
-	
-		// require 4GB memory
-		c.setMemoryRequirements(4);
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(this);
-		c.setSoftwareDependencies(sd);
-		c.setWorkingDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-		WorkUnit w = new WorkUnit(c);
-		w.setRequiredFiles(fhlist);
-		w.setSecureResults(false);
-	
-		return w;
-	}
-	
-	private Build getGenomeBuild(SampleSource cellLibrary) {
-		Build build = null;
-		try {
-			Sample library = sampleService.getLibrary(cellLibrary);
-			logger.debug("looking for genome build associated with sample: " + library.getId());
-			build = genomeService.getBuild(library);
-			if (build == null) {
-				String mess = "cell library does not have associated genome build metadata annotation";
-				logger.error(mess);
-				throw new NullResourceException(mess);
-			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
-		} catch (ParameterValueRetrievalException e) {
-			logger.error(e.toString());
-			e.printStackTrace();
-		}
-		return build;
-	}
-	
-
 }

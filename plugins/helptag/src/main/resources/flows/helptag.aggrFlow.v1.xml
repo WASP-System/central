@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+		
+	<!-- Define helptag analysis aggregate flow -->
+	<batch:job id="helptag.library.aggrFlow.job" restartable="true" >
+		<batch:step id="helptag.library.aggregate.step.notifyStarted" next="helptag.library.aggregate.step.makeAngles">
+			<batch:tasklet>
+						<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet" scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+							<property name="status" value="STARTED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="helptag.library.aggregate.step.makeAngles" next="helptag.library.aggregate.step.listenMany">
+			<batch:tasklet>
+				<batch:transaction-attributes propagation="NEVER"/>
+				<bean class="edu.yu.einstein.wasp.helptag.batch.tasklet.AggrAngleMakerTasklet" scope="step">
+					<constructor-arg name="softwareResourceType" ref="helptagAngleMakerResourceType" />
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="helptag.library.aggregate.step.listenMany">
+			<batch:tasklet>
+				<bean class="edu.yu.einstein.wasp.daemon.batch.tasklets.ListenForManyStatusMessagesTasklet" scope="step" />
+			</batch:tasklet>
+			<batch:next on="FAILED" to="helptag.library.aggregate.step.notifyListenFailed" />
+			<batch:next on="*" to="helptag.library.aggregate.step.notifyManyComplete" />
+		</batch:step>
+		
+		<batch:step id="helptag.library.aggregate.step.notifyManyComplete">
+			<batch:tasklet>
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+							<property name="status" value="COMPLETED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		<batch:step id="helptag.library.aggregate.step.notifyListenFailed">
+			<batch:tasklet>
+				<bean
+					class="edu.yu.einstein.wasp.daemon.batch.tasklets.NotifyStatusTasklet"
+					scope="step">
+					<constructor-arg name="outputMessageChannel" ref="wasp.channel.batch" />
+					<constructor-arg name="messageTemplate">
+						<bean
+							class="edu.yu.einstein.wasp.integration.messages.templates.AnalysisStatusMessageTemplate">
+							<property name="jobId" value="#{jobParameters[waspJobParameters.JOB_ID]}"/>
+							<property name="task" value="#{batchJobTasks.ANALYSIS_AGGREGATE}"/>
+							<property name="status" value="FAILED" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</batch:tasklet>
+		</batch:step>
+		
+		
+	</batch:job>
+
+</beans>

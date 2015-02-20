@@ -5,28 +5,40 @@
 package edu.yu.einstein.wasp.helptag.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
-import edu.yu.einstein.wasp.dao.FileTypeDao;
+import edu.yu.einstein.wasp.exception.JobContextInitializationException;
 import edu.yu.einstein.wasp.exception.MetadataException;
-import edu.yu.einstein.wasp.exception.MetadataTypeException;
+import edu.yu.einstein.wasp.exception.SoftwareConfigurationException;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
+import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.FileHandle;
+import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.JobDraft;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
+import edu.yu.einstein.wasp.model.SampleSource;
+import edu.yu.einstein.wasp.model.Software;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
+import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.JobDraftService;
+import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.impl.WaspServiceImpl;
+import edu.yu.einstein.wasp.software.SoftwareConfiguration;
 import edu.yu.einstein.wasp.util.MetaHelper;
+import edu.yu.einstein.wasp.util.WaspJobContext;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 @Service
 @Transactional("entityManager")
@@ -36,11 +48,23 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	private JobDraftService jobDraftService;
 	
 	@Autowired
-	private FileTypeDao fileTypeDao;
+	private JobService jobService;
+
+	@Autowired
+	private FileService fileService;
 
 	@Autowired
 	private SampleService sampleService;
 	
+	@Autowired
+	ResourceType helptagAngleMakerResourceType;
+
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
+	@Autowired
+	private FileType hcountFileType;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -50,57 +74,61 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return "done";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
 	@Override
-	public List<SampleDraft> getAllMspISampleDraftsFromJobDraftId(Integer id) {
-		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
-		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
-		
-		List<SampleDraft> mspSampleDrafts = new ArrayList<SampleDraft>();
-		String enzymeString;
-		for (SampleDraft sd : sampleDrafts) {
-			try{
-				if(sd.getSampleType().getIName().equalsIgnoreCase("library")){
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
-				}
-				else{//genomic DNA; 1-8-15; dubin
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
-				}
-				if (enzymeString.equals("MspI"))
-					mspSampleDrafts.add(sd);
-			} catch(MetadataException e) {
-				// not found
-				logger.debug("Restriction Enzyme Meta is not found for Sample Draft id = " + id);
+	public JobDataTabViewing getHAMPlugin(Job job) throws JobContextInitializationException, SoftwareConfigurationException {
+		WaspJobContext waspJobContext = new WaspJobContext(job.getId(), jobService);
+		SoftwareConfiguration softwareConfig = waspJobContext.getConfiguredSoftware(helptagAngleMakerResourceType);
+		if (softwareConfig == null) {
+			throw new SoftwareConfigurationException("No software could be configured for jobId=" + job.getId() + " with resourceType iname="
+													 + helptagAngleMakerResourceType.getIName());
+		}
+		return waspPluginRegistry.getPlugin(softwareConfig.getSoftware().getIName(), JobDataTabViewing.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public boolean confirmCellLibrariesAssociatedWithHcountFiles(List<SampleSource> cellLibraryList) {
+		for (SampleSource cellLibrary : cellLibraryList) {
+			logger.debug("cellLibrary id: " + cellLibrary.getId());
+			logger.debug("hcountFileType : " + hcountFileType.getIName());
+			Set<FileGroup> fileGroupSetFromCellLibrary = fileService.getFilesForCellLibraryByType(cellLibrary, hcountFileType);
+			if (fileGroupSetFromCellLibrary.isEmpty()) {
+				logger.debug("no hcount files associated with cellLibrary id: " + cellLibrary.getId());
+				return false;
 			}
 		}
-
-		return mspSampleDrafts;
+		return true;
 	}
 
 	@Override
-	//looks like this is not used anymore and in its place we now use getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId() below
-	public List<SampleDraft> getAllHpaIISampleDraftsFromJobDraftId(Integer id) {
-		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
-		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
-		
-		List<SampleDraft> hpaSampleDrafts = new ArrayList<SampleDraft>();
-		String enzymeString;
-		for (SampleDraft sd : sampleDrafts) {
-			try{
-				if(sd.getSampleType().getIName().equalsIgnoreCase("library")){
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
-				}
-				else{//genomic DNA; 12-30-14
-					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());					
-				}
-				if (enzymeString.equals("HpaII"))
-					hpaSampleDrafts.add(sd);
-			} catch(MetadataException e) {
-				// not found
-				logger.debug("Restriction Enzyme Meta is not found for Sample Draft id = " + id);
-			}
-		}
+	public FileHandle createAndSaveInnerFileHandle(String fileName, FileType fileType) {
+		FileHandle fileHandle = new FileHandle();
+		fileHandle.setFileName(fileName);
+		fileHandle.setFileType(fileType);
+		fileHandle = fileService.addFile(fileHandle);
+		return fileHandle;
+	}
 
-		return hpaSampleDrafts;
+	@Override
+	public FileGroup createAndSaveInnerFileGroup(FileHandle fileHandle, Software software, String description) {
+		FileGroup fileGroup = new FileGroup();
+		fileGroup.setDescription(description);
+		fileGroup.setFileType(fileHandle.getFileType());
+		fileGroup.setSoftwareGeneratedById(software.getId());
+		fileGroup.setIsActive(0);
+
+		Set<FileHandle> fileHandleSet = new HashSet<FileHandle>();
+		fileHandleSet.add(fileHandle);
+		fileGroup.setFileHandles(fileHandleSet);
+		fileGroup = fileService.addFileGroup(fileGroup);
+		return fileGroup;
 	}
 	
 	@Override
@@ -126,6 +154,33 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 			sampleService.getSampleDraftMetaDao().save(sdm);//then must do this for every meta entry
 		}
 	}
+
+	@Override
+	public List<SampleDraft> getAllMspISampleDraftsFromJobDraftId(Integer id) {
+		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
+		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
+
+		List<SampleDraft> mspSampleDrafts = new ArrayList<SampleDraft>();
+		String enzymeString;
+		for (SampleDraft sd : sampleDrafts) {
+			try {
+				if (sd.getSampleType().getIName().equalsIgnoreCase("library")) {
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sd.getSampleDraftMeta());
+				} else {// genomic DNA; 1-8-15; dubin
+					enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sd.getSampleDraftMeta());
+				}
+				if (enzymeString.equals("MspI"))
+					mspSampleDrafts.add(sd);
+			} catch (MetadataException e) {
+				// not found
+				logger.debug("Restriction Enzyme Meta is not found for Sample Draft id = " + id);
+			}
+		}
+
+		return mspSampleDrafts;
+	}
+
+	@Override
 	public List<SampleDraft> getAllHpaIIAndbetaGTMspISampleDraftsFromJobDraftId(Integer id){
 		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
 		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
@@ -151,6 +206,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return hpaAndbetaGTMspSampleDrafts;
 	}
 
+	@Override
 	public List<SampleDraft> getAllbetaGTMspISampleDraftsFromJobDraftId(Integer id){
 		JobDraft jobDraft = jobDraftService.getJobDraftById(id);
 		List<SampleDraft> sampleDrafts = jobDraft.getSampleDraft();
@@ -175,6 +231,7 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return betaGTMspSampleDrafts;
 	}
 
+	@Override
 	public String getTypeOfHelpLibraryRequestedForMacromolecule(Sample sample){
 		try{
 			return (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, sample.getSampleMeta());					
@@ -182,6 +239,8 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		// not found
 		return null;
 	}
+
+	@Override
 	public String getTypeOfHelpLibrary(Sample sample){
 		try{
 			return (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, sample.getSampleMeta());					
@@ -190,15 +249,41 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return null;
 		
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Transactional("entityManager")
+	@Override
+	public boolean isMspI(Sample s) {
+		String enzymeString;
+		try {
+			if (!s.getSampleType().getIName().equalsIgnoreCase("dna")) {// not dna, so must be library
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
+			} else {// genomic DNA
+				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());
+			}
+
+			if (enzymeString.equals("MspI")) {
+				return true;
+			}
+		} catch (MetadataException e) {
+			// not found
+			logger.debug("Restriction Enzyme Meta (and libraryToCreate meta) not found for Sample id = " + s.getId());
+		}
+		return false;
+	}
+
+	@Override
 	public boolean isHpaII(Sample s){
 		String enzymeString;
 		try{
 			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
-			}
-			else{//genomic DNA; 1-8-15; dubin
+			} else {// genomic DNA
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());					
 			}
+
 			if (enzymeString.equals("HpaII")){
 				return true;
 			}
@@ -208,15 +293,17 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		}
 		return false;
 	}
+
+	@Override
 	public boolean isBetaGTMspI(Sample s){
 		String enzymeString;
 		try{
 			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
-			}
-			else{//genomic DNA; 1-8-15; dubin
+			} else {// genomic DNA
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_DNA_AREA, TYPE_OF_HELP_LIBRARY_REQUESTED_META_KEY, s.getSampleMeta());					
 			}
+
 			if (enzymeString.equals("beta-GT-MspI")){
 				return true;
 			}
@@ -227,8 +314,6 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 		return false;
 	}
 	
-	
-	//1-21-15
 	@Override
 	public List<String> getTypeOfHelpLibrariesRequestedList(List<SampleDraftMeta> sampleDraftMetaList){
 		List<String> typeOfHelpLibrariesRequestedList = new ArrayList<String>();
@@ -245,4 +330,5 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	}
 	
 	
+
 }
