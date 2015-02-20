@@ -103,6 +103,7 @@ import edu.yu.einstein.wasp.model.SampleDraftJobDraftCellSelection;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSubtype;
 import edu.yu.einstein.wasp.model.SampleType;
+import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowMeta;
@@ -799,7 +800,15 @@ public class JobSubmissionController extends WaspController {
 		}
 		else if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
 			errors.rejectValue("workflowId", "jobDraft.workflowId_change.error");//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
+			//this next line is not having the effect I expect. must check why not
 			jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
+		}
+		else if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() == 0){//added 2/19/15; dubin: we're changing workflow, so remove any jobdraftdsoftware entries (as there could be a conflict; and thus an exception as we saw today)
+			List<JobDraftSoftware> jobdraftSoftwareList = jobDraft.getJobDraftSoftware();
+			for(JobDraftSoftware jds : jobdraftSoftwareList){
+				jobDraftSoftwareDao.remove(jds);
+				jobDraftSoftwareDao.flush(jds);
+			}
 		}
 		
 		// get grant
@@ -2052,10 +2061,12 @@ public class JobSubmissionController extends WaspController {
 			sampleDraftList.get(0).setSampleTypeId(sampleSubtype.getSampleType().getId());
 			sampleDraftList.get(0).setSampleType(sampleType);
 			if (sampleService.isLibrary(sampleDraftList.get(0)) ){
-				if(theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
+				if(theSelectedAdaptorset!=null && theSelectedAdaptorset.equals("")){
 					prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
+					m.addAttribute("theSelectedAdaptorset", "");
 				}
 				if(theSelectedAdaptorset!=null && !theSelectedAdaptorset.equals("")){
+					prepareAdaptorsetsAndAdaptors(jobDraft, sampleDraftList.get(0).getSampleDraftMeta(), m);
 					m.addAttribute("theSelectedAdaptorset", new Integer(theSelectedAdaptorset));
 				}
 				else{

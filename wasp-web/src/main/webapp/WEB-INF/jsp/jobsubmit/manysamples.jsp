@@ -32,7 +32,7 @@
 			}
 
 			//if libraries, then absolutely necessary to update these hidden attributes just before submitting form 
-			$( "#submit" ).click(function() {				
+			$( "#submit" ).click(function() {
 				var selectedAdaptorSet=$('select#adaptorset option:selected').val();
 				$('input[type=hidden]#adaptorset').val(selectedAdaptorSet);
 			});
@@ -101,13 +101,14 @@
 			
 			<c:if test="${not empty adaptorsets}">
 				<tr class="FormData">
-					<td id="singleCellInOptionalAdaptorsetTableRow" colspan="1" <%--this colspan will be dynamically changed; see javascript--%>align='center' style="background-color:#FAF2D6; font-weight:bold; padding:15px 15px 15px 15px;" nowrap><fmt:message key="jobsubmitManySamples.selectAnAdaptorSet.label" /> 
+					<td id="singleCellInOptionalAdaptorsetTableRow" colspan="1" <%--this colspan will be dynamically changed; see javascript--%>align='center' style="background-color:#FAF2D6; color:red; font-size:large; font-weight:bold; padding:15px 15px 15px 15px;" nowrap><fmt:message key="jobsubmitManySamples.selectAnAdaptorSet.label" /> 
 						<select class="FormElement ui-widget-content ui-corner-all" name="theSelectedAdaptorset" id="adaptorset" class="FormElement ui-widget-content ui-corner-all">
 							<option value=''><fmt:message key="wasp.default_select.label"/></option>
 							<c:forEach items="${adaptorsets}" var="adaptorset">
 								<option value='${adaptorset.getId()}'  <c:if test="${theSelectedAdaptorset == adaptorset.getId()}">selected</c:if>      ><c:out value="${adaptorset.getName()}"></c:out></option>	
 							</c:forEach>
-						</select>				
+						</select>
+						<fmt:message key="jobsubmitManySamples.selectAnAdaptorSet.label" />				
 					</td>
 				</tr>
 			</c:if>
