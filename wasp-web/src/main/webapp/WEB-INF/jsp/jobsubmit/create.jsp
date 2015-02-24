@@ -197,8 +197,15 @@
  	</tr>
  	<c:forEach items="${strategies}" var="strategy">
   		<tr>
-  			<td style="font-size:x-small"><c:out value="${strategy.getDisplayStrategy()}" /> (<c:out value="${strategy.getStrategy()}" />)</td>
-  			<td style="font-size:x-small;width:175px"><c:out value="${strategy.getDescription()}" /></td>
+  			<c:choose>
+  				<c:when test="${not empty strategiesWithWorkflowsOtherThanGeneric.get(strategy)}">
+  					<td style="font-size:x-small; color:red; font-weight:bold"><c:out value="${strategy.getDisplayStrategy()}" /></td>
+  				</c:when>
+  				<c:otherwise>
+  					<td style="font-size:x-small"><c:out value="${strategy.getDisplayStrategy()}" /></td>
+  				</c:otherwise>
+  			</c:choose>
+  			<td style="font-size:x-small;width:175px"><u><c:out value="${strategy.getStrategy()}" /></u>: <c:out value="${strategy.getDescription()}" /></td>
   			<td style="font-size:x-small">
   			    <c:set value="${strategyWorkflowListMap.get(strategy)}" var="workflowList"/>
   				<c:forEach items="${workflowList}" var="workflow">

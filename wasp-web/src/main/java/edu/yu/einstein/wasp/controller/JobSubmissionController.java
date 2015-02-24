@@ -508,12 +508,19 @@ public class JobSubmissionController extends WaspController {
 		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
 		
 		//2-24-15; modify the strategy help table by adding available workflows we offer for each strategy
+		Map<Strategy, Integer> strategiesWithWorkflowsOtherThanGeneric = new HashMap<Strategy,Integer>();
 		Map<Strategy,List<Workflow>> strategyWorkflowListMap = new HashMap<Strategy,List<Workflow>>();
 		for(Strategy strategy : strategies){
 			List <Workflow> workflowsForThisStrategy = strategyService.getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(strategy);
 			strategyWorkflowListMap.put(strategy, workflowsForThisStrategy);
+			for(Workflow w : workflowsForThisStrategy){
+				if(!w.getName().equals("Generic DNA Seq")){
+					strategiesWithWorkflowsOtherThanGeneric.put(strategy, new Integer(1));
+				}
+			}
 		}
 		m.put("strategyWorkflowListMap", strategyWorkflowListMap);
+		m.put("strategiesWithWorkflowsOtherThanGeneric",strategiesWithWorkflowsOtherThanGeneric);
 		
 		return "jobsubmit/create";
 	}
