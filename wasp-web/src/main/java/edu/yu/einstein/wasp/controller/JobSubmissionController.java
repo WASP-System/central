@@ -507,7 +507,7 @@ public class JobSubmissionController extends WaspController {
 		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label", args));
 		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
 		
-		//modify the strategy help table by adding available workflows we offer for each strategy
+		//2-24-15; modify the strategy help table by adding available workflows we offer for each strategy
 		Map<Strategy,List<Workflow>> strategyWorkflowListMap = new HashMap<Strategy,List<Workflow>>();
 		for(Strategy strategy : strategies){
 			List <Workflow> workflowsForThisStrategy = strategyService.getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(strategy);

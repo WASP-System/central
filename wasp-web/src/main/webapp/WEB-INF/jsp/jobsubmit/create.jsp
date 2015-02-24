@@ -162,10 +162,10 @@
 	</form:form>
 </div>
 
+<!--
 <div id="strategySummary" style="float:left; margin-left:10px; display:none"> 
   <table class="data" style="margin: 0px 0px">
  	<tr class="FormData">
- 	<!--  -->
  		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.commonName.label"/></td>
  		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.strategy.label"/></td>
  		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.definition.label" /></td>
@@ -180,6 +180,36 @@
   			    <c:set value="${strategyWorkflowListMap.get(strategy)}" var="workflowList"/>
   				<c:forEach items="${workflowList}" var="workflow">
   					<c:out value="${workflow.getName()}" /><br />
+  				</c:forEach>
+  			</td>
+  		</tr>
+	</c:forEach>
+  </table>
+</div>
+-->
+
+<div id="strategySummary" style="float:left; margin-left:10px; display:none"> 
+  <table class="data" style="margin: 0px 0px">
+ 	<tr class="FormData">
+ 		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobsubmitCreate.libraryStrategy.label" /></td>
+ 		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobsubmitCreate.strategyDefinition.label" /></td>
+ 		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="jobsubmitCreate.strategyWorkflows.label" /></td>
+ 	</tr>
+ 	<c:forEach items="${strategies}" var="strategy">
+  		<tr>
+  			<td style="font-size:x-small"><c:out value="${strategy.getDisplayStrategy()}" /> (<c:out value="${strategy.getStrategy()}" />)</td>
+  			<td style="font-size:x-small;width:175px"><c:out value="${strategy.getDescription()}" /></td>
+  			<td style="font-size:x-small">
+  			    <c:set value="${strategyWorkflowListMap.get(strategy)}" var="workflowList"/>
+  				<c:forEach items="${workflowList}" var="workflow">
+  					<c:choose>
+  						<c:when test="${workflow.getName() != 'Generic DNA Seq' }">
+  						     <span style="color:red; font-weight:bold"><c:out value="${workflow.getName()}" /><br /></span>
+  						</c:when>
+  						<c:otherwise>
+  							<c:out value="${workflow.getName()}" />
+  						</c:otherwise>
+  					</c:choose>
   				</c:forEach>
   			</td>
   		</tr>
