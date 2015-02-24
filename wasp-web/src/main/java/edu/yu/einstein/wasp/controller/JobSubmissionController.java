@@ -506,6 +506,15 @@ public class JobSubmissionController extends WaspController {
 		Object[] args = {perLibraryAnalysisFee};
 		m.put("selectAnalysisTooltip", messageService.getMessage("jobsubmitCreate.selectAnalysisTooltip.label", args));
 		m.put("perLibraryAnalysisFee", perLibraryAnalysisFee);
+		
+		//modify the strategy help table by adding available workflows we offer for each strategy
+		Map<Strategy,List<Workflow>> strategyWorkflowListMap = new HashMap<Strategy,List<Workflow>>();
+		for(Strategy strategy : strategies){
+			List <Workflow> workflowsForThisStrategy = strategyService.getActiveWorkflowsForStrategyOrDefaultsOrderByWorkflowName(strategy);
+			strategyWorkflowListMap.put(strategy, workflowsForThisStrategy);
+		}
+		m.put("strategyWorkflowListMap", strategyWorkflowListMap);
+		
 		return "jobsubmit/create";
 	}
 
@@ -798,6 +807,15 @@ public class JobSubmissionController extends WaspController {
 		if(jobDraftForm.getWorkflowId() == null || jobDraftForm.getWorkflowId().intValue() <= 0 ){
 			errors.rejectValue("workflowId", "jobDraft.workflowId.error", "jobDraft.workflowId.error (no message has been defined for this property)");
 		}
+		else if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId()){//added 2-24-15
+			//as of 2-24-15, if user is attempting to change workflow, inform them to 
+			//terminate this job draft and begin again
+			errors.rejectValue("workflowId", "jobDraft.workflowChangeProhibited.error");
+			//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
+			//this next line is not having the effect I expect. must check why not
+			//jobDraftForm.setWorkflowId(jobDraft.getWorkflowId());//set it back for re-display
+		}
+		/*
 		else if(jobDraftForm.getWorkflowId() != null && jobDraft.getWorkflowId() != null && jobDraft.getWorkflowId() != jobDraftForm.getWorkflowId() && jobDraft.getSampleDraft().size() > 0){//added 3/29/13; dubin: user is attempting to change workflow but there are samples/libraries already submitted (for example chipseq samples but converting to helpgtag)
 			errors.rejectValue("workflowId", "jobDraft.workflowId_change.error");//, "jobDraft.workflowId_change.error (You must remove all samples from the job draft prior to changing the workflow assay)");
 			//this next line is not having the effect I expect. must check why not
@@ -810,6 +828,7 @@ public class JobSubmissionController extends WaspController {
 				jobDraftSoftwareDao.flush(jds);
 			}
 		}
+		*/
 		
 		// get grant
 		Integer selectGrantId = -1;
@@ -2785,6 +2804,25 @@ public class JobSubmissionController extends WaspController {
 		}
 		
 		return pageDef;
+	}
+
+	/*
+	 * completely terminates a job draft 
+	 * jobDraft.status set to TERMINATED
+	 * @Author rdubin 2-24-15
+	 */	
+	@Transactional
+	@RequestMapping(value="/terminateJobDraft/{jobDraftId}.do", method=RequestMethod.GET)
+	@PreAuthorize("hasRole('jd-' + #jobDraftId)")
+	public String terminateJobDraft(@PathVariable("jobDraftId") Integer jobDraftId) {
+	
+		JobDraft jobDraft = jobDraftService.getJobDraftDao().getJobDraftByJobDraftId(jobDraftId);
+		if (! isJobDraftEditable(jobDraft)){
+			return "redirect:/dashboard.do";
+		}
+		jobDraftService.terminateJobDraft(jobDraft);
+		waspMessage("jobDraft.jobDraftTerminated.label");
+		return "redirect:/dashboard.do";
 	}
 
 }

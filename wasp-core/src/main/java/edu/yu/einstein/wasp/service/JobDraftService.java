@@ -25,6 +25,8 @@ import edu.yu.einstein.wasp.model.SampleDraft;
 @Service
 public interface JobDraftService extends WaspService {
 
+	public static final String JOBDRAFT_STATUS_TERMINATED = "TERMINATED";
+	
 	/**
 	 * get JobDraft by it's Id
 	 * @param Integer jobDraftId
@@ -132,4 +134,11 @@ public interface JobDraftService extends WaspService {
 	 * @return void
 	 */
 	public void removeSampleDraftAndAllDependencies(JobDraft jobDraft, SampleDraft sampleDraft);
+	
+	/**
+	 * terminate JobDraft by setting jobDraft.status to TERMINATED (jobDraft will no longer appear on list of user's job drafts
+	 * @param JobDraft jobDraft
+	 * @return void
+	 */
+	public void terminateJobDraft(JobDraft jobDraft);
 }

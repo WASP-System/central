@@ -43,10 +43,11 @@ import edu.yu.einstein.wasp.service.JobDraftService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.util.MetaHelper;
+//import edu.yu.einstein.wasp.util.MetaHelper;
 //import edu.yu.einstein.wasp.controller.util.SampleAndSampleDraftMetaHelper;
 //import edu.yu.einstein.wasp.taglib.JQFieldTag;
 //
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Service
 @Transactional("entityManager")
@@ -616,4 +617,15 @@ public class JobDraftServiceImpl extends WaspServiceImpl implements JobDraftServ
 		}		
 		sampleDraftDao.remove(sampleDraft);	
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void terminateJobDraft(JobDraft jobDraft){
+		jobDraft.setStatus(JOBDRAFT_STATUS_TERMINATED);
+		jobDraftDao.save(jobDraft);
+		jobDraftDao.flush(jobDraft);
+	}
+	
 }

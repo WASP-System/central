@@ -151,6 +151,7 @@
 	
 	  <div class="submit">
 	    <c:if test="${jobDraft != null && jobDraft.jobDraftId != null }">
+	      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.terminateDiscard.label" />" onClick="if(confirm('<fmt:message key="jobDraft.terminateDiscardThisJobDraft.label" />')){window.location='<wasp:relativeUrl value="jobsubmit/terminateJobDraft/${jobDraft.jobDraftId}.do"/>'}" /> 
 	      <input class="fm-button" type="button" value="<fmt:message key="jobDraft.finishLater.label" />" onClick="window.location='<wasp:relativeUrl value="dashboard.do"/>'" /> 
 	    </c:if>
 	    <div id="continueButtonDivId"   <c:choose><c:when test="${empty assayWorkflows}">style="display:none"</c:when><c:otherwise>style="display:inline"</c:otherwise></c:choose> >
@@ -164,13 +165,23 @@
 <div id="strategySummary" style="float:left; margin-left:10px; display:none"> 
   <table class="data" style="margin: 0px 0px">
  	<tr class="FormData">
- 		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.commonName.label"/></td><td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.strategy.label"/></td><td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.definition.label" /></td>
+ 	<!--  -->
+ 		<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.commonName.label"/></td>
+ 		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.strategy.label"/></td>
+ 		<td  class="label-centered" style="background-color:#FAF2D6"><fmt:message key="strategy.definition.label" /></td>
+ 		<td  class="label-centered" style="background-color:#FAF2D6">Workflows</td>
  	</tr>
  	<c:forEach items="${strategies}" var="strategy">
   		<tr>
   			<td style="font-size:x-small"><c:out value="${strategy.getDisplayStrategy()}" /></td>
   			<td style="font-size:x-small"><c:out value="${strategy.getStrategy()}" /></td>
   			<td style="font-size:x-small;width:250px"><c:out value="${strategy.getDescription()}" /></td>
+  			<td style="font-size:x-small;width:250px">
+  			    <c:set value="${strategyWorkflowListMap.get(strategy)}" var="workflowList"/>
+  				<c:forEach items="${workflowList}" var="workflow">
+  					<c:out value="${workflow.getName()}" /><br />
+  				</c:forEach>
+  			</td>
   		</tr>
 	</c:forEach>
   </table>
