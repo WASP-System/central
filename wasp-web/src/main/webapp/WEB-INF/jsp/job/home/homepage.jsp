@@ -19,6 +19,9 @@
 <div id="tabs">	
   <ul>
 		<li><a id="basicAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/basic.do" />" ><fmt:message key="jobHomeHomepage.basicTab.label" /></a></li>
+		<sec:authorize access="hasRole('su')">
+			<li><a id="basicUpdateAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/basicUpdate.do" />" >Basic Update</a></li>
+		</sec:authorize>
 		<li><a id="costAnchor"   href="<wasp:relativeUrl value="job/${job.getId()}/costManager.do" />" ><fmt:message key="jobHomeHomepage.costsTab.label" /></a></li>
 		<li><a id="viewerManagerAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/viewerManager.do" />"><fmt:message key="jobHomeHomepage.shareTab.label" /></a></li>
 		<li><a id="comments"  href="<wasp:relativeUrl value="job/${job.getId()}/comments.do" />" ><fmt:message key="jobHomeHomepage.commentsTab.label" /></a></li>

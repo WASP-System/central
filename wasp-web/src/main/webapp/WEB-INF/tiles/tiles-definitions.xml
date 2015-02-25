@@ -250,6 +250,9 @@
 	<definition name="job/home/basic" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/basic.jsp" />
 	</definition>
+	<definition name="job/home/basicUpdate" extends="template-unadorned">
+		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/basicUpdate.jsp" />
+	</definition>
 	<definition name="job/home/costManager" extends="template-unadorned">
 		<put-attribute name="body-content" value="/WEB-INF/jsp/job/home/costManager.jsp" />
 	</definition>

@@ -2579,8 +2579,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 */
 	@Override
 	public boolean getIsAnalysisSelected(Job job){
-		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
-		logger.debug(ANALYSIS_SELECTED_META_KEY + "=" + jm);
+		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());		
 		if (jm != null && jm.getV() != null)
 			return Boolean.valueOf(jm.getV());
 		return false;
@@ -2603,5 +2602,25 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		list.add("Withdrawn By Facility");
 		list.add("Failed");
 		return list;		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override	
+	public boolean updateJobAnalysisSelected(Job job, boolean analysisSelected){
+		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
+		if (jm != null){
+			if(analysisSelected){
+				jm.setV("true");
+			}
+			else{
+				jm.setV("false");
+			}
+			jobMetaDao.save(jm);
+			jobMetaDao.flush(jm);
+			return true;
+		}
+		return false;
 	}
 }

@@ -981,6 +981,65 @@ public class JobController extends WaspController {
 		return "job/home/basic";
 	}
   
+    @RequestMapping(value="/{jobId}/basicUpdate", method=RequestMethod.GET)
+	  @PreAuthorize("hasRole('su')")
+	  public String jobBasicUpdatePage(@PathVariable("jobId") Integer jobId, ModelMap m) throws SampleTypeException {
+		
+		Job job = jobService.getJobByJobId(jobId);
+		if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		populateBasicUpdate(m,job);
+		return "job/home/basicUpdate";
+	}
+    
+    @RequestMapping(value="/{jobId}/updateAnalysisRequested", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('su')")
+	public String updateAnalysisRequested(@PathVariable("jobId") Integer jobId, 
+			 @RequestParam(value="analysisSelected", required=true) String analysisSelected,
+			 ModelMap m) throws SampleTypeException {
+  
+    	Job job = jobService.getJobByJobId(jobId);
+    	if(job.getId()==null){
+		   	logger.warn("Job unexpectedly not found");
+		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
+			return "job/home/message";
+		}
+		boolean newVal = false;
+		if(analysisSelected.toLowerCase().equalsIgnoreCase("yes")){
+			newVal = true;
+		}
+		if(jobService.updateJobAnalysisSelected(job, newVal)){
+			m.addAttribute("successMessage", messageService.getMessage("job.updateOfAnalysisRequestedSuccessful.label"));
+		}
+		else{
+			m.addAttribute("errorMessage", messageService.getMessage("job.updateOfAnalysisRequestedUnexpectedlyFailed.error"));
+		}
+		populateBasicUpdate(m,job);
+		return "job/home/basicUpdate";
+	}
+    private void populateBasicUpdate(ModelMap m, Job job){
+		m.addAttribute("job", job);
+		m.addAttribute("updatePermitted", true);
+		String jobStatus = jobService.getDetailedJobStatusString(job);	
+		m.addAttribute("jobStatus", jobStatus);
+		if(jobStatus.toLowerCase().startsWith("withdrawn") || jobStatus.toLowerCase().equals("completed")){
+			m.addAttribute("updatePermitted", false);
+		}
+		m.addAttribute("isAnalysisRequestedOptions", Arrays.asList("No", "Yes"));
+		m.addAttribute("currentIsAnalysisRequested", jobService.getIsAnalysisSelected(job) ? "Yes" : "No");
+		//could be useful in the future:		
+		//LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
+		//m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
+		//m.addAttribute("currentMachine", "jobdetail_for_import.Machine.label");
+		//m.addAttribute("currentReadLength", "jobdetail_for_import.Read_Length.label");
+		//m.addAttribute("currentRunType", "jobdetail_for_import.Run_Type.label");		
+		//m.addAttribute("currentReadType", "jobdetail_for_import.Read_Type.label");
+		
+    }
+    
     @Transactional
 	@RequestMapping(value="/{jobId}/costManager", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
