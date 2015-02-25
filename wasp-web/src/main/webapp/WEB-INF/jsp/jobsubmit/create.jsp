@@ -214,7 +214,7 @@
   						     <span style="color:red; font-weight:bold"><c:out value="${workflow.getName()}" /><br /></span>
   						</c:when>
   						<c:otherwise>
-  							<c:out value="${workflow.getName()}" />
+  							<c:out value="${workflow.getName()}" /><br />
   						</c:otherwise>
   					</c:choose>
   				</c:forEach>
