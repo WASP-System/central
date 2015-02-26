@@ -2613,7 +2613,8 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 	 * {@inheritDoc}
 	 */
 	@Override	
-	public boolean updateJobAnalysisSelected(Job job, boolean analysisSelected){
+	public boolean updateJobAnalysisSelected(Job job, boolean analysisSelected, List<Integer> softwareIdList){
+		
 		JobMeta jm = jobMetaDao.getJobMetaByKJobId(ANALYSIS_SELECTED_META_KEY, job.getId());
 		if (jm != null){
 			if(analysisSelected){
@@ -2625,31 +2626,38 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			jobMetaDao.save(jm);
 			jobMetaDao.flush(jm);
 			
-			//now deal wth the jobsoftware table
-			if(analysisSelected && this.getSoftwareForJob(job).isEmpty()){
-				//job.workflow --> default software needs to be added to jobsoftware table
-				List<WorkflowSoftware> workflowSoftwareList = job.getWorkflow().getWorkflowSoftware();
-				List<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
-				for(WorkflowSoftware ws : workflowSoftwareList){
-					Software sw = ws.getSoftware();
-					ResourceType softwareRT = sw.getResourceType();
-					logger.debug("software : resourceType = " + sw.getName() + " : " + softwareRT.getName());
-					if(!resourceTypeList.contains(softwareRT)){
-						resourceTypeList.add(softwareRT);
-						//add jobsoftware record
+			//next, remove the jobsoftware records for this job
+			//if analysis not selected, remove existing software and we're done
+			//if analysis IS selected, remove existing software and (below) we add the new selected software back (using softwareIdList)
+			for(JobSoftware jobSoftware : job.getJobSoftware()){
+				softwareService.removeJobSoftware(jobSoftware);
+			}
+			
+			if(analysisSelected){
+				if(!softwareIdList.isEmpty()){			
+					for(Integer softwareId : softwareIdList){
+						Software sw = softwareService.getById(softwareId);
 						JobSoftware js = new JobSoftware();
 						js.setJob(job);
 						js.setSoftware(sw);
-						softwareService.saveJobSoftware(js);	
-						logger.debug("added software " + sw.getName() + " to jobID " + job.getId());
+						softwareService.saveJobSoftware(js);
 					}
 				}
-				logger.debug("size of resourceTypeList = " + resourceTypeList.size());
-			}
-			else if(!analysisSelected){//analysisSelected now set to false (don't want analysis)
-				for(JobSoftware jobSoftware : job.getJobSoftware()){//so remove the jobsoftware records for this job
-					softwareService.removeJobSoftware(jobSoftware);
-				}
+				else if(softwareIdList.isEmpty()){//highly unlikely, but....
+					List<WorkflowSoftware> workflowSoftwareList = job.getWorkflow().getWorkflowSoftware();
+					List<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
+					for(WorkflowSoftware ws : workflowSoftwareList){
+						Software sw = ws.getSoftware();
+						ResourceType softwareRT = sw.getResourceType();					
+						if(!resourceTypeList.contains(softwareRT)){
+							resourceTypeList.add(softwareRT);
+							JobSoftware js = new JobSoftware();
+							js.setJob(job);
+							js.setSoftware(sw);
+							softwareService.saveJobSoftware(js);							
+						}
+					}				
+				}	
 			}
 			return true;
 		}

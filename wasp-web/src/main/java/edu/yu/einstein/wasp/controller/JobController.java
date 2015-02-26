@@ -104,6 +104,7 @@ import edu.yu.einstein.wasp.model.SampleType;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
 import edu.yu.einstein.wasp.model.Workflow;
+import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
@@ -999,6 +1000,7 @@ public class JobController extends WaspController {
 	@PreAuthorize("hasRole('su')")
 	public String updateAnalysisRequested(@PathVariable("jobId") Integer jobId, 
 			 @RequestParam(value="analysisSelected", required=true) String analysisSelected,
+			 @RequestParam(value="selectedSoftware") List<Integer> softwareIdList,
 			 ModelMap m) throws SampleTypeException {
   
     	Job job = jobService.getJobByJobId(jobId);
@@ -1007,19 +1009,29 @@ public class JobController extends WaspController {
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		boolean newVal = false;
-		if(analysisSelected.toLowerCase().equalsIgnoreCase("yes")){
-			newVal = true;
+		boolean newSelectedAnalysisValue = true;
+		if(analysisSelected.toLowerCase().equalsIgnoreCase("no")){
+			newSelectedAnalysisValue = false;
+			softwareIdList.removeAll(softwareIdList);//empty the list
 		}
-		if(jobService.updateJobAnalysisSelected(job, newVal)){
+		if(jobService.updateJobAnalysisSelected(job, newSelectedAnalysisValue, softwareIdList)){
 			m.addAttribute("successMessage", messageService.getMessage("job.updateOfAnalysisRequestedSuccessful.label"));
-			try{
+			try{//ADD COMMENT AS WELL
 				jobService.setFacilityJobComment(jobId, "Analysis Selected has been reset to " + analysisSelected);
 			}catch(Exception e){}
 		}
 		else{
 			m.addAttribute("errorMessage", messageService.getMessage("job.updateOfAnalysisRequestedUnexpectedlyFailed.error"));
 		}
+		/*
+		logger.warn("dubin 2-26-15 checking software params:");
+		if(softwareIdList == null){
+			logger.warn("dubin 2-26-15 softwareIdList IS NULL");
+		}
+		else{
+			logger.warn("dubin 2-26-15 softwareIdList IS NOT NULL and size = " + softwareIdList.size());
+		}
+		*/
 		populateBasicUpdate(m,job);
 		return "job/home/basicUpdate";
 	}
@@ -1033,6 +1045,23 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("isAnalysisRequestedOptions", Arrays.asList("No", "Yes"));
 		m.addAttribute("currentIsAnalysisRequested", jobService.getIsAnalysisSelected(job) ? "Yes" : "No");
+		Map<ResourceType, List<Software>> resourceTypeSoftwareListMap = new HashMap<ResourceType, List<Software>>();
+		List<ResourceType> softwareResourceTypeList = new ArrayList<ResourceType>();
+		for(WorkflowSoftware ws : job.getWorkflow().getWorkflowSoftware()){//this is list of software options for this workflow (it's based on workflow, not the job)
+			Software sw = ws.getSoftware();
+			ResourceType softwareResourceType = sw.getResourceType();
+			if(!resourceTypeSoftwareListMap.containsKey(softwareResourceType)){
+				List<Software>  softwareList = new ArrayList<Software>();
+				softwareList.add(sw);
+				resourceTypeSoftwareListMap.put(softwareResourceType, softwareList);
+				softwareResourceTypeList.add(softwareResourceType);				
+			}
+			else{
+				resourceTypeSoftwareListMap.get(softwareResourceType).add(sw);
+			}
+		}
+		m.addAttribute("resourceTypeSoftwareListMap", resourceTypeSoftwareListMap);
+		m.addAttribute("softwareResourceTypeList", softwareResourceTypeList);
 		//could be useful in the future:		
 		//LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		//m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);
