@@ -1013,6 +1013,9 @@ public class JobController extends WaspController {
 		}
 		if(jobService.updateJobAnalysisSelected(job, newVal)){
 			m.addAttribute("successMessage", messageService.getMessage("job.updateOfAnalysisRequestedSuccessful.label"));
+			try{
+				jobService.setFacilityJobComment(jobId, "Analysis Selected has been reset to " + analysisSelected);
+			}catch(Exception e){}
 		}
 		else{
 			m.addAttribute("errorMessage", messageService.getMessage("job.updateOfAnalysisRequestedUnexpectedlyFailed.error"));

@@ -19,5 +19,7 @@ public interface SoftwareService extends WaspService {
 	public JobSoftware saveJobSoftware(JobSoftware jobSoftware);
 
 	public SoftwareConfiguration getDefaultSoftwareConfig(Software software) throws JobContextInitializationException;
+	
+	public void removeJobSoftware(JobSoftware jobSoftware);
 
 }

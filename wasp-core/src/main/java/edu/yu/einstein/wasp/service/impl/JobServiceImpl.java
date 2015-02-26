@@ -112,6 +112,7 @@ import edu.yu.einstein.wasp.model.JobSoftware;
 import edu.yu.einstein.wasp.model.JobUser;
 import edu.yu.einstein.wasp.model.Lab;
 import edu.yu.einstein.wasp.model.ResourceCategory;
+import edu.yu.einstein.wasp.model.ResourceType;
 import edu.yu.einstein.wasp.model.Role;
 import edu.yu.einstein.wasp.model.Run;
 import edu.yu.einstein.wasp.model.Sample;
@@ -123,6 +124,7 @@ import edu.yu.einstein.wasp.model.SampleMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.User;
+import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.service.AccountsService;
@@ -134,6 +136,7 @@ import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MetaMessageService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.StrategyService;
 import edu.yu.einstein.wasp.service.TaskService;
 import edu.yu.einstein.wasp.service.UserService;
@@ -365,6 +368,8 @@ public class JobServiceImpl extends WaspMessageHandlingServiceImpl implements Jo
 	@Autowired
 	protected AccountsService accountsService;
 
+	@Autowired
+	protected SoftwareService softwareService;
 	
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -2619,6 +2624,33 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			jobMetaDao.save(jm);
 			jobMetaDao.flush(jm);
+			
+			//now deal wth the jobsoftware table
+			if(analysisSelected && this.getSoftwareForJob(job).isEmpty()){
+				//job.workflow --> default software needs to be added to jobsoftware table
+				List<WorkflowSoftware> workflowSoftwareList = job.getWorkflow().getWorkflowSoftware();
+				List<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
+				for(WorkflowSoftware ws : workflowSoftwareList){
+					Software sw = ws.getSoftware();
+					ResourceType softwareRT = sw.getResourceType();
+					logger.debug("software : resourceType = " + sw.getName() + " : " + softwareRT.getName());
+					if(!resourceTypeList.contains(softwareRT)){
+						resourceTypeList.add(softwareRT);
+						//add jobsoftware record
+						JobSoftware js = new JobSoftware();
+						js.setJob(job);
+						js.setSoftware(sw);
+						softwareService.saveJobSoftware(js);	
+						logger.debug("added software " + sw.getName() + " to jobID " + job.getId());
+					}
+				}
+				logger.debug("size of resourceTypeList = " + resourceTypeList.size());
+			}
+			else if(!analysisSelected){//analysisSelected now set to false (don't want analysis)
+				for(JobSoftware jobSoftware : job.getJobSoftware()){//so remove the jobsoftware records for this job
+					softwareService.removeJobSoftware(jobSoftware);
+				}
+			}
 			return true;
 		}
 		return false;

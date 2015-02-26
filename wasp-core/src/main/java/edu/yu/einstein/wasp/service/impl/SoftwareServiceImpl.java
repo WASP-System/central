@@ -73,4 +73,8 @@ public class SoftwareServiceImpl extends WaspServiceImpl implements SoftwareServ
 		return waspJobContext.getConfiguredSoftware(software.getResourceType());
 	}
 
+	@Override
+	public void removeJobSoftware(JobSoftware jobSoftware){
+		jobSoftwareDao.remove(jobSoftware);
+	}
 }
