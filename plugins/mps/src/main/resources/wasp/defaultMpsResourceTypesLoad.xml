@@ -19,6 +19,11 @@
     <property name="name" value="Reference-based Aligner" />
     <property name="area" value="referenceBasedAligner" />
   </bean>
+ 
+  <bean id="referenceBasedBisulfiteSeqAlignerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
+    <property name="name" value="Reference-based Bisulfite-Seq Aligner" />
+    <property name="area" value="referenceBasedBisulfiteSeqAligner" />
+  </bean>
   
   <bean id="referenceBasedRNAAlignerResourceType" class="edu.yu.einstein.wasp.load.ResourceTypeLoaderAndFactory">
   	<property name="name" value="Reference-based RNA Aligner" />
