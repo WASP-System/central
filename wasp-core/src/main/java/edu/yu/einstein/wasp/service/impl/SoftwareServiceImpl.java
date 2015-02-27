@@ -57,7 +57,9 @@ public class SoftwareServiceImpl extends WaspServiceImpl implements SoftwareServ
 	
 	@Override
 	public JobSoftware saveJobSoftware(JobSoftware jobSoftware){
-		return jobSoftwareDao.save(jobSoftware);
+		JobSoftware js =  jobSoftwareDao.save(jobSoftware);
+		jobSoftwareDao.flush(js);
+		return js;
 	}
 	
 	@Override

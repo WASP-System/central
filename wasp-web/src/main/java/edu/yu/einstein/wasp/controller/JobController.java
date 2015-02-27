@@ -125,6 +125,7 @@ import edu.yu.einstein.wasp.service.PDFService;
 import edu.yu.einstein.wasp.service.ResourceService;
 import edu.yu.einstein.wasp.service.RunService;
 import edu.yu.einstein.wasp.service.SampleService;
+import edu.yu.einstein.wasp.service.SoftwareService;
 import edu.yu.einstein.wasp.service.UserService;
 import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.service.WorkflowService;
@@ -215,6 +216,8 @@ public class JobController extends WaspController {
 	private UserService userService;
 	@Autowired
 	private WorkflowService workflowService;
+	@Autowired
+	private SoftwareService softwareService;
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -1000,7 +1003,7 @@ public class JobController extends WaspController {
 	@PreAuthorize("hasRole('su')")
 	public String updateAnalysisRequested(@PathVariable("jobId") Integer jobId, 
 			 @RequestParam(value="analysisSelected", required=true) String analysisSelected,
-			 @RequestParam(value="selectedSoftware") List<Integer> softwareIdList,
+			 @RequestParam(value="selectedSoftware") List<Integer> softwareIdList,//can be null for bioanalyzer (but posts from such workflows are prevented)
 			 ModelMap m) throws SampleTypeException {
   
     	Job job = jobService.getJobByJobId(jobId);
@@ -1023,16 +1026,7 @@ public class JobController extends WaspController {
 		else{
 			m.addAttribute("errorMessage", messageService.getMessage("job.updateOfAnalysisRequestedUnexpectedlyFailed.error"));
 		}
-		/*
-		logger.warn("dubin 2-26-15 checking software params:");
-		if(softwareIdList == null){
-			logger.warn("dubin 2-26-15 softwareIdList IS NULL");
-		}
-		else{
-			logger.warn("dubin 2-26-15 softwareIdList IS NOT NULL and size = " + softwareIdList.size());
-		}
-		*/
-		populateBasicUpdate(m,job);
+		populateBasicUpdate(m,jobService.getJobByJobId(job.getId()));//since we've made changes to job, best to refresh it
 		return "job/home/basicUpdate";
 	}
     private void populateBasicUpdate(ModelMap m, Job job){
@@ -1060,8 +1054,19 @@ public class JobController extends WaspController {
 				resourceTypeSoftwareListMap.get(softwareResourceType).add(sw);
 			}
 		}
-		m.addAttribute("resourceTypeSoftwareListMap", resourceTypeSoftwareListMap);
-		m.addAttribute("softwareResourceTypeList", softwareResourceTypeList);
+		m.addAttribute("resourceTypeSoftwareListMap", resourceTypeSoftwareListMap);//based on workflow (not job per se)
+		m.addAttribute("softwareResourceTypeList", softwareResourceTypeList);//based on workflow (not job per se)
+		
+		//IF COMING VIA /{jobId}/updateAnalysisRequested", method=RequestMethod.POST)
+		//NO GOOD; LIST OF SOFTWARE HAS NOT CHANGED  when using   m.addAttribute("currentSoftwareForThisJob", jobService.getSoftwareForJob(jobService.getJobByJobId(job.getId())));
+		//ALSO NO GOOD: LIST OF SOFTARE HAS NOT CHANGED  not changed when I tried going through jobService.getJobByJobId(job.getId()).getJobSoftware() and then using js to get s
+		//ONLY BY GOING THROUGH the softwareService.getAllSoftwareForJob() has the resulting list of software picked up the changes 
+		/* softwareService.getAllSoftwareForJob() via (rather than directly through job):
+		  	m.put("jobId", job.getId());
+			List<JobSoftware> jsForJob = jobSoftwareDao.findByMap(m);
+		 */
+		m.addAttribute("currentSoftwareForThisJob", softwareService.getAllSoftwareForJob(jobService.getJobByJobId(job.getId())));//this one was the only one that picked up the changes
+		
 		//could be useful in the future:		
 		//LinkedHashMap<String, String> extraJobDetailsMap = jobService.getExtraJobDetails(job);
 		//m.addAttribute("extraJobDetailsMap", extraJobDetailsMap);

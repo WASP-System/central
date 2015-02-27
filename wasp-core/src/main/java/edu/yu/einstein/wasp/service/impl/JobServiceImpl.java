@@ -2634,7 +2634,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 			}
 			
 			if(analysisSelected){
-				if(!softwareIdList.isEmpty()){			
+				if(softwareIdList!=null && !softwareIdList.isEmpty()){			
 					for(Integer softwareId : softwareIdList){
 						Software sw = softwareService.getById(softwareId);
 						JobSoftware js = new JobSoftware();
@@ -2643,7 +2643,7 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 						softwareService.saveJobSoftware(js);
 					}
 				}
-				else if(softwareIdList.isEmpty()){//highly unlikely, but....
+				else if(softwareIdList!=null && softwareIdList.isEmpty()){//highly unlikely, but....(basically taking first one for any software resource type)
 					List<WorkflowSoftware> workflowSoftwareList = job.getWorkflow().getWorkflowSoftware();
 					List<ResourceType> resourceTypeList = new ArrayList<ResourceType>();
 					for(WorkflowSoftware ws : workflowSoftwareList){
