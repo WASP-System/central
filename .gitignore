@@ -13,7 +13,8 @@ test-output
 installAll.sh
 .springWebflow
 wasp-integration-test
-
+.metadata
+Servers
 # /db/
 /db/t
 

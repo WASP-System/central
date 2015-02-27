@@ -118,7 +118,8 @@ public class WaspPluginSupport implements ServletContextAware {
 						if (pathMatcher.match(resourceDirectory + fs + resourceFilePattern, entry.getName())) {
 							String pathMatch = pathMatcher.extractPathWithinPattern(resourceFilePattern, entry.getName());
 							InputStream inputStream = jarFile.getInputStream(entry);
-							File destinationFolder = new File(servletContext.getRealPath(resourceDirectory));
+							logger.debug("getting real path for " + resourceDirectory);
+							File destinationFolder = new File(servletContext.getRealPath("/" + resourceDirectory));
 							File materializedFile = new File(StringUtils.chomp(destinationFolder.getAbsolutePath(), resourceDirectory) + pathMatch);
 							File path = materializedFile.getParentFile();
 							if (!path.exists()){
