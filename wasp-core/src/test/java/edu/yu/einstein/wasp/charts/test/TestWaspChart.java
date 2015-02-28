@@ -1,5 +1,9 @@
 package edu.yu.einstein.wasp.charts.test;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -43,7 +47,18 @@ public class TestWaspChart {
 			logger.warn(e.getLocalizedMessage());
 		}
 		Assert.assertNotNull(output);
-		Assert.assertEquals(output, testJson);
+		ObjectMapper mapper = new ObjectMapper();
+
+		
+		try {
+			JsonNode tree1 = mapper.readTree(output);
+			JsonNode tree2 = mapper.readTree(testJson);
+			Assert.assertTrue(tree1.equals(tree2));
+		} catch (IOException e) {
+			e.printStackTrace();
+			Assert.fail(e.getLocalizedMessage());
+		}
+		
 	}
 	
 	@Test (groups = "unit-tests")
