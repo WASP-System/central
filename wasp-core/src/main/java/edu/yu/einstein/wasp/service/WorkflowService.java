@@ -9,6 +9,7 @@ import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -22,6 +23,10 @@ public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
 	public static final String IS_WORKFLOW_DEFAULT_META_KEY = "isWorkFlowADefault";
 	
 	public static final String WORKFLOW_AREA = "workflow";
+	
+	public static final String ADAPTORSETS_META_KEY = "adaptorsets";
+	
+	public static final String ADAPTORSET_SEPERATOR = ";";
 	
 	/**
 	 * Get name of Batch Flow Job specified for the current workflow.
@@ -98,6 +103,7 @@ public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
 
 	public boolean getIsWorkflowDefault(Workflow workflow);
 
+	public List<Adaptorset> getAdaptorsetsForWorkflow(Workflow workflow);
 	
 	
 

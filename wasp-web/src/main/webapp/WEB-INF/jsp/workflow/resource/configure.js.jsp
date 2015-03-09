@@ -10,6 +10,12 @@ $(document).ready(function() {
 	$("#uncheckAllStrategies").click(function() {
 	    $('[id^=strategyKey]').prop( "checked", false );
 	});
+	$("#checkAllAdaptorsets").click(function() {
+	    $('[id^=adaptorset]').prop( "checked", true );
+	});
+	$("#uncheckAllAdaptorsets").click(function() {
+	    $('[id^=adaptorset]').prop( "checked", false );
+	});
 });
 
 function checkParent(obj, parentId){

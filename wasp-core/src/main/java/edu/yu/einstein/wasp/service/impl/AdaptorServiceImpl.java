@@ -31,6 +31,7 @@ import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.AdaptorsetMeta;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.util.MetaHelper;
@@ -165,7 +166,11 @@ public class AdaptorServiceImpl extends WaspServiceImpl implements
 		this.adaptorsetDao = adaptorsetDao;
 	}
 
-	
+	@Override
+	public List<Adaptorset> getAllAdaptorsets(){
+		//return this.adaptorsetDao.getActiveAdaptorsets();
+		return this.adaptorsetDao.findAll();
+	}
 	
 
 }

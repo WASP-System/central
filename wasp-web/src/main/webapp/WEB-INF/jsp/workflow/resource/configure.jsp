@@ -140,6 +140,35 @@
 			</c:if>
 		</section>
 	</c:forEach>
+	
+	<c:if test='${fn:length(adaptorsets)>0 && workflow.getIName() != "bioanalyzer"}'>
+		<section style="margin-bottom: 20px">
+		<h2 style="font-weight: bold;">
+			Adaptorsets 
+		</h2>
+		<span style="padding:3px; border: 1px solid black;">
+			<a id="checkAllAdaptorsets" <%-- class="button" --%> href="javascript:void(0);"  >check all</a>
+			| <a id="uncheckAllAdaptorsets" <%-- class="button" --%> href="javascript:void(0);" >uncheck all</a>
+		</span><br /><br />
+		<table class="data" style="margin: 0px 0px">		
+			<c:forEach items="${adaptorsets}" var="adaptorset">
+			 	<tr>
+				<td style="font-size:x-small">
+				<input type="checkbox" id="adaptorset${adaptorset.getId()}" name="adaptorsetId" value="<c:out value="${adaptorset.getId()}" />" 
+					<c:forEach items="${thisWorkflowsAdaptorsets}" var="workflowAdaptorset">						
+						<c:if test="${adaptorset.getId()==workflowAdaptorset.getId()}">
+							CHECKED 
+						</c:if> 
+					</c:forEach>
+					/>&nbsp;&nbsp;<c:out value="${adaptorset.getName()}" />
+				</td>
+				</tr>
+			</c:forEach>		
+		</table>
+		</section>
+	</c:if>
+	
+	
 	<input type="hidden" name="requiredResourceCategoryOptions" value="<c:out value="${requiredResourceCategoryOptions}" />" />
 	<input type="hidden" name="requiredSoftwareOptions" value="<c:out value="${requiredSoftwareOptions}" />" />
 	<div class="submit">
