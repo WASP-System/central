@@ -257,7 +257,7 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	public List<Adaptorset> getAdaptorsetsForWorkflow(Workflow workflow){
 		List<Adaptorset> adaptorsetList = new ArrayList<Adaptorset>();
 		WorkflowMeta wfm = workflowMetaDao.getWorkflowMetaByKWorkflowId(WORKFLOW_AREA+"."+ADAPTORSETS_META_KEY, workflow.getId());
-		if(wfm!=null && wfm.getV()!=null /*&& !wfm.getV().isEmpty()*/){//will be list like "1;2;4;7"
+		if(wfm!=null && wfm.getV()!=null){//will be delimited string of id(s) like "1;2;4;7"
 			for(String adaptorsetIdAsString : wfm.getV().split(ADAPTORSET_SEPERATOR)){
 				try{
 					Integer id = Integer.parseInt(adaptorsetIdAsString);
@@ -268,27 +268,7 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 				}
 			}
 		}
-		return adaptorsetList;	
-		/*
-		else{//this will be removed shortly; needed here to fill them up now
-			StringBuffer stringBuffer = new StringBuffer("");
-			for(Adaptorset as : adaptorService.getAllAdaptorsets()){
-				if(!stringBuffer.toString().isEmpty()){
-					stringBuffer.append(ADAPTORSET_SEPERATOR);
-				}
-				stringBuffer.append(as.getId().toString());
-			}
-			String metaV = new String(stringBuffer);
-			try{
-				if(!workflow.getIName().equals("bioanalyzer")){
-					this.setMeta(workflow, ADAPTORSETS_META_KEY, metaV);
-				}
-			}catch(Exception e){
-				logger.debug("unable to obtain save adaptorset meta list for workflow iname " + workflow.getIName());
-			}
-		}
-		*/
-			
+		return adaptorsetList;			
 	}
 
 	/**
