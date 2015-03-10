@@ -105,6 +105,6 @@ public static final String JOB_FLOW_BATCH_META_KEY = "jobFlowBatchJob";
 
 	public List<Adaptorset> getAdaptorsetsForWorkflow(Workflow workflow);
 	
-	
+	public void setAdaptorsetsForWorkflow(Workflow workflow, List<Adaptorset> adaptorsetListForThisWorkflow);
 
 }

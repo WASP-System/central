@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -248,10 +250,14 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 		workflowMetaDao.setMeta(jobFlowBatchJobNameMeta);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Adaptorset> getAdaptorsetsForWorkflow(Workflow workflow){
 		List<Adaptorset> adaptorsetList = new ArrayList<Adaptorset>();
 		WorkflowMeta wfm = workflowMetaDao.getWorkflowMetaByKWorkflowId(WORKFLOW_AREA+"."+ADAPTORSETS_META_KEY, workflow.getId());
-		if(wfm!=null && wfm.getV()!=null && !wfm.getV().isEmpty()){//will be list like "1;2;4;7;"
+		if(wfm!=null && wfm.getV()!=null /*&& !wfm.getV().isEmpty()*/){//will be list like "1;2;4;7"
 			for(String adaptorsetIdAsString : wfm.getV().split(ADAPTORSET_SEPERATOR)){
 				try{
 					Integer id = Integer.parseInt(adaptorsetIdAsString);
@@ -262,6 +268,8 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 				}
 			}
 		}
+		return adaptorsetList;	
+		/*
 		else{//this will be removed shortly; needed here to fill them up now
 			StringBuffer stringBuffer = new StringBuffer("");
 			for(Adaptorset as : adaptorService.getAllAdaptorsets()){
@@ -279,9 +287,38 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 				logger.debug("unable to obtain save adaptorset meta list for workflow iname " + workflow.getIName());
 			}
 		}
-		return adaptorsetList;
-		
+		*/
+			
 	}
 
-
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setAdaptorsetsForWorkflow(Workflow workflow, List<Adaptorset> adaptorsetListForThisWorkflow){
+		
+		if(adaptorsetListForThisWorkflow.size()>1){
+			class AdaptorsetIdComparator implements Comparator<Adaptorset> {
+				@Override
+				public int compare(Adaptorset arg0, Adaptorset arg1) {
+					return arg0.getId().intValue() - arg1.getId().intValue();
+				}
+			}
+			Collections.sort(adaptorsetListForThisWorkflow, new AdaptorsetIdComparator());//sort by Adaptorset id
+		}
+		
+		StringBuffer stringBuffer = new StringBuffer("");
+		for(Adaptorset adaptorset : adaptorsetListForThisWorkflow){
+			if(!stringBuffer.toString().isEmpty()){
+				stringBuffer.append(ADAPTORSET_SEPERATOR);
+			}
+			stringBuffer.append(adaptorset.getId().toString());
+		}
+		String metaV = new String(stringBuffer);
+		try{			
+			this.setMeta(workflow, ADAPTORSETS_META_KEY, metaV);
+		}catch(Exception e){
+			logger.debug("unable to save adaptorset metadata for workflow iname: " + workflow.getIName());
+		}
+	}
 }

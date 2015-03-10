@@ -313,7 +313,6 @@ public class WorkflowController extends WaspController {
 		    }
 		}
 		Collections.sort(adaptorsets, new AdaptorsetNameComparator());//sort by Adaptorset name
-		logger.debug("Number of ALL ADAPTORSETS: " + adaptorsets.size());
 		List<Adaptorset> thisWorkflowsAdaptorsets = workflowService.getAdaptorsetsForWorkflow(workflow);		
 		
 		m.put("workflowId", workflowId);
@@ -573,20 +572,17 @@ public class WorkflowController extends WaspController {
 			}
 		}
 		
-		//deal with adaptorsets
-		if(adaptorsetIdList!=null){
-			if(adaptorsetIdList.isEmpty()){				
-				logger.debug("dubin adaptorsetIdList is EMPTY" );				
-			}
-			else{
-				for(Integer id : adaptorsetIdList){
-					logger.debug("dubin checked adaptorset id: " + id.toString() );
+		//deal with adaptorsets		
+		List<Adaptorset> adaptorsetListForThisWorkflow = new ArrayList<Adaptorset>();
+		if(adaptorsetIdList!=null){//null if no adaptors selected or if bioanalyzer workflow
+			for(Integer adaptorsetId : adaptorsetIdList){
+				Adaptorset adaptorset = adaptorService.getAdaptorsetDao().findById(adaptorsetId.intValue());
+				if(adaptorset!=null && adaptorset.getId()!=null){
+					adaptorsetListForThisWorkflow.add(adaptorset);
 				}
 			}
-		}		
-		else{
-			logger.debug("dubin adaptorsetIdList is null");
 		}
+		workflowService.setAdaptorsetsForWorkflow(workflow, adaptorsetListForThisWorkflow);			
 		
 		if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty() || !resourceTypeIds.isEmpty()){
 			if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty()){
