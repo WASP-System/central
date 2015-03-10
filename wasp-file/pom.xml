@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>edu.yu.einstein.wasp</groupId>
@@ -24,12 +25,12 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>wasp-core</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
@@ -58,24 +59,25 @@
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.kamranzafar</groupId>
+			<artifactId>jtar</artifactId>
+			<version>2.2</version>
+		</dependency>
 	</dependencies>
-	<!-- 
+	<!-- <build> <finalName>wasp-file</finalName> </build> -->
 	<build>
-		<finalName>wasp-file</finalName>
-	</build>
-	 -->
-<build>
-	 <pluginManagement>
+		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
-		        	<artifactId>tomcat-maven-plugin</artifactId>
-	            	<version>1.1</version>
-	                <configuration>
-	                	<update>true</update>
+					<artifactId>tomcat-maven-plugin</artifactId>
+					<version>1.1</version>
+					<configuration>
+						<update>true</update>
 						<path>/wasp-file</path>
-	                </configuration>
-	            </plugin>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.tomcat.maven</groupId>
 					<artifactId>tomcat6-maven-plugin</artifactId>
@@ -91,7 +93,7 @@
 					<configuration>
 						<update>true</update>
 						<path>/wasp-file</path>
-                    </configuration>
+					</configuration>
 					<version>2.0-SNAPSHOT</version>
 				</plugin>
 			</plugins>
@@ -100,65 +102,67 @@
 
 	<profiles>
 		<profile>
-                <id>tomcat-localhost</id>
-                <activation>
-                        <activeByDefault>true</activeByDefault>
-                </activation>
-                <properties>
-                        <maven.tomcat.server>tomcat-localhost</maven.tomcat.server>
-                        <maven.tomcat.url>http://localhost:8080/manager/text</maven.tomcat.url>
-                </properties>
-        </profile>
-        <profile>
-                <id>tomcat-glasgow</id>
-                <properties>
-                        <maven.tomcat.server>glasgow</maven.tomcat.server>
-                        <maven.tomcat.url>http://waspsystem.org/manager/text</maven.tomcat.url>
-                </properties>
-        </profile>
-        <profile>
-                <id>tomcat-wellington</id>
-                <properties>
-                        <maven.tomcat.server>wellington</maven.tomcat.server>
-                        <maven.tomcat.url>http://wellington.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
-                </properties>
-        </profile>
-        <profile>
-                <id>tomcat-barcelona</id>
-                <properties>
-                        <maven.tomcat.server>barcelona</maven.tomcat.server>
-                        <maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
-                </properties>
-        </profile>
-
-		
+			<id>tomcat-localhost</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<maven.tomcat.server>tomcat-localhost</maven.tomcat.server>
+				<maven.tomcat.url>http://localhost:8080/manager/text</maven.tomcat.url>
+			</properties>
+		</profile>
 		<profile>
-		<id>deploy</id>
-		<build>
-		<plugins>
-		<plugin>
-		<artifactId>maven-antrun-plugin</artifactId>
-		<executions>
-		<execution>
-		<phase>package</phase>
-		<goals>
-		<goal>run</goal>
-		</goals>
-		<configuration>
-		<tasks>
-		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
-		<delete file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.deploy.properties"/>
-		<copy file="src/main/webapp/WEB-INF/log4j.deploy.properties"
-		tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties"/>
-		</tasks>
-		</configuration>
-		</execution>
-		</executions>
-		</plugin>
-		</plugins>
-		</build>
+			<id>tomcat-glasgow</id>
+			<properties>
+				<maven.tomcat.server>glasgow</maven.tomcat.server>
+				<maven.tomcat.url>http://waspsystem.org/manager/text</maven.tomcat.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>tomcat-wellington</id>
+			<properties>
+				<maven.tomcat.server>wellington</maven.tomcat.server>
+				<maven.tomcat.url>http://wellington.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>tomcat-barcelona</id>
+			<properties>
+				<maven.tomcat.server>barcelona</maven.tomcat.server>
+				<maven.tomcat.url>http://barcelona.einstein.yu.edu:8080/manager/text</maven.tomcat.url>
+			</properties>
+		</profile>
+
+
+		<profile>
+			<id>deploy</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<delete
+											file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties" />
+										<delete
+											file="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.deploy.properties" />
+										<copy file="src/main/webapp/WEB-INF/log4j.deploy.properties"
+											tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/log4j.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 	</profiles>
-	 
+
 </project>

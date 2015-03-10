@@ -19,14 +19,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -470,7 +470,7 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		// Create list for local files
 		List<java.io.File> localFilesList = new ArrayList<java.io.File>();
 
-		String filename = "FileGroup.zip";
+		String filename = "multi_files.tar";
 
 		UUID uu;
 		for (String uuid : uuidList) {
@@ -493,9 +493,9 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 
 		if (uuidList.toArray().length == 1) {
 			if (fileOrGroup) {
-				filename = getLocalFileFromUUID(uuidList.get(0), "").getName() + ".zip";
+				filename = getLocalFileFromUUID(uuidList.get(0), "").getName() + ".tar";
 			} else {
-				filename = fileService.getFileGroup(UUID.fromString(uuidList.get(0))).getDescription().replaceAll("\\W", "") + ".zip";
+				filename = fileService.getFileGroup(UUID.fromString(uuidList.get(0))).getDescription().replaceAll("\\W", "") + ".tar";
 			}
 
 			if (!reqFileName.isEmpty() && !reqFileName.equals(filename)) {
@@ -504,35 +504,32 @@ public class WebFileServiceImpl implements WebFileService, InitializingBean {
 		}
 
 		// ..code to add URLs to the list
-		byte[] buf = new byte[2048];
+		// byte[] buf = new byte[2048];
 
-		response.setContentType("application/zip");
+		response.setContentType("application/x-tar");
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		// set 'max-age' to cache files for up to 1h (3600s) since most files shouldn't change on the server anyway.
 		// We use 'must-revalidate' to force browser to always use this rule.
 		response.setHeader("Cache-Control", "max-age=3600, must-revalidate");
 
-		// Create the ZIP file
 		ServletOutputStream sos = response.getOutputStream();
-		ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(sos));
+		// Create the TAR file
+		TarOutputStream out = new TarOutputStream(new BufferedOutputStream(sos));
+		for (java.io.File f : localFilesList) {
+			out.putNextEntry(new TarEntry(f, f.getName()));
+			BufferedInputStream origin = new BufferedInputStream(new FileInputStream(f));
+			int count;
+			byte data[] = new byte[2048];
 
-		// Compress the files
-		for (java.io.File file : localFilesList) {
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-
-			// Add ZIP entry to output stream.
-			String entryname = file.getName();
-			out.putNextEntry(new ZipEntry(entryname));
-
-			int bytesRead;
-			while ((bytesRead = bis.read(buf)) != -1) {
-				out.write(buf, 0, bytesRead);
+			while ((count = origin.read(data)) != -1) {
+				out.write(data, 0, count);
 			}
-			out.closeEntry();
-			bis.close();
+
+			out.flush();
+			origin.close();
 		}
-		out.flush();
-		close(out);
+		out.close();
+
 		sos.flush();
 		close(sos);
 	}
