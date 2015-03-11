@@ -428,7 +428,15 @@ public class FileGroup extends WaspModel {
 	
 	@JsonIgnore
 	public Set<FileHandle> getFileHandles() {
-		return this.fileHandles;
+		if (this.fileHandles.size() == 0 && this.children.size() > 0) {
+			// This is a file group collection, return all the file handles of its children filegroup
+			Set<FileHandle> childrenFileHandles = new HashSet<FileHandle>();
+			for (FileGroup childfg : this.children) {
+				childrenFileHandles.addAll(childfg.getFileHandles());
+			}
+			return childrenFileHandles;
+		} else
+			return this.fileHandles;
 	}
 	
 	public void setFileHandles(Set<FileHandle> filehandles) {
