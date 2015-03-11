@@ -2227,10 +2227,12 @@ public class JobSubmissionController extends WaspController {
 					adaptorsets.add(asrc.getAdaptorset());
 			}
 			
-			//dubin; 3-10-15 overlay these choices of adaptorsets 
-			//(which is based, at this moment (for loop above), on the user's choice of resourcecategory [sequencing machine selected for this job]; which is set by some xml config??),
-			//which currently appears to be the complete list of adaptorsets for each machine,
-			//with the adaptorsets permitted for a particular workflow (which is now configurable via web-based workflow configuration) and is stored in worflow meta
+			//dubin; 3-10-15 intersect the adaptorset choices obtained immediately above (based on sequencing machine) with those configured in workflow 
+			//At the moment, List<Adaptorset> adaptorsets (for loop above) contains available adaptorsets based on user's choice of resourcecategory [sequencing machine selected for this job]; which is set by some xml config??),
+			//In the code immediately below, get adaptorsets configured (on workflow web page) for this workflow,
+			//and is stored in worflow meta
+			//THEN intersect the two.
+			//if not configured, then ignore workflow-configured adaptorset (which will be empty)
 			List<Adaptorset> adaptorsetListForThisWorkflow = workflowService.getAdaptorsetsForWorkflow(jobDraft.getWorkflow());
 			//fail-safe mechanism (if adaptorset has not been configured in the workflow, display all adaptorsets currently in adaptorsets):
 			if(!adaptorsetListForThisWorkflow.isEmpty()){//if not empty, then intersect
