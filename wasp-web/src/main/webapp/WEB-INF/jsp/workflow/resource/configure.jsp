@@ -150,7 +150,10 @@
 			<a id="checkAllAdaptorsets" <%-- class="button" --%> href="javascript:void(0);"  >check all</a>
 			| <a id="uncheckAllAdaptorsets" <%-- class="button" --%> href="javascript:void(0);" >uncheck all</a>
 		</span><br /><br />
-		<table class="data" style="margin: 0px 0px">		
+		<table class="data" style="margin: 0px 0px">
+			<tr class="FormData">
+			  	<td class="label-centered" style="background-color:#FAF2D6"><fmt:message key="workflow.workflowAdaptorsets.label"/></td>
+			</tr>		
 			<c:forEach items="${adaptorsets}" var="adaptorset">
 			 	<tr>
 				<td style="font-size:x-small">

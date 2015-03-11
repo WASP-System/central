@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -262,7 +264,7 @@ public class JobSubmissionController extends WaspController {
 	
 	@Autowired
 	protected AccountsService accountsService;
-	
+
 	@Value("${wasp.temporary.dir}")
 	protected String downloadFolder;
 	
@@ -2224,6 +2226,23 @@ public class JobSubmissionController extends WaspController {
 				for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
 					adaptorsets.add(asrc.getAdaptorset());
 			}
+			
+			//dubin; 3-10-15 overlay these choices of adaptorsets 
+			//(which is based, at this moment (for loop above), on the user's choice of resourcecategory [sequencing machine selected for this job]; which is set by some xml config??),
+			//which currently appears to be the complete list of adaptorsets for each machine,
+			//with the adaptorsets permitted for a particular workflow (which is now configurable via web-based workflow configuration) and is stored in worflow meta
+			List<Adaptorset> adaptorsetListForThisWorkflow = workflowService.getAdaptorsetsForWorkflow(jobDraft.getWorkflow());
+			//fail-safe mechanism (if adaptorset has not been configured in the workflow, display all adaptorsets currently in adaptorsets):
+			if(!adaptorsetListForThisWorkflow.isEmpty()){//if not empty, then intersect
+				adaptorsets.retainAll(adaptorsetListForThisWorkflow);//intersect the two lists
+			}			
+			class AdaptorsetNameComparator implements Comparator<Adaptorset> {
+			    @Override
+			    public int compare(Adaptorset arg0, Adaptorset arg1) {
+			        return arg0.getName().compareToIgnoreCase(arg1.getName());
+			    }
+			}
+			Collections.sort(adaptorsets, new AdaptorsetNameComparator());//sort by Adaptorset name			
 			m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 			
 			List<Adaptor> adaptors = new ArrayList<Adaptor>();
