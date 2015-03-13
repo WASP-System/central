@@ -3,6 +3,21 @@
 <fmt:message key="reports.feesCharged.label" />
 </h1>
 
+<form method="POST">
+<!--  jquery datepicker (see run/list)-->
+<div >
+	<table class="EditTable ui-widget ui-widget-content">
+	<tr class="FormData"><td  class="CaptionTD"><p>Start Date: <input type="text" id="datepicker"></p></td></tr>
+	<tr class="FormData"><td >&nbsp;</td></tr>	
+	</table>
+</div>
+<br />
+
+  <div class="submit">
+    <input class="fm-button" type="submit" value="Run Report" />
+  </div>
+</form>
+	<br />
 	
 <!--  		
 <table class="data" style="margin: 0px 0px" >	
@@ -66,7 +81,7 @@
 
 -->
 <br />
-
+<c:if test="${not empty  labList}">
 <table class="data" style="margin: 0px 0px" >	
 
 	<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
@@ -163,7 +178,7 @@
 </table>
 <br /><br />
 
-
+</c:if>
 
 
 

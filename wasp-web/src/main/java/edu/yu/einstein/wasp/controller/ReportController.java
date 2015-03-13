@@ -237,10 +237,19 @@ public class ReportController extends WaspController {
 	  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm')")
 	  public String jobFeesCharged(
 			  ModelMap m)  {		
-    	populateFeesChargedPage(m);
+    	//populateFeesChargedPage(m);
 		return "reports/feesCharged";
 	}
 
+	@RequestMapping(value="/feesCharged", method=RequestMethod.POST)
+	  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm')")
+	  public String jobFeesChargedPOST(
+			  ModelMap m)  {		
+  	populateFeesChargedPage(m);
+		return "reports/feesCharged";
+	}
+
+	
   	private void populateFeesChargedPage(ModelMap m){
   		
   		List<Job> jobs = new ArrayList<Job>();
