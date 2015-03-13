@@ -494,4 +494,9 @@ public abstract class WaspDaoImpl<E extends Serializable> extends WaspPersistenc
 		}
 	}
 
+	@Override
+	public List<E> findBySqlString(String qString) {
+		Query q = entityManager.createQuery(qString);
+		return q.getResultList();
+	}
 }

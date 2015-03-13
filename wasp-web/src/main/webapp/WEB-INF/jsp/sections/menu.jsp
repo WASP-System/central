@@ -57,6 +57,14 @@
 						</sec:authorize>
 						<li><a href='<wasp:relativeUrl value="lab/list.do"/>'><fmt:message key="menu.labs.label" /></a></li>
 						<li><a href='<wasp:relativeUrl value="job2quote/list_all.do"/>'><fmt:message key="menu.jobQuotes.label" /></a></li>
+						<sec:authorize access="hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm')">
+							<li class="has-children">
+								<a href="#"><fmt:message key="menu.reports.label" /></a>
+								<ul>
+									<li><a href='<wasp:relativeUrl value="reports/feesCharged.do"/>'><fmt:message key="menu.reportFeesCharged.label" /></a></li>
+								</ul>
+							</li>
+						</sec:authorize>
 						<sec:authorize access="hasRole('su') or hasRole('fm')">
 							<li class="has-children">
 								<a href="#"><fmt:message key="menu.tasksForOthers.label" /></a>

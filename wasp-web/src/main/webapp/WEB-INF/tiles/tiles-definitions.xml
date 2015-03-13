@@ -315,6 +315,10 @@
 		<put-attribute name="body-content" value="/WEB-INF/jsp/batchJobStatusViewer/list.jsp" />
 	</definition>
 	
+	<definition name="reports/feesCharged" extends="template-base">
+		<put-attribute name="head-js" value="/WEB-INF/jsp/reports/feesCharged.js.jsp" />
+		<put-attribute name="body-content" value="/WEB-INF/jsp/reports/feesCharged.jsp" />
+	</definition>
 	
 	
 	<definition name="resource/list" extends="template-grid">

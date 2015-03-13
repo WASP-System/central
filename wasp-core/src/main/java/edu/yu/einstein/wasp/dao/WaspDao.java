@@ -151,7 +151,7 @@ public interface WaspDao<E> extends WaspPersistenceDao {
     */
    public E getByUUID(UUID uuid);
 
-
-
+   //user generated sql string
+   public List<E> findBySqlString(String qString);
 }
 

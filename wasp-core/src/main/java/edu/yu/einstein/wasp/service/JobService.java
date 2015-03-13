@@ -11,6 +11,7 @@
 package edu.yu.einstein.wasp.service;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -694,4 +695,11 @@ public interface JobService extends WaspMessageHandlingService {
 	public Job getJobByJobIdInDiscreteTransaction(Integer jobId);
 
 	public boolean updateJobAnalysisSelected(Job job, boolean analysisSelected, List<Integer> softwareIdList);
+	
+	/**
+	 * returns job completion date; if not completed, returns null
+	 * @param job
+	 * @return Date
+	 */
+	public Date getJobCompletionDate(Job job);
 }

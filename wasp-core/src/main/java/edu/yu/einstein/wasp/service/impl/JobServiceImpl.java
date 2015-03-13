@@ -2663,4 +2663,23 @@ public static final String SAMPLE_PAIR_META_KEY = "samplePairsTvsC";
 		}
 		return false;
 	}
+	
+	public Date getJobCompletionDate(Job job){
+		Assert.assertParameterNotNull(job, "job cannot be null");
+		Assert.assertParameterNotNull(job.getId(), "job Id cannot be null");
+		
+		if(!isFinishedSuccessfully(job)){
+			return null;
+		}
+		
+		Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		Set<String> jobIdStringSet = new HashSet<String>();
+		jobIdStringSet.add(job.getId().toString());
+		parameterMap.put(WaspJobParameters.JOB_ID, jobIdStringSet);
+		JobExecution je = batchJobExplorer.getMostRecentlyStartedJobExecutionInList(
+				batchJobExplorer.getJobExecutions("default.waspJob.jobflow", parameterMap, true) );
+		if (je == null)
+			return null;
+		return je.getEndTime();
+	}
 }
