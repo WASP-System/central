@@ -2,7 +2,10 @@
 <script type="text/javascript">
 
 $(function() {
-  $( "#datepicker" ).datepicker();
+  $( "#datepickerStartDate" ).datepicker();
+  $( "#datepickerStartDate" ).datepicker( "option", "dateFormat", "yy/mm/dd" );//format will be yyyy/mm/dd
+  $( "#datepickerEndDate" ).datepicker();  
+  $( "#datepickerEndDate" ).datepicker( "option", "dateFormat", "yy/mm/dd" );//format will be yyyy/mm/dd
 });
 
 </script>

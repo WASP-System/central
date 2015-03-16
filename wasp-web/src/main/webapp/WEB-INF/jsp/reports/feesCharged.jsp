@@ -4,20 +4,25 @@
 </h1>
 
 <form method="POST">
-<!--  jquery datepicker (see run/list)-->
-<div >
+	<!--  jquery datepicker (see run/list)-->
 	<table class="EditTable ui-widget ui-widget-content">
-	<tr class="FormData"><td  class="CaptionTD"><p>Start Date: <input type="text" id="datepicker"></p></td></tr>
-	<tr class="FormData"><td >&nbsp;</td></tr>	
-	</table>
-</div>
-<br />
-
-  <div class="submit">
-    <input class="fm-button" type="submit" value="Run Report" />
-  </div>
+	<tr class="FormData">
+		<td colspan="2" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Jobs Completed Between Report Start Date &amp; End Date (inclusive)</label></td> 
+	</tr>
+	<tr class="FormData">
+		<td  class="CaptionTD">Report Start Date<sup>*</sup>: <input type="text" id="datepickerStartDate" name="reportStartDateAsString" ></td>		
+		<td  class="CaptionTD">Report End Date<sup>**</sup>: <input type="text" id="datepickerEndDate" name="reportEndDateAsString" ></td>
+	</tr>
+	<tr class="FormData">
+		<td colspan="2" class="label-centered"><input class="fm-button" type="submit" value="Run Report" /></td>
+	</tr>
+	</table> 
+	<span style="font-size:small">
+	*if blank, start date is earliest entry date in database; &nbsp; **if blank, end date is current date
+	</span>	 
 </form>
-	<br />
+	
+<br />	
 	
 <!--  		
 <table class="data" style="margin: 0px 0px" >	
@@ -86,7 +91,7 @@
 
 	<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 	<tr class="FormData">
-    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary</label></td>
+    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary: Jobs Completed Between <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
 	<tr class="FormData">
     	<td colspan="4" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
     	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Total Charge</label></td> 
@@ -158,7 +163,7 @@
 	
 	<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 	<tr class="FormData">
-    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary</label></td>
+    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary: Jobs Completed Between <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
 	<tr class="FormData">
     	<td colspan="4" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
     	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Total Charge</label></td> 
@@ -175,6 +180,8 @@
 		<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${reportGrandTotalsAsIntegerList.get(3)}" /></td>
 		<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <fmt:formatNumber type="number" groupingUsed="false" maxFractionDigits="0" value="${reportGrandTotalsAsIntegerList.get(4) }" /></td>
 	</tr>
+	<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
+	
 </table>
 <br /><br />
 
