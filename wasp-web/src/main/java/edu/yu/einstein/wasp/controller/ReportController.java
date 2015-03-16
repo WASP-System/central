@@ -238,8 +238,7 @@ public class ReportController extends WaspController {
 	@RequestMapping(value="/feesCharged", method=RequestMethod.GET)
 	  @PreAuthorize("hasRole('su') or hasRole('da-*') or hasRole('ga') or hasRole('fm')")
 	  public String jobFeesCharged(
-			  ModelMap m)  {		
-    	//populateFeesChargedPage(m);
+			  ModelMap m)  {    	
 		return "reports/feesCharged";
 	}
 
@@ -253,14 +252,13 @@ public class ReportController extends WaspController {
 		logger.debug("input from web: reportStartDateAsString = " + reportStartDateAsString);
 		logger.debug("input from web: reportEndDateAsString = " + reportEndDateAsString);
 				
-		//reportStartDateAsString and reportEndDateAsString format is like: "2015/03/16"
+		//reportStartDateAsString and reportEndDateAsString format coming from web is like: "2015/03/16"
 		//reportStartDateAsString and reportEndDateAsString may be empty; this will cause display of all completed jobs
-		//finally, since user may type in the date after using datepicker, it could be oddly formed, and thow an exception 
-		DateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");//this is the format jquery/datepicker is sending from the web
+		//finally, since user may type in the date after using datepicker, it could be oddly formed, and throw an exception 
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");//this is the format jquery's datepicker has been configured to send from the web
   		Date reportStartDate = null;//yyyy/MM/dd
   		try{
   			if(reportStartDateAsString.isEmpty()){
-  				logger.debug("dubin -reportStartDateAsString is EMPTY ");
   				reportStartDate = (Date) dateFormatter.parse("1970/01/01");//a very long time ago, way before any entries in the wasp database
   				reportStartDateAsString = "Earliest Entry In Database";
   			}
@@ -277,9 +275,7 @@ public class ReportController extends WaspController {
   		Date reportEndDate = null;//yyyy/MM/dd
   		try{
   			if(reportEndDateAsString.isEmpty()){
-  				logger.debug("dubin -reportEndDateAsString is EMPTY ");
   				reportEndDate = new Date();//the current date
-  				//reportEndDate = (Date) dateFormatter.parse("2900/01/01");//a very long time in the future
   				reportEndDateAsString = dateFormatter.format(reportEndDate);
   			}
   			else{
@@ -297,11 +293,8 @@ public class ReportController extends WaspController {
   			waspErrorMessage("reports.feesCharged_ReportStartAndEndDateConflict.error"); 
   			return "reports/feesCharged";
   		}
-  		//REMOVE ME
-  		waspMessage("sampleDetail.updated_success.label");
-
-  		populateFeesChargedPage(m, reportStartDate, reportEndDate);
   		
+  		populateFeesChargedPage(m, reportStartDate, reportEndDate);  		
 		m.addAttribute("reportStartDateAsString", reportStartDateAsString);
 		m.addAttribute("reportEndDateAsString", reportEndDateAsString);
 
@@ -311,6 +304,7 @@ public class ReportController extends WaspController {
 	
   	private void populateFeesChargedPage(ModelMap m, Date reportStartDate, Date reportEndDate){
   		
+  		Format formatter = new SimpleDateFormat("yyyy/MM/dd");  
   		List<Job> jobs = new ArrayList<Job>();
   		Map<Job, MPSQuote> jobMPSQuoteMap = new HashMap<Job, MPSQuote>();
   		Map<Job, List<Integer>> jobMPSQuoteAsIntegerListMap = new HashMap<Job, List<Integer>>();
@@ -320,22 +314,7 @@ public class ReportController extends WaspController {
   		
   		Map<Job, User> jobPIMap = new HashMap<Job, User>(); 		
   		
-  		///String reportStartDateAsString = "2014/07/18";//will come from web
-  		///logger.debug("reportStartDateAsString = " + reportStartDateAsString);
-  		
-  		///DateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");//this is the format that the date is coming in from the Grid
-  		////Date reportStartDate = null;
-  		///try{
-  		///	reportStartDate = (Date) dateFormatter.parse(reportStartDateAsString);
-  		///}
-  		///catch(Exception e){ 
-  		///	logger.debug("unable to parse date in for report in populateFeesChargedPage()");
-  		///	//send error message to web
-  		///}
-  		
-  		
-  		
-  		//String queryString = "SELECT j FROM " + Job.class.getName() + " j  WHERE j.created >= '" + reportStartDateAsString + "'";
+ 		//String queryString = "SELECT j FROM " + Job.class.getName() + " j  WHERE j.created >= '" + reportStartDateAsString + "'";
   		//String queryString = "SELECT j FROM " + Job.class.getName() + " j, " +  Lab.class.getName() + " l, " + User.class.getName() + " u WHERE j.labId = l.id  AND l.primaryUserId = u.id AND j.created >= '" + reportStartDateAsString + "' ORDER BY u.lastName, u.firstName, j.id";
   		//String queryString = "SELECT j FROM " + Job.class.getName() + " j, " +  Lab.class.getName() + " l, " + User.class.getName() + " u WHERE j.labId = l.id  AND l.primaryUserId = u.id  ORDER BY u.lastName, u.firstName, j.id";
   		String queryString = "SELECT j FROM " + Job.class.getName() + " j, " +  Lab.class.getName() + " l, " + User.class.getName() + " uPI, " + User.class.getName() + " uSubmitter WHERE j.labId = l.id  AND l.primaryUserId = uPI.id  AND j.userId = uSubmitter.id ORDER BY uPI.lastName, uPI.firstName, j.labId, uSubmitter.lastName, uSubmitter.firstName, j.id";
@@ -343,20 +322,14 @@ public class ReportController extends WaspController {
   		logger.debug("queryString = " + queryString);
   		logger.debug("size of sqlJobList = " + sqlJobList.size());
   		
-  		
-  		Format formatter = new SimpleDateFormat("yyyy/MM/dd");	
-  		
-  		
   		//for(Job job : jobService.getJobDao().findAll()){
   		for(Job job : sqlJobList){//currently ordered by PI name (lab)
-  			
-  			
   			Date jobCompletionDate = null;
   			if(jobService.isFinishedSuccessfully(job)){
   				jobCompletionDate = jobService.getJobCompletionDate(job);
   				//zero out the time (hr, min, sec, ms) for jobCompletionDate; taken from http://stackoverflow.com/questions/17821601/set-time-to-000000
   				final GregorianCalendar gc = new GregorianCalendar();
-  			    gc.setTime( jobCompletionDate );
+  				gc.setTime( jobCompletionDate );
   			    gc.set( Calendar.HOUR_OF_DAY, 0 );
   			    gc.set( Calendar.MINUTE, 0 );
   			    gc.set( Calendar.SECOND, 0 );
@@ -407,13 +380,10 @@ public class ReportController extends WaspController {
 	  				  			//ANALYSIS CHARGE
 	  				  			mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalComputationalCost());
 	  				  			//Map<Job, Integer> 
-	  				  			jobMPSQuoteAsIntegerListMap.put(job, mostRecentMpsQuoteAsIntegerList);
-	  				  			
-	  				  			
-	  				  			
+	  				  			jobMPSQuoteAsIntegerListMap.put(job, mostRecentMpsQuoteAsIntegerList);	  				  			
 	  						}catch(Exception e){
 	  							logger.debug("Job J" + job.getId().toString() + ": unable to access mspQuote via stored json; could be an uploaded file or no file exists");
-	  							//some acctQuotes uploaded a file, so they will not have any json string in the meta!
+	  							//some acctQuotes may have uploaded a custom file (although rather unlikely), so they will not have any json string in the meta!
 	  							//so just catch the exception and move on.
 	  						}
 	  					}
@@ -442,17 +412,10 @@ public class ReportController extends WaspController {
 	 			labJobListMap.put(lab, new ArrayList<Job>());	 			
 	 		}
 	 	}
-	 	logger.debug("dubin ======size of labList = " + labList.size());
-	 	
-	 	for(Job job : jobs){//next associate the labs with a list of jobs
+	 	//next associate the labs with a list of jobs
+	 	for(Job job : jobs){
 	 		labJobListMap.get(job.getLab()).add(job);
 	 	}
-	 	
-	 	for(Lab lab : labList){//next associate the labs with a list of jobs
-	 		logger.debug("dubin ======size of jobList for lab = " + labJobListMap.get(lab).size());
-	 		
-	 	}
-	 	
 	 	m.addAttribute("labList", labList);
 	 	m.addAttribute("labJobListMap", labJobListMap);
 	 	
@@ -463,9 +426,6 @@ public class ReportController extends WaspController {
 	 		int [] intArrayForALab  = new int [5];	
 	 		for(Job job : labJobListMap.get(lab)){
 	 			List<Integer> mpsQuoteAsIntegerListForSingleCompletedJob = jobMPSQuoteAsIntegerListMap.get(job);
-	 			//logger.debug("dubin ====== mpsQuoteAsIntegerListForSingleCompletedJob size = " + mpsQuoteAsIntegerListForSingleCompletedJob.size());
-	 			//logger.debug("dubin ====== mpsQuoteAsIntegerListForSingleCompletedJob.get(0) = " + mpsQuoteAsIntegerListForSingleCompletedJob.get(0).toString());
-	 			
 	 			intArrayForALab[0] += mpsQuoteAsIntegerListForSingleCompletedJob.get(0).intValue();	 			
 	 			intArrayForALab[1] += mpsQuoteAsIntegerListForSingleCompletedJob.get(1).intValue();	 		
 	 			intArrayForALab[2] += mpsQuoteAsIntegerListForSingleCompletedJob.get(2).intValue();	 		
@@ -497,21 +457,6 @@ public class ReportController extends WaspController {
 	 	
 	 	m.addAttribute("labGrandTotalsAsIntegerListMap", labGrandTotalsAsIntegerListMap);
 	 	m.addAttribute("reportGrandTotalsAsIntegerList", reportGrandTotalsAsIntegerList);
-	 	
-	 	for(Lab lab : labList){
-	 		String s = lab.getName();
-	 		for(Integer integer : labGrandTotalsAsIntegerListMap.get(lab)){
-	 			s += " : " + integer.toString();
-	 		}
-	 		logger.debug(s);
-	 		logger.debug(" ");
-	 	}
-	 	logger.debug(" ");
-	 	String s = "GRAND TOTALS";
- 		for(Integer integer : reportGrandTotalsAsIntegerList){
- 			s += " : " + integer.toString();
- 		}
- 		logger.debug(s);
  		
 	 	//////////////m.addAttribute("jobCompletionDateAsString", jobCompletionDateAsString);
 /*
