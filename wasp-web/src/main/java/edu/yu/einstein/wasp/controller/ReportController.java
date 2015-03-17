@@ -249,9 +249,6 @@ public class ReportController extends WaspController {
 			  @RequestParam(value="reportEndDateAsString") String reportEndDateAsString,
 			  ModelMap m)  {
 		
-		logger.debug("input from web: reportStartDateAsString = " + reportStartDateAsString);
-		logger.debug("input from web: reportEndDateAsString = " + reportEndDateAsString);
-				
 		//reportStartDateAsString and reportEndDateAsString format coming from web is like: "2015/03/16"
 		//reportStartDateAsString and reportEndDateAsString may be empty; this will cause display of all completed jobs
 		//finally, since user may type in the date after using datepicker, it could be oddly formed, and throw an exception 
@@ -288,6 +285,13 @@ public class ReportController extends WaspController {
   			return "reports/feesCharged";
   		}
   		
+  		//new Date() is current date (now)
+  		if(reportStartDate.compareTo(new Date()) > 0 || reportEndDate.compareTo(new Date()) > 0){//not valid; neither reportStartDate nor reportEndDate may be after current (today's) date
+  			logger.debug("neither reportStartDate nor reportEndDate may be greater than the current date in ReportController.jobFeesChargedPOST");
+  			waspErrorMessage("reports.feesCharged_neitherReportStartOrEndDateMayBeAfterCurrentDate.error"); 
+  			return "reports/feesCharged";
+  		}
+  		
   		if(reportStartDate.compareTo(reportEndDate) > 0){//not valid
   			logger.debug("reportStartDate cannot be greater than reportEndDate in ReportController.jobFeesChargedPOST");
   			waspErrorMessage("reports.feesCharged_ReportStartAndEndDateConflict.error"); 
@@ -306,6 +310,12 @@ public class ReportController extends WaspController {
   		
   		Format formatter = new SimpleDateFormat("yyyy/MM/dd");  
   		List<Job> jobs = new ArrayList<Job>();
+  		List<Job> jobsNotYetCompleted = new ArrayList<Job>();
+  		List<Job> jobsNotYetCompletedBecauseWithdrawn = new ArrayList<Job>();
+  		List<Job> jobsMarkedAsCompletedButNoJobCompletionDateRecorded = new ArrayList<Job>();
+  		List<Job> jobsMarkedAsCompletedButOutsideOfReportDates = new ArrayList<Job>();
+  		List<Job> jobsMarkedAsCompletedButQuoteNotFound = new ArrayList<Job>();
+  		List<Job> jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible = new ArrayList<Job>();
   		Map<Job, MPSQuote> jobMPSQuoteMap = new HashMap<Job, MPSQuote>();
   		Map<Job, List<Integer>> jobMPSQuoteAsIntegerListMap = new HashMap<Job, List<Integer>>();
   		
@@ -323,10 +333,20 @@ public class ReportController extends WaspController {
   		logger.debug("size of sqlJobList = " + sqlJobList.size());
   		
   		//for(Job job : jobService.getJobDao().findAll()){
-  		for(Job job : sqlJobList){//currently ordered by PI name (lab)
+  		for(Job job : sqlJobList){//all jobs, currently ordered by PI name (lab)
   			Date jobCompletionDate = null;
-  			if(jobService.isFinishedSuccessfully(job)){
+  			if(!jobService.isFinishedSuccessfully(job)){
+  				jobsNotYetCompleted.add(job);
+  			}
+  			else if(jobService.isFinishedSuccessfully(job)){
   				jobCompletionDate = jobService.getJobCompletionDate(job);
+  				
+  				if(jobCompletionDate==null){//very, very, very unlikely
+  					logger.debug("jobCompletionDate unexpectedly found to be null for jobId J" + job.getId().toString());
+  					jobsMarkedAsCompletedButNoJobCompletionDateRecorded.add(job);
+  					continue;
+  				}
+  				
   				//zero out the time (hr, min, sec, ms) for jobCompletionDate; taken from http://stackoverflow.com/questions/17821601/set-time-to-000000
   				final GregorianCalendar gc = new GregorianCalendar();
   				gc.setTime( jobCompletionDate );
@@ -334,18 +354,16 @@ public class ReportController extends WaspController {
   			    gc.set( Calendar.MINUTE, 0 );
   			    gc.set( Calendar.SECOND, 0 );
   			    gc.set( Calendar.MILLISECOND, 0 );
-  			    jobCompletionDate = gc.getTime();  						
-  						
-  				if(jobCompletionDate==null){//very, very, very unlikely
-  					logger.debug("jobCompletionDate unexpectedly found to be null for jobId J" + job.getId().toString());
-  					continue;
-  				}
-  				else if(jobCompletionDate.compareTo(reportStartDate) < 0){//EXCLUDE
+  			    jobCompletionDate = gc.getTime();  
+  			    
+  				if(jobCompletionDate.compareTo(reportStartDate) < 0){//EXCLUDE
   					logger.debug("jobCompletionDate is before reportStartDate requested in this report for jobID J" + job.getId().toString());
+  					jobsMarkedAsCompletedButOutsideOfReportDates.add(job);
   					continue;
   				}
   				else if(jobCompletionDate.compareTo(reportEndDate) > 0){//EXCLUDE
   					logger.debug("jobCompletionDate is after reportEndDate requested in this report for jobID J" + job.getId().toString());
+  					jobsMarkedAsCompletedButOutsideOfReportDates.add(job);
   					continue;
   				}
   				 
@@ -357,10 +375,16 @@ public class ReportController extends WaspController {
   				logger.debug("jobId = " + job.getId().toString() + " started : completed  = " + jobStartDateAsString + " : " + jobCompletionDateAsString);
   				
 	  			AcctQuote mostRecentAcctQuote = job.getCurrentQuote();
-	  			if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
+	  			
+	  			if(mostRecentAcctQuote==null || mostRecentAcctQuote.getId()==null){
+	  				jobsMarkedAsCompletedButQuoteNotFound.add(job);
+	  			}
+	  			else if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
 	  				
-	  				for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){
+	  				boolean acctQuoteJsonMetaDataFound = false;
+	  				for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){	  					
 	  					if(acm.getK().toLowerCase().contains("json")){
+	  						acctQuoteJsonMetaDataFound = true;
 	  						try{							
 	  							JSONObject jsonObject = new JSONObject(acm.getV());	
 	  							MPSQuote mostRecentMpsQuote =  MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);
@@ -383,10 +407,14 @@ public class ReportController extends WaspController {
 	  				  			jobMPSQuoteAsIntegerListMap.put(job, mostRecentMpsQuoteAsIntegerList);	  				  			
 	  						}catch(Exception e){
 	  							logger.debug("Job J" + job.getId().toString() + ": unable to access mspQuote via stored json; could be an uploaded file or no file exists");
+	  							jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible.add(job);
 	  							//some acctQuotes may have uploaded a custom file (although rather unlikely), so they will not have any json string in the meta!
 	  							//so just catch the exception and move on.
 	  						}
 	  					}
+	  				}
+	  				if(acctQuoteJsonMetaDataFound == false){
+	  					jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible.add(job);
 	  				}
 	  				
 	  			}
@@ -395,7 +423,94 @@ public class ReportController extends WaspController {
   		}
   		
   		m.addAttribute("jobs", jobs);
-  		m.addAttribute("jobStartDateAsStringMap", jobStartDateAsStringMap);
+  		
+  		
+  		jobService.sortJobsByJobId(jobsNotYetCompleted);
+  		Map<Job,String> jobNotYetCompletedJobStatusAsStringMap = new HashMap<Job,String>();
+  		Map<Job,String> jobNotYetCompletedJobSubmittedDateAsStringMap = new HashMap<Job,String>();
+  		
+  		Map<Job,String> jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap = new HashMap<Job,String>();
+  		Map<Job,String> jobNotYetCompletedAnalysisCostAsStringAsStringMap = new HashMap<Job,String>();
+  		int grandTotalForJobsNotYetCompletedDiscountedFacilityCost = 0;
+  		int grandTotalForJobsNotYetCompletedAnalysisCost = 0;
+  		
+  		for(Job jobNotYetCompleted : jobsNotYetCompleted){
+  			String currentStatus = jobService.getDetailedJobStatusString(jobNotYetCompleted);
+  			if(currentStatus.toLowerCase().contains("withdrawn")){
+  				jobsNotYetCompletedBecauseWithdrawn.add(jobNotYetCompleted);
+  				continue;
+  			}
+  			jobNotYetCompletedJobStatusAsStringMap.put(jobNotYetCompleted, currentStatus);
+  			String jobSubmittedDateAsString = formatter.format(jobNotYetCompleted.getCreated());
+  			jobNotYetCompletedJobSubmittedDateAsStringMap.put(jobNotYetCompleted, jobSubmittedDateAsString);
+  			AcctQuote mostRecentAcctQuote = jobNotYetCompleted.getCurrentQuote();
+  			if(mostRecentAcctQuote==null || mostRecentAcctQuote.getId()==null){
+  				jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap.put(jobNotYetCompleted,"no quote");
+  				jobNotYetCompletedAnalysisCostAsStringAsStringMap.put(jobNotYetCompleted,"no quote");
+  			}
+  			else if(mostRecentAcctQuote!=null && mostRecentAcctQuote.getId()!=null){
+  				
+  				for(AcctQuoteMeta acm : mostRecentAcctQuote.getAcctQuoteMeta()){
+  					if(acm.getK().toLowerCase().contains("json")){
+  						try{							
+  							JSONObject jsonObject = new JSONObject(acm.getV());	
+  							MPSQuote mostRecentMpsQuote =  MPSQuote.getMPSQuoteFromJSONObject(jsonObject, MPSQuote.class);
+  							
+  				  			
+  				  			/////////List<Integer> mostRecentMpsQuoteAsIntegerList = new ArrayList<Integer>();
+  				  			//TOTAL CHARGE APPEARING ON QUOTE (ESF lab costs - esf discount + analysis fee)
+  				  			/////////mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalFinalCost());
+  				  			//TOTAL ESF LAB CHARGES (ESF lab costs)
+  				  			/////////mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost());
+  				  			//Discount on TOTAL ESF LAB CHARGES (ESF discount)
+  				  			/////////mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalDiscountCost());
+  				  			//DISCOUNTED TOTAL ESF LAB CHARGES (ESF lab costs - ESF discount)
+  				  			/////////mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost());
+  				  			//ANALYSIS CHARGE
+  				  			/////////mostRecentMpsQuoteAsIntegerList.add(mostRecentMpsQuote.getTotalComputationalCost());
+  				  			//Map<Job, Integer> 
+  				  			
+  				  			Integer discountedFacilityCost = new Integer(mostRecentMpsQuote.getTotalLibraryConstructionCost() + mostRecentMpsQuote.getTotalSequenceRunCost() +  mostRecentMpsQuote.getTotalAdditionalCost() - mostRecentMpsQuote.getTotalDiscountCost());
+  				  			grandTotalForJobsNotYetCompletedDiscountedFacilityCost += discountedFacilityCost.intValue();
+  				  			Integer analysisCost = new Integer(mostRecentMpsQuote.getTotalComputationalCost());
+  				  			grandTotalForJobsNotYetCompletedAnalysisCost += analysisCost.intValue();
+  				  			jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap.put(jobNotYetCompleted, discountedFacilityCost.toString());
+  				  			jobNotYetCompletedAnalysisCostAsStringAsStringMap.put(jobNotYetCompleted, analysisCost.toString());
+  				  							  			
+  						}catch(Exception e){
+  							logger.debug("Job J" + jobNotYetCompleted.getId().toString() + ": this job not completed: unable to access mspQuote via stored json; could be an uploaded file or no file exists");
+  							//some acctQuotes may have uploaded a custom file (although rather unlikely), so they will not have any json string in the meta!
+  							jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap.put(jobNotYetCompleted,"no quote metadata");
+  			  				jobNotYetCompletedAnalysisCostAsStringAsStringMap.put(jobNotYetCompleted,"no quote metadata");
+  						}
+  					}
+  				}
+  				
+  			}
+  		} 
+  		
+  		jobsNotYetCompleted.removeAll(jobsNotYetCompletedBecauseWithdrawn);
+  		
+  		List<Job> totalJobsInDatabase = new ArrayList<Job>();
+  		totalJobsInDatabase.addAll(jobService.getJobDao().findAll());
+  		m.addAttribute("totalJobsInDatabase", totalJobsInDatabase);
+  		m.addAttribute("jobsNotYetCompletedBecauseWithdrawn", jobsNotYetCompletedBecauseWithdrawn);
+  		
+  		m.addAttribute("jobsNotYetCompleted", jobsNotYetCompleted);
+  		m.addAttribute("jobNotYetCompletedJobStatusAsStringMap", jobNotYetCompletedJobStatusAsStringMap);
+  		m.addAttribute("jobNotYetCompletedJobSubmittedDateAsStringMap", jobNotYetCompletedJobSubmittedDateAsStringMap);
+  		m.addAttribute("jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap", jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap);
+  		m.addAttribute("jobNotYetCompletedAnalysisCostAsStringAsStringMap", jobNotYetCompletedAnalysisCostAsStringAsStringMap);
+  		m.addAttribute("grandTotalForJobsNotYetCompletedDiscountedFacilityCostAsString", Integer.valueOf(grandTotalForJobsNotYetCompletedDiscountedFacilityCost).toString());
+  		m.addAttribute("grandTotalForJobsNotYetCompletedAnalysisCostAsString", Integer.valueOf(grandTotalForJobsNotYetCompletedAnalysisCost).toString());
+  		
+  		m.addAttribute("jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible", jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible);
+  		
+  		m.addAttribute("jobsMarkedAsCompletedButNoJobCompletionDateRecorded", jobsMarkedAsCompletedButNoJobCompletionDateRecorded);
+  		m.addAttribute("jobsMarkedAsCompletedButOutsideOfReportDates", jobsMarkedAsCompletedButOutsideOfReportDates);
+  		m.addAttribute("jobsMarkedAsCompletedButQuoteNotFound", jobsMarkedAsCompletedButQuoteNotFound);  		
+  		
+  		m.addAttribute("jobStartDateAsStringMap", jobStartDateAsStringMap);  		
   		m.addAttribute("jobCompletionDateAsStringMap", jobCompletionDateAsStringMap);
 		logger.debug("dubin : number of completed jobs = " + jobs.size());
 		m.addAttribute("jobPIMap", jobPIMap);
@@ -403,6 +518,7 @@ public class ReportController extends WaspController {
 		m.addAttribute("jobMPSQuoteAsIntegerListMap", jobMPSQuoteAsIntegerListMap);
 	 	m.addAttribute("localCurrencyIcon", Currency.getInstance(Locale.getDefault()).getSymbol()); 
 	 	
+	 	//first, get all the labs	 	
 	 	List<Lab> labList = new ArrayList<Lab>();
 	 	Map<Lab,List<Job>> labJobListMap = new HashMap<Lab,List<Job>>();	 	
 	 	for(Job job : jobs){//first get the labs	 		
@@ -457,9 +573,8 @@ public class ReportController extends WaspController {
 	 	
 	 	m.addAttribute("labGrandTotalsAsIntegerListMap", labGrandTotalsAsIntegerListMap);
 	 	m.addAttribute("reportGrandTotalsAsIntegerList", reportGrandTotalsAsIntegerList);
- 		
-	 	//////////////m.addAttribute("jobCompletionDateAsString", jobCompletionDateAsString);
-/*
+ 
+	 	/* very old stuff
     	Job job = jobService.getJobByJobId(jobId);
 		//need this (viewerIsFacilityStaff) since might be coming from callable (and security context lost)
 		if(webAuthenticationService.hasRole("su") || webAuthenticationService.hasRole("fm") || webAuthenticationService.hasRole("ft") || webAuthenticationService.hasRole("da-*")){
