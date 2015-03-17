@@ -23,6 +23,7 @@ import edu.yu.einstein.wasp.interfacing.IndexingStrategy;
 import edu.yu.einstein.wasp.model.Adaptor;
 import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.Workflow;
 
 /**
  * @author calder
@@ -75,5 +76,7 @@ public interface AdaptorService extends WaspService {
 	public AdaptorsetDao getAdaptorsetDao();
 	
 	public void setAdaptorsetDao(AdaptorsetDao adaptorsetDao);
-
+	
+	public List<Adaptorset> getAllAdaptorsets();
+	
 }

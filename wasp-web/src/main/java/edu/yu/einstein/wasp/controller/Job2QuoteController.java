@@ -46,6 +46,7 @@ import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.FilterService;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.WebAuthenticationService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.StringHelper;
 import edu.yu.einstein.wasp.web.Tooltip;
@@ -76,6 +77,9 @@ public class Job2QuoteController extends WaspController {
 	
 	@Autowired
 	private AccountsService accountsService;
+
+	@Autowired
+	private WebAuthenticationService webAuthenticationService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("acctQuote", AcctQuoteMeta.class, request.getSession());
@@ -370,9 +374,14 @@ public class Job2QuoteController extends WaspController {
 			if (jobStatusComment != null)
 				currentStatus += Tooltip.getCommentHtmlString(jobStatusComment, getServletPath());
 			
+			String jobIdAnchorString = "<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>";
+			if(webAuthenticationService.isSuperUser()){//if the the web viewer that is logged in has superuser role
+				//since we added tab basic update to job home area, need this fix now
+				jobIdAnchorString = "<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-3>J"+item.getId().intValue()+"</a>";
+			}
 			List<String> cellList = new ArrayList<String>(
 				Arrays.asList(new String[] {
-					"<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
+					jobIdAnchorString, ////"<a href=" + getServletPath() + "/job/"+item.getId()+"/homepage.do#ui-tabs-2>J"+item.getId().intValue()+"</a>",
 					currentStatus,
 					item.getName(),
 					//String.format("%.2f", amount),

@@ -1,6 +1,8 @@
 package edu.yu.einstein.wasp.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.exception.MetadataException;
 import edu.yu.einstein.wasp.model.MetaAttribute;
 import edu.yu.einstein.wasp.model.MetaAttribute.Control.Option;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
 import edu.yu.einstein.wasp.model.Workflow;
@@ -26,6 +29,7 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.util.MetaHelper;
 
@@ -42,6 +46,9 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 	private WorkflowresourcecategoryDao workflowresourcecategoryDao;
 	
 	private WorkflowSoftwareDao workflowSoftwareDao;
+
+	@Autowired
+	private AdaptorService adaptorService;
 
 	@Override
 	public WorkflowSoftwareDao getWorkflowSoftwareDao() {
@@ -243,6 +250,55 @@ public class WorkflowServiceImpl extends WaspServiceImpl implements WorkflowServ
 		workflowMetaDao.setMeta(jobFlowBatchJobNameMeta);
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Adaptorset> getAdaptorsetsForWorkflow(Workflow workflow){
+		List<Adaptorset> adaptorsetList = new ArrayList<Adaptorset>();
+		WorkflowMeta wfm = workflowMetaDao.getWorkflowMetaByKWorkflowId(WORKFLOW_AREA+"."+ADAPTORSETS_META_KEY, workflow.getId());
+		if(wfm!=null && wfm.getV()!=null){//will be delimited string of id(s) like "1;2;4;7"
+			for(String adaptorsetIdAsString : wfm.getV().split(ADAPTORSET_SEPERATOR)){
+				try{
+					Integer id = Integer.parseInt(adaptorsetIdAsString);
+					Adaptorset adaptorset = adaptorService.getAdaptorsetDao().findById(id.intValue());
+					adaptorsetList.add(adaptorset);
+				}catch(Exception e){
+					logger.debug("unable to obtain adaptorset for workflow iname " + workflow.getIName());
+				}
+			}
+		}
+		return adaptorsetList;			
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setAdaptorsetsForWorkflow(Workflow workflow, List<Adaptorset> adaptorsetListForThisWorkflow){
+		
+		if(adaptorsetListForThisWorkflow.size()>1){
+			class AdaptorsetIdComparator implements Comparator<Adaptorset> {
+				@Override
+				public int compare(Adaptorset arg0, Adaptorset arg1) {
+					return arg0.getId().intValue() - arg1.getId().intValue();
+				}
+			}
+			Collections.sort(adaptorsetListForThisWorkflow, new AdaptorsetIdComparator());//sort by Adaptorset id
+		}
+		
+		StringBuffer stringBuffer = new StringBuffer("");
+		for(Adaptorset adaptorset : adaptorsetListForThisWorkflow){
+			if(!stringBuffer.toString().isEmpty()){
+				stringBuffer.append(ADAPTORSET_SEPERATOR);
+			}
+			stringBuffer.append(adaptorset.getId().toString());
+		}
+		String metaV = new String(stringBuffer);
+		try{			
+			this.setMeta(workflow, ADAPTORSETS_META_KEY, metaV);
+		}catch(Exception e){
+			logger.debug("unable to save adaptorset metadata for workflow iname: " + workflow.getIName());
+		}
+	}
 }

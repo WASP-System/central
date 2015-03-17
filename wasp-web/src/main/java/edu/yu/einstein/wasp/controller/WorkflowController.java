@@ -33,6 +33,7 @@ import edu.yu.einstein.wasp.dao.WorkflowSoftwareDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryDao;
 import edu.yu.einstein.wasp.dao.WorkflowresourcecategoryMetaDao;
 import edu.yu.einstein.wasp.dao.WorkflowsoftwareMetaDao;
+import edu.yu.einstein.wasp.model.Adaptorset;
 import edu.yu.einstein.wasp.model.MetaBase;
 import edu.yu.einstein.wasp.model.ResourceCategory;
 import edu.yu.einstein.wasp.model.Software;
@@ -43,9 +44,12 @@ import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
 import edu.yu.einstein.wasp.model.WorkflowsoftwareMeta;
+import edu.yu.einstein.wasp.service.AdaptorService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.StrategyService;
+import edu.yu.einstein.wasp.service.WorkflowService;
 import edu.yu.einstein.wasp.taglib.JQFieldTag;
+import edu.yu.einstein.wasp.util.MetaHelper;
 
 @Controller
 @Transactional
@@ -81,6 +85,12 @@ public class WorkflowController extends WaspController {
 	
 	@Autowired
 	private StrategyService strategyService;
+	
+	@Autowired
+	private AdaptorService adaptorService;
+
+	@Autowired
+	private WorkflowService workflowService;
 
 	private final MetaHelperWebapp getMetaHelperWebapp() {
 		return new MetaHelperWebapp("workflow", WorkflowMeta.class,
@@ -294,6 +304,17 @@ public class WorkflowController extends WaspController {
 			}
 		}
 		
+		//3-9-15; configure workflows for adaptorsets
+		List<Adaptorset> adaptorsets = adaptorService.getAllAdaptorsets();//active and inactive
+		class AdaptorsetNameComparator implements Comparator<Adaptorset> {
+		    @Override
+		    public int compare(Adaptorset arg0, Adaptorset arg1) {
+		        return arg0.getName().compareToIgnoreCase(arg1.getName());
+		    }
+		}
+		Collections.sort(adaptorsets, new AdaptorsetNameComparator());//sort by Adaptorset name
+		List<Adaptorset> thisWorkflowsAdaptorsets = workflowService.getAdaptorsetsForWorkflow(workflow);		
+		
 		m.put("workflowId", workflowId);
 		m.put("workflow", workflow);
 		m.put("workflowResourceTypeMap", workflowResourceTypes);
@@ -306,6 +327,9 @@ public class WorkflowController extends WaspController {
 		
 		m.put("strategies", strategies);
 		m.put("thisWorkflowsStrategies", thisWorkflowsStrategies);
+		
+		m.put("adaptorsets", adaptorsets);
+		m.put("thisWorkflowsAdaptorsets", thisWorkflowsAdaptorsets);
 
 		return "workflow/resource/configure";
 	}
@@ -327,7 +351,7 @@ public class WorkflowController extends WaspController {
 			@RequestParam(value="software", required=false) String[] softwareParams,
 			@RequestParam(value="softwareOption", required=false) String[] softwareOptionParams,
 			@RequestParam(value="strategyKey", required=false) List<String> strategyKeyList,
-
+			@RequestParam(value="adaptorsetId", required=false) List<Integer> adaptorsetIdList,
 			ModelMap m) {
 		// return to list if cancel button pressed
 		String submitValue = request.getParameter("submit");
@@ -547,6 +571,18 @@ public class WorkflowController extends WaspController {
 				}
 			}
 		}
+		
+		//deal with adaptorsets		
+		List<Adaptorset> adaptorsetListForThisWorkflow = new ArrayList<Adaptorset>();
+		if(adaptorsetIdList!=null){//null if no adaptors selected or if bioanalyzer workflow
+			for(Integer adaptorsetId : adaptorsetIdList){
+				Adaptorset adaptorset = adaptorService.getAdaptorsetDao().findById(adaptorsetId.intValue());
+				if(adaptorset!=null && adaptorset.getId()!=null){
+					adaptorsetListForThisWorkflow.add(adaptorset);
+				}
+			}
+		}
+		workflowService.setAdaptorsetsForWorkflow(workflow, adaptorsetListForThisWorkflow);			
 		
 		if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty() || !resourceTypeIds.isEmpty()){
 			if (!requiredResourceCategoryOptions.isEmpty() || !requiredSoftwareOptions.isEmpty()){

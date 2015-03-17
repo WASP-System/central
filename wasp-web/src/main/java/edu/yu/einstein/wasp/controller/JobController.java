@@ -3769,12 +3769,10 @@ public class JobController extends WaspController {
 		  	// assumed to be associated with it. Otherwise we assume that the library info is cloned from a persisted object.
 			SampleWrapperWebapp libraryInManaged = new SampleWrapperWebapp(libraryIn);
 			
-	  		
 			libraryIn.setSampleMeta(SampleWrapperWebapp.templateMetaToSubtypeAndSynchronizeWithMaster(
 					sampleService.getSampleSubtypeDao().getSampleSubtypeBySampleSubtypeId(libraryIn.getSampleSubtypeId()), 
 					libraryInManaged.getAllSampleMeta()));
 			
-
 			SampleWrapperWebapp persistentLibraryManaged;
 			if (libraryIn.getId() == null){
 				persistentLibraryManaged = new SampleWrapperWebapp(sampleService.getSampleDao().getSampleBySampleId(libraryInId));
@@ -3823,6 +3821,26 @@ public class JobController extends WaspController {
 				for (AdaptorsetResourceCategory asrc: adaptorsetResourceCategoryDao.findByMap(adaptorsetRCQuery))
 					adaptorsets.add(asrc.getAdaptorset());
 			}
+			
+			//dubin; 3-10-15 intersect the adaptorset choices obtained immediately above (based on sequencing machine) with those configured in workflow 
+			//At the moment, List<Adaptorset> adaptorsets (for loop above) contains available adaptorsets based on user's choice of resourcecategory [sequencing machine selected for this job]; which is set by some xml config??),
+			//In the code immediately below, get adaptorsets configured (on workflow web page) for this workflow,
+			//and is stored in worflow meta
+			//THEN intersect the two.
+			//if not configured, then ignore workflow-configured adaptorset (which will be empty)
+			List<Adaptorset> adaptorsetListForThisWorkflow = workflowService.getAdaptorsetsForWorkflow(job.getWorkflow());
+			//fail-safe mechanism (if adaptorset has not been configured in the workflow, adaptorsetListForThisWorkflow will be empty and so we will not perform an intersect but will instead display all adaptorsets currently in the list variable adaptorsets):
+			if(!adaptorsetListForThisWorkflow.isEmpty()){//if not empty, then intersect
+				adaptorsets.retainAll(adaptorsetListForThisWorkflow);//intersect the two lists
+			}			
+			class AdaptorsetNameComparator implements Comparator<Adaptorset> {
+			    @Override
+			    public int compare(Adaptorset arg0, Adaptorset arg1) {
+			        return arg0.getName().compareToIgnoreCase(arg1.getName());
+			    }
+			}
+			Collections.sort(adaptorsets, new AdaptorsetNameComparator());//sort by Adaptorset name			
+			
 			m.addAttribute("adaptorsets", adaptorsets); // required for adaptorsets metadata control element (select:${adaptorsets}:adaptorsetId:name)
 			
 			List<Adaptor> adaptors = new ArrayList<Adaptor>();

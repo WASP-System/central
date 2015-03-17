@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+    default-autowire="byName">
+    
+  <bean class="edu.yu.einstein.wasp.load.UiFieldFamilyWrapperAndLoader" abstract="true" id="bwamethUiFieldWrapper">
+    <property name="baseArea" ref="bwamethPluginArea" />
+  </bean>
+
+  <bean id="bwameth" class="edu.yu.einstein.wasp.load.SoftwareLoaderAndFactory">
+  	<property name="type"><value type="java.lang.Class">edu.yu.einstein.wasp.plugin.bwameth.software.Bwameth</value></property> <!-- must be derived from the SoftwarePackage class -->
+    <property name="name" value="Bwameth" />
+    <property name="version" value="0.10" /> <!-- TODO: Set this value. This default may also be overridden in wasp.site.properties -->
+    <property name="description" value="Aligns BS-Seq reads and tabulates methylation without intermediate temp files" />
+    <property name="area" ref="bwamethPluginArea" />
+    <property name="softwareDependencies">
+		<list>
+			<ref bean="picard" />
+			<ref bean="samtools" />
+		</list>
+	</property>
+    <property name="resourceType" ref="referenceBasedBisulfiteSeqAlignerResourceType" /> <!-- TODO: choose a more appropriate resource type -->
+	
+	<property name="metaFromWrapper">
+       <bean class="edu.yu.einstein.wasp.load.MetaLoadWrapper">
+         <property name="area" ref="bwamethPluginArea" />
+         <!-- Load any software metadata 
+         <property name="metaList">
+         	<list>
+         		<value>bwameth.myMetaValue=foo</value>
+         	</list>
+       	 </property>
+       	 -->
+       </bean>
+    </property> 
+  </bean> 
+
+</beans>
