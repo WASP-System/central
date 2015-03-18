@@ -8,13 +8,13 @@ $(function() {
   $( "#datepickerEndDate" ).datepicker( "option", "dateFormat", "yy/mm/dd" );//format will be yyyy/mm/dd
  
   $( "#viewAdditionalJobStatsAndMore" ).click(function() {
-		if($(this).text()=="Click To View Additional Job Stats"){
+		if($(this).text()=="<fmt:message key="reports.feesCharged_clickToViewAdditionalJobStats.label" />"){
 			$("#jobStatsAndMoreDiv").css("display", "inline");
-			$(this).text("Hide Additional Job Stats");
+			$(this).text("<fmt:message key="reports.feesCharged_hideAdditionalJobStats.label" />");
 		}
 		else{
 			$("#jobStatsAndMoreDiv").css("display", "none");
-			$(this).text("Click To View Additional Job Stats"); 
+			$(this).text("<fmt:message key="reports.feesCharged_clickToViewAdditionalJobStats.label" />"); 
 		}
 	});
   

@@ -25,68 +25,68 @@
 <br />	
 
 <c:if test="${not empty reportStartDateAsString }"> <!-- if reportStartDateAsString is not empty, then we're coming from the POST -->
-<a id="viewAdditionalJobStatsAndMore" href="javascript:void(0);">Click To View Additional Job Stats</a><br /><br />		      	
+<a id="viewAdditionalJobStatsAndMore" href="javascript:void(0);"><fmt:message key="reports.feesCharged_clickToViewAdditionalJobStats.label" /></a><br /><br />		      	
 <div id="jobStatsAndMoreDiv" style="display:none;">
-Total Jobs In Database: <c:out value="${fn:length(totalJobsInDatabase)}" /><br />
-Jobs Withdrawn: <c:out value="${fn:length(jobsNotYetCompletedBecauseWithdrawn)}" /><br />
-<c:if test="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded) > 0}" >
-	Jobs Completed But No Completion Date Recorded In Database <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded)}" /><br />
-</c:if>
-<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteNotFound) > 0}" >
-	Jobs Completed But No Quote Found In Database <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteNotFound)}" /><br />
-</c:if>
-<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible) > 0}" >
-	Jobs Completed But Unable To Find Or Access Quote MetaData In Database: <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible)}" /><br />
-</c:if>
-Jobs Completed But Outside Of Selected Report Dates: <c:out value="${fn:length(jobsMarkedAsCompletedButOutsideOfReportDates)}" /><br />
-Jobs Completed And Within Selected Report Dates: <c:out value="${fn:length(jobs)}" /><br />
-Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br />
-<br />		
-<c:if test="${not empty jobsNotYetCompleted}">
-	<table class="data" style="margin: 0px 0px" >
-		<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
-			<tr class="FormData">
-		    	<td colspan="7" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Jobs Not Yet Completed</label></td>
-		    </tr>
+	<fmt:message key="reports.feesCharged_totalJobsInDatabase.label" />: <c:out value="${fn:length(totalJobsInDatabase)}" /><br />
+	<fmt:message key="reports.feesCharged_jobsWithdrawn.label" />: <c:out value="${fn:length(jobsNotYetCompletedBecauseWithdrawn)}" /><br />
+	<c:if test="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded) > 0}" >
+		<fmt:message key="reports.feesCharged_jobsCompletedButNoCompletionDateRecordedInDatabase.label" /> <span style="color:red">(<fmt:message key="reports.feesCharged_highlyUnexpectedPleaseReport.label" />)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded)}" /><br />
+	</c:if>
+	<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteNotFound) > 0}" >
+		<fmt:message key="reports.feesCharged_jobsCompletedButNoQuoteFoundInDatabase.label" /> <span style="color:red">(<fmt:message key="reports.feesCharged_highlyUnexpectedPleaseReport.label" />)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteNotFound)}" /><br />
+	</c:if>
+	<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible) > 0}" >
+		<fmt:message key="reports.feesCharged_jobsCompletedButUnableToFindOrAccessQuoteMetaDataInDatabase.label" /> <span style="color:red">(<fmt:message key="reports.feesCharged_highlyUnexpectedPleaseReport.label" />)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible)}" /><br />
+	</c:if>
+	<fmt:message key="reports.feesCharged_jobsCompletedButOutsideSelectedReportDates.label" />: <c:out value="${fn:length(jobsMarkedAsCompletedButOutsideOfReportDates)}" /><br />
+	<fmt:message key="reports.feesCharged_jobsCompletedAndWithinSelectedReportDates.label" />: <c:out value="${fn:length(jobs)}" /><br />
+	<fmt:message key="reports.feesCharged_jobsNotYetCompleted.label" />: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br />
+	<br />		
+	<c:if test="${not empty jobsNotYetCompleted}">
+		<table class="data" style="margin: 0px 0px" >
 			<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
-		<tr class="FormData">
-	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Job Id</label></td> 
-	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Workflow</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Lab Name</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Date Submitted</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Job Status</label></td>
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discounted Facility Cost</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Analysis Cost</label></td> 
-		</tr>
-		<c:forEach items="${jobsNotYetCompleted}" var="jobNotYetCompleted" >
+				<tr class="FormData">
+			    	<td colspan="7" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_jobsNotYetCompleted.label" /></label></td>
+			    </tr>
+				<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 			<tr class="FormData">
-	    		<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getId()}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getWorkflow().getName()}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getLab().getName()}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompletedJobSubmittedDateAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompletedJobStatusAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${localCurrencyIcon}" /> <label><c:out value="${jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
-				<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${localCurrencyIcon}" /> <label><c:out value="${jobNotYetCompletedAnalysisCostAsStringAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
+		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_jobId.label" /></label></td> 
+		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_workflow.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_labName.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_dateSubmitted.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_jobStatus.label" /></label></td>
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discountedFacilityCost.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_computationalCost.label" /></label></td> 
 			</tr>
-		</c:forEach>
-		<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
-		<tr class="FormData">
-		    	<td colspan="7" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Jobs Not Yet Completed</label></td>
-		    </tr>
-		<tr class="FormData">
-	    	<td colspan="5" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
-	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discounted Facility Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Analysis Charge</label></td> 
-		</tr>	
-		<tr class="FormData">
-			<td colspan="5"  class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"></td>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <c:out value="${grandTotalForJobsNotYetCompletedDiscountedFacilityCostAsString}" /></td>
-			<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <c:out value="${grandTotalForJobsNotYetCompletedAnalysisCostAsString}" /></td>
-		</tr>
-		<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
-	</table>
-	<br /><br />
-</c:if>
+			<c:forEach items="${jobsNotYetCompleted}" var="jobNotYetCompleted" >
+				<tr class="FormData">
+		    		<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getId()}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getWorkflow().getName()}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompleted.getLab().getName()}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompletedJobSubmittedDateAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><label><c:out value="${jobNotYetCompletedJobStatusAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${localCurrencyIcon}" /> <label><c:out value="${jobNotYetCompletedDiscountedFacilityCostAsStringAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
+					<td class="DataTD"  style="text-align:center; white-space:nowrap;"><c:out value="${localCurrencyIcon}" /> <label><c:out value="${jobNotYetCompletedAnalysisCostAsStringAsStringMap.get(jobNotYetCompleted)}" /></label></td> 
+				</tr>
+			</c:forEach>
+			<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
+			<tr class="FormData">
+			    	<td colspan="7" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_reportSummaryJobsNotYetCompleted.label" /></label></td>
+			    </tr>
+			<tr class="FormData">
+		    	<td colspan="5" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
+		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discountedFacilityCost.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_computationalCost.label" /></label></td> 
+			</tr>	
+			<tr class="FormData">
+				<td colspan="5"  class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"></td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <c:out value="${grandTotalForJobsNotYetCompletedDiscountedFacilityCostAsString}" /></td>
+				<td class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"><c:out value="${localCurrencyIcon}" /> <c:out value="${grandTotalForJobsNotYetCompletedAnalysisCostAsString}" /></td>
+			</tr>
+			<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
+		</table>
+		<br /><br />
+	</c:if>
 </div>
 
 	<c:if test="${empty labList }">
@@ -103,15 +103,15 @@ Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br /
 	
 		<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 		<tr class="FormData">
-	    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary: Jobs Completed Between <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
+	    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_reportSummaryJobsCompletedBetween.label" /> <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
 		</tr>
 		<tr class="FormData">
 	    	<td colspan="4" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
-	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Total Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Initial Seq. Facility Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discount</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discounted Seq. Facility Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Computational Charge</label></td> 
+	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_totalCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_initialSeqFacilityCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discount.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discountedSeqFacilityCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_computationalCharge.label" /></label></td> 
 		</tr>	
 		<tr class="FormData">
 			<td colspan="4"  class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"></td>
@@ -126,15 +126,15 @@ Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br /
 	 	<c:forEach items="${labList}" var="lab" >
 		
 			 <tr class="FormData">
-		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>PI</label></td>
-		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Submitter</label></td>
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Job ID</label></td>
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Workflow<br />Submitted<br />Completed</label></td> 
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Total Charge</label></td> 
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Initial Seq. Facility Charge</label></td> 
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discount</label></td> 
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discounted Seq. Facility Charge</label></td> 
-				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Computational Charge</label></td> 
+		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_PI.label" /></label></td>
+		    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_submitter.label" /></label></td>
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_jobId.label" /></label></td>
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_workflow.label" /><br /><fmt:message key="reports.feesCharged_submitted.label" /><br /><fmt:message key="reports.feesCharged_completed.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_totalCharge.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_initialSeqFacilityCharge.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discount.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discountedSeqFacilityCharge.label" /></label></td> 
+				<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_computationalCharge.label" /></label></td> 
 			</tr>
 			
 			<c:set value="${labJobListMap.get(lab)}" var="jobList"/>
@@ -176,15 +176,15 @@ Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br /
 		
 		<tr class="FormData"><td colspan="9" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
 		<tr class="FormData">
-	    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Report Summary: Jobs Completed Between <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
+	    	<td colspan="9" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_reportSummaryJobsCompletedBetween.label" /> <c:out value="${reportStartDateAsString}" /> &amp; <c:out value="${reportEndDateAsString}" /></label></td>
 		</tr>
 		<tr class="FormData">
 	    	<td colspan="4" class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label></label></td>
-	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Total Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Initial Seq. Facility Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discount</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Discounted Seq. Facility Charge</label></td> 
-			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label>Computational Charge</label></td> 
+	    	<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_totalCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_initialSeqFacilityCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discount.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_discountedSeqFacilityCharge.label" /></label></td> 
+			<td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><label><fmt:message key="reports.feesCharged_computationalCharge.label" /></label></td> 
 		</tr>	
 		<tr class="FormData">
 			<td colspan="4"  class="DataTD"  style="text-align:center; white-space:nowrap;background-color:LightGray"></td>
