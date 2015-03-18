@@ -348,6 +348,7 @@ public class ReportController extends WaspController {
   				}
   				
   				//zero out the time (hr, min, sec, ms) for jobCompletionDate; taken from http://stackoverflow.com/questions/17821601/set-time-to-000000
+  				//this is needed since reportStartDate and reportEndDate are set to zero for hr,min,sec,ms (note: reportEndDate might also be NOW, which has current time for hr,min,sec,ms  which will also be fine).
   				final GregorianCalendar gc = new GregorianCalendar();
   				gc.setTime( jobCompletionDate );
   			    gc.set( Calendar.HOUR_OF_DAY, 0 );

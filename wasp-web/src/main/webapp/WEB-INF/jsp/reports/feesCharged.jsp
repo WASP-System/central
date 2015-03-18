@@ -1,9 +1,10 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
+
 <h1>
 <fmt:message key="reports.feesCharged.label" />
 </h1>
 
-<form method="POST" onsubmit="openWaitDialog();">
+<form method="POST" onsubmit="openWaitDialog();  return true;">
 	<!--  datepicker -->
 	<table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData">
@@ -24,17 +25,23 @@
 <br />	
 
 <c:if test="${not empty reportStartDateAsString }"> <!-- if reportStartDateAsString is not empty, then we're coming from the POST -->
-<a id="viewAdditionalJobStatsAndMore" href="javascript:void(0);">View Additional Job Stats</a><br /><br />		      	
+<a id="viewAdditionalJobStatsAndMore" href="javascript:void(0);">Click To View Additional Job Stats</a><br /><br />		      	
 <div id="jobStatsAndMoreDiv" style="display:none;">
 Total Jobs In Database: <c:out value="${fn:length(totalJobsInDatabase)}" /><br />
-
-Jobs Completed, Within Selected Report Dates, With All Information: <c:out value="${fn:length(jobs)}" /><br />
-Jobs Completed But No Completion Date Recorded (very rare): <c:out value="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded)}" /><br />
-Jobs Completed But No Quote Found (rare): <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteNotFound)}" /><br />
-Jobs Completed But Unable To Find Or Access Quote MetaData: (rare) <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible)}" /><br />
-Jobs Completed But Outside Of Selected Report Dates: <c:out value="${fn:length(jobsMarkedAsCompletedButOutsideOfReportDates)}" /><br />
 Jobs Withdrawn: <c:out value="${fn:length(jobsNotYetCompletedBecauseWithdrawn)}" /><br />
-Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br />  <br />		
+<c:if test="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded) > 0}" >
+	Jobs Completed But No Completion Date Recorded In Database <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButNoJobCompletionDateRecorded)}" /><br />
+</c:if>
+<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteNotFound) > 0}" >
+	Jobs Completed But No Quote Found In Database <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteNotFound)}" /><br />
+</c:if>
+<c:if test="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible) > 0}" >
+	Jobs Completed But Unable To Find Or Access Quote MetaData In Database: <span style="color:red">(highly unexpected; please report this)</span>: <c:out value="${fn:length(jobsMarkedAsCompletedButQuoteMetaDateNotFoundOrNotAccessible)}" /><br />
+</c:if>
+Jobs Completed But Outside Of Selected Report Dates: <c:out value="${fn:length(jobsMarkedAsCompletedButOutsideOfReportDates)}" /><br />
+Jobs Completed And Within Selected Report Dates: <c:out value="${fn:length(jobs)}" /><br />
+Jobs Not Yet Completed: <c:out value="${fn:length(jobsNotYetCompleted)}" /><br />
+<br />		
 <c:if test="${not empty jobsNotYetCompleted}">
 	<table class="data" style="margin: 0px 0px" >
 		<tr class="FormData"><td colspan="7" class="label-centered" style="height:2px;background-color:black; white-space:nowrap;"></td></tr>
