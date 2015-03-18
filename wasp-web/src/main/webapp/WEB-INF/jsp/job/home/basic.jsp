@@ -16,7 +16,7 @@
 		<td class="DataTD"><c:out value="${job.lab.user.firstName}" /> <c:out value="${job.lab.user.lastName}" /><c:if test="${not empty(pIInstitution)}"> (<c:out value="${pIInstitution}" />)</c:if></td>
 	</tr>
 	<tr class="FormData"><td class="CaptionTD"><fmt:message key="jobdetail_for_import.submitted.label" />:</td><td class="DataTD"><fmt:formatDate value="${job.created}" pattern="yyyy-MM-dd" type="date" /></td></tr>
-	<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.status.label" />:</td><td class="DataTD"><c:out value="${jobStatus}" /></td></tr>
+	<tr><td class="CaptionTD"><fmt:message key="jobdetail_for_import.status.label" />:</td><td class="DataTD"><c:out value="${jobStatus}" /><c:if test="${not empty completionDate }"> (<fmt:formatDate value="${completionDate}" pattern="yyyy-MM-dd" type="date" />)</c:if></td></tr>
 
 	<tr class="FormData"><td>&nbsp;</td><td></td></tr>
 	

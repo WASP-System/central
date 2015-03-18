@@ -928,6 +928,12 @@ public class JobController extends WaspController {
 		}
 		m.addAttribute("job", job);
 		m.addAttribute("jobStatus", jobService.getDetailedJobStatusString(job));
+		if(jobService.isFinishedSuccessfully(job)){
+			Date completionDate = jobService.getJobCompletionDate(job);
+			if(completionDate!=null){
+				m.addAttribute("completionDate", completionDate);
+			}
+		}
 		
 		
 		String submitterInstitution = "";
