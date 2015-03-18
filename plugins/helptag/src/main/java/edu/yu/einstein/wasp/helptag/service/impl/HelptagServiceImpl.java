@@ -258,6 +258,10 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public boolean isMspI(Sample s) {
 		String enzymeString;
 		try {
+			if (s.getParentId() != null) {
+				// if it has a parent sample, which means it's a facility library, use its parent sample to check for library type
+				s = sampleService.getSampleById(s.getParentId());
+			}
 			if (!s.getSampleType().getIName().equalsIgnoreCase("dna")) {// not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			} else {// genomic DNA
@@ -278,6 +282,10 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public boolean isHpaII(Sample s){
 		String enzymeString;
 		try{
+			if (s.getParentId() != null) {
+				// if it has a parent sample, which means it's a facility library, use its parent sample to check for library type
+				s = sampleService.getSampleById(s.getParentId());
+			}
 			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			} else {// genomic DNA
@@ -298,6 +306,10 @@ public class HelptagServiceImpl extends WaspServiceImpl implements HelptagServic
 	public boolean isBetaGTMspI(Sample s){
 		String enzymeString;
 		try{
+			if (s.getParentId() != null) {
+				// if it has a parent sample, which means it's a facility library, use its parent sample to check for library type
+				s = sampleService.getSampleById(s.getParentId());
+			}
 			if(!s.getSampleType().getIName().equalsIgnoreCase("dna")){//not dna, so must be library
 				enzymeString = (String) MetaHelper.getMetaValue(HELPTAG_LIB_AREA, RESTRICTION_ENZYME_META_KEY, s.getSampleMeta());
 			} else {// genomic DNA
