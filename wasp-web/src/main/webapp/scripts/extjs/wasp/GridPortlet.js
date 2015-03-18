@@ -25,7 +25,7 @@ function mergeDownloadLinks(records, linkfield) {
 			n = uuid.search(pattUUID);
 			links += "," + uuid.substring(n, n+36);//uuid.lastIndexOf('/') + 1);
 		}
-		links += "/FileGroup.zip";
+		links += "/multi_files.tar";
 	}
 
 	return links;
