@@ -77,6 +77,9 @@
 					<label><fmt:message key="jobHomeSamples.id.label" />:</label> <c:out value="${submittedObject.getId()}"/><br />
 					<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
+					<c:if test="${not empty submittedObjectRequestedCoverageMap.get(submittedObject)}">
+						<label><fmt:message key="jobHomeSamples.lanesRequested.label" />:</label> <c:out value="${submittedObjectRequestedCoverageMap.get(submittedObject)}" /> <br />
+					</c:if>
 					<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 					<c:if test='${qcStatusMap.get(submittedObject) != "NONEXISTENT" && receivedStatusMap.get(submittedObject) == "RECEIVED"}'>
 						<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(submittedObject)}"/>
@@ -132,6 +135,9 @@
 							<label><fmt:message key="jobHomeSamples.adaptor.label" />:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 							<label><fmt:message key="jobHomeSamples.index.label" />:</label> <c:out value="${adaptor.getName()}" /> <br />
+							<c:if test="${not empty submittedObjectRequestedCoverageMap.get(library)}">
+								<label><fmt:message key="jobHomeSamples.lanesRequested.label" />:</label> <c:out value="${submittedObjectRequestedCoverageMap.get(library)}" /> <br />
+							</c:if>
 							<c:if test="${not empty receivedStatusMap.get(library)}">
 								<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>
@@ -203,7 +209,7 @@
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 											<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == false }'>
 												<tr>
-													<td>
+													<td><%--as of 3-23-15, this is no longer used --%>
 														<span style="color:red"><fmt:message key="listJobSamples.userRequestMet.label" /></span>
 													</td>
 												</tr>
