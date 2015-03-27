@@ -6,12 +6,13 @@
 waspOnLoad=function() {
 	
 	$("html, body").animate({ scrollTop: 0 }, "fast");
-
-	$(function() {
-		    $( "#tabs" ).tabs();
-	}); 
 	
-	//http://api.jqueryui.com/dialog/
+    $( "#tabs" ).tabs({
+				beforeActivate: function( event, ui ) {$("#wait_dialog-modal").dialog("open");},
+			  	load: function( event, ui ) {$("#wait_dialog-modal").dialog("close");}
+				});
+	
+	//http://api.jqueryui.com/dialog/  
 	$("#modalDialog").dialog({
         autoOpen: false,
         modal: true,
