@@ -95,7 +95,7 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 	}
-	*/ 
+	
 
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
@@ -156,5 +156,5 @@ public class HelptagController extends WaspController {
 
 		  return "helptag/helptagSpecificSamplePairingPostSubmission";
 	}
-	 
+	 */ 
 }

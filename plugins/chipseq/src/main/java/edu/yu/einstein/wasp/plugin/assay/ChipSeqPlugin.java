@@ -3,10 +3,12 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.ui.ModelMap;
 
 import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
@@ -41,6 +44,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.JobService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
@@ -289,5 +293,35 @@ public class ChipSeqPlugin extends WaspPlugin implements
 			}
 		}				
 		return m;
+	}   
+	
+	@Override
+	public void getPlugInSpecificSamplePairDataForDisplay(Integer jobId, ModelMap m){
+		
+		Job job = jobService.getJobByJobId(jobId);
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		List<Sample> controlList = new ArrayList<Sample>();
+		//m.addAttribute("submittedSamplesList", submittedSamplesList);
+		Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+		for(Sample submittedSample : submittedSamplesList){
+			List<Sample> list = new ArrayList<Sample>();
+			for(SampleSource ss : sampleSourceSet){
+				Sample test = ss.getSample();//test is an IP sample
+				Sample control = ss.getSourceSample();
+				//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
+				if(submittedSample == control){
+					list.add(test);
+				}
+			}
+			if(!list.isEmpty()){
+				samplePairsMap.put(submittedSample, list);
+				controlList.add(submittedSample);
+			}
+		}
+		m.addAttribute("samplePairsMap", samplePairsMap);
+		m.addAttribute("controlListForSamplePairs", controlList);
+		m.addAttribute("SamplePairLabel_Left", messageService.getMessage("chipseq.chipseqInput.label"));
+		m.addAttribute("SamplePairLabel_Right", messageService.getMessage("chipseq.chipseqIP.label"));
 	}
 }

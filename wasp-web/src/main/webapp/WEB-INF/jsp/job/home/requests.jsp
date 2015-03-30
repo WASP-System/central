@@ -1,5 +1,5 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
-
+<!--  
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -26,7 +26,7 @@
 		});
 	})(jQuery);
 </script>
-
+-->
 <%--  TODO: Declare style in css file (e.g. /src/main/webapp/css/base.css), not in .jsp and reuse where possible !!!! --%>
 
 <div id="user_requested_coverage_data" >
@@ -63,10 +63,34 @@
 
 <c:if test='${onlyDisplayCellsRequested != "true"}'>
 
-	<!-- for displaying plugin specific pairing information; currently implemented only for HELP and ChIP-Seq -->
+	<!-- NO LONGER USED for displaying plugin specific pairing information; currently implemented only for HELP and ChIP-Seq 
 	<div id="divToDisplayPluginSpecificSamplePairs" ></div>
+	-->
+	<!--New div, march 30, 2015 -->
+	<div>
+		<c:if test="${not empty controlListForSamplePairs}">
+			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.samplePairingRequested.label"/>:</h2>		
+			<table class="data">
+				<tr class="FormData">
+					<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${SamplePairLabel_Left}" /></td>
+					<td class="label-centered" style="background-color:#FAF2D6"><c:out value="${SamplePairLabel_Right}" /></td>
+				</tr>
+			<c:forEach var="controlSample" items="${controlListForSamplePairs}">
+				<tr class="FormData">
+					<td class="value-centered" ><c:out value="${controlSample.getName()}" /></td>   	  				
+				 	<c:set var="testList" value="${samplePairsMap.get(controlSample)}" />
+				 	<td class="value-centered" >
+				 	<c:forEach var="testSample" items="${testList}">
+				 		<c:out value="${testSample.getName()}" /><br />
+				 	</c:forEach>
+				 	</td>
+				 </tr>
+			</c:forEach>
+			</table>
+		</c:if>
+	</div>
 
-	<%-- 
+	<%-- VERY OLD SAMPLE PAIR; no longer used
 	<div>
 		<c:if test="${not empty controlList}">
 			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.samplePairingRequested.label"/>:</h2>		
@@ -92,7 +116,7 @@
 	
 	--%>
 	
-	<%--  currently not used; should be moved to a chipseq specific ajax call
+	<%--  currently not used; should be moved to a chipseq and pulled in the same as samplePairs
 	<div>
 		<c:if test="${not empty replicatesListOfLists}">
 			<h2 style="font-weight:bold"><fmt:message key="listJobSamples.sampleReplicatesRequested.label"/>:</h2>		

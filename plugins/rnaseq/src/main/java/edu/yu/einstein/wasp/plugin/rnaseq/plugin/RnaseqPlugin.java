@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.ui.ModelMap;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.interfacing.Hyperlink; 
@@ -262,5 +263,10 @@ public class RnaseqPlugin extends WaspPlugin
 			}
 		}				
 		return m;
+	}
+	
+	@Override
+	public void getPlugInSpecificSamplePairDataForDisplay(Integer jobId, ModelMap m){
+		
 	}
 }

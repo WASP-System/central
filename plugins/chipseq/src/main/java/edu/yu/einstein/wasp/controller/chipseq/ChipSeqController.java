@@ -72,7 +72,7 @@ public class ChipSeqController extends WaspController {
 			  }
 		  }
 	}
-*/
+
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	public String plugInSpecificSamplePairingDataForDisplay(
@@ -107,5 +107,5 @@ public class ChipSeqController extends WaspController {
 		
 		return "chipseq/chipseqSpecificSamplePairingPostSubmission";
 	}
-
+*/
 }

@@ -2465,10 +2465,23 @@ public class JobController extends WaspController {
 			return "job/home/requests";
 		}
 		
-		//samplePairingRequest
-		getSamplePairsRequested(job, m);
+		///////////////////////////////////Next call no longer used; moved to plugin-specific code
+		////////////////////////////////getSamplePairsRequested(job, m);
+		
+		//plugin specific samplePairingRequest 
+		//3-27-15; dubin replacement for those ajax calls from the web
+		PluginSpecificDataForDisplay pluginSpecificDataForDisplay = null;
+		List<PluginSpecificDataForDisplay> plugins = waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), PluginSpecificDataForDisplay.class);
+		//Assert.assertTrue(plugins.size()==1 || plugins.size()==0);		  
+		if(plugins!=null && plugins.size()==1 ){
+			pluginSpecificDataForDisplay = plugins.get(0);
+			pluginSpecificDataForDisplay.getPlugInSpecificSamplePairDataForDisplay(jobId, m);
+		}
+		
 		//getReplicatesRequest
-		getSampleReplicatesRequested(job, m);
+		//THIS IS CHIPSEQ specific and should be moved there, if it ever turns out to be used 
+		//getSampleReplicatesRequested(job, m);
+		
 		//software request
 		getSoftwareRequested(job, m);
 		//getSubmittedSamplesAndOrganism_Genome_BuildForAlignment
