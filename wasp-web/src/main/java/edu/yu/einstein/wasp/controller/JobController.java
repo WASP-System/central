@@ -51,6 +51,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.itextpdf.text.DocumentException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
@@ -74,6 +75,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -107,6 +109,7 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
 import edu.yu.einstein.wasp.quote.Comment;
 import edu.yu.einstein.wasp.quote.Discount;
@@ -133,6 +136,7 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
@@ -218,6 +222,9 @@ public class JobController extends WaspController {
 	private WorkflowService workflowService;
 	@Autowired
 	private SoftwareService softwareService;
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -2829,6 +2836,7 @@ public class JobController extends WaspController {
 
 	private void getSampleLibraryRunData(Job job, ModelMap m, boolean showPlatformUnits) throws SampleTypeException {
 
+		
 		  long grandTotalStartTime = System.nanoTime();		
 		
 		  m.addAttribute("job", job);
@@ -2861,6 +2869,16 @@ public class JobController extends WaspController {
 		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 		  Map<Sample, List<MetaMessage>> reasonForNewLibraryCommentsMap = new HashMap<Sample, List<MetaMessage>>();
+		  
+		  //3-27-15; dubin replacement for those ajax calls from the web
+		  PluginSpecificDataForDisplay pluginSpecificDataForDisplay = null;
+		  Map<Sample, Map<String,String>> samplePluginSpecificDataForDisplayMap = new HashMap<Sample, Map<String,String>>();
+		  List<PluginSpecificDataForDisplay> plugins = waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), PluginSpecificDataForDisplay.class);
+		  //Assert.assertTrue(plugins.size()==1 || plugins.size()==0);		  
+		  if(plugins!=null && plugins.size()==1 ){
+			  pluginSpecificDataForDisplay = plugins.get(0);
+		  }
+		  
 		  for(Sample s : allJobSamples){
 			  //if(s.getSampleType().getIName().toLowerCase().contains("library")){
 			  if(allJobLibraries.contains(s)){//user-submitted libraries and facility-generated libraries
@@ -2872,11 +2890,18 @@ public class JobController extends WaspController {
 				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
 				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
 			  }
+			  if(pluginSpecificDataForDisplay!=null){
+				  Map<String,String> pluginSpecificDataMap = pluginSpecificDataForDisplay.getPlugInSpecificSampleDataForDisplay(job.getId(), s.getId());
+				  if(!pluginSpecificDataMap.isEmpty()){					  
+					  samplePluginSpecificDataForDisplayMap.put(s, pluginSpecificDataMap);
+				  }
+			  }
 		  }	 
 		  m.addAttribute("qcStatusMap", qcStatusMap);
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  m.addAttribute("reasonForNewLibraryCommentsMap", reasonForNewLibraryCommentsMap);
-
+		  m.addAttribute("samplePluginSpecificDataForDisplayMap", samplePluginSpecificDataForDisplayMap);
+			
 		  //for each submittedMacromolecule, get list of it's facility-generated libraries; also determine if this sampleMacromolecule should have a library made from it
 		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
@@ -2902,6 +2927,7 @@ public class JobController extends WaspController {
 		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();		  
 		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
 		  Map<Sample, String> submittedObjectRequestedCoverageMap = new HashMap<Sample, String>();
+		    
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
 			  logger.debug(submittedObject.getId() + ":" + sampleService.getReceiveSampleStatus(submittedObject) + ":" + sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
@@ -2910,11 +2936,11 @@ public class JobController extends WaspController {
 			  int requestedCoverageForSubmittedSample = sampleService.getRequestedSampleCoverage(submittedObject);
 			  if(requestedCoverageForSubmittedSample>0){//leslie dubin
 				  submittedObjectRequestedCoverageMap.put(submittedObject, Integer.toString(requestedCoverageForSubmittedSample));
-			  }
-		  }
+			  }			  
+		  }		  
 		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
 		  m.addAttribute("receivedStatusMap", receivedStatusMap);
-		  m.addAttribute("submittedObjectRequestedCoverageMap", submittedObjectRequestedCoverageMap);
+		  m.addAttribute("submittedObjectRequestedCoverageMap", submittedObjectRequestedCoverageMap);		  
 		  
 		  //for each job's library, get its adaptor info and determine whether the library should be assigned to a platformUnit
 		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
@@ -3054,8 +3080,8 @@ public class JobController extends WaspController {
 			  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
 			  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);	////doesn't appear to be used on any form
 		
-		}//end if(showPlatformUnits==true)
-
+		}//end if(showPlatformUnits==true)	  
+			
 		long grandTotalEstimatedTime = System.nanoTime() - grandTotalStartTime;//leslie dubin
 		logger.debug("grandTotalEstimatedTime for getSampleLibraryRunData(): " + grandTotalEstimatedTime );		  
 	}

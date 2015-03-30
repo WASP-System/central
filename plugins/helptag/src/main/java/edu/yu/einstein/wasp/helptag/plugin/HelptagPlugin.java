@@ -6,6 +6,7 @@ package edu.yu.einstein.wasp.helptag.plugin;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -35,11 +36,16 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
@@ -49,7 +55,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
  * @author
  */
 public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
-		WebInterfacing, FileDataTabViewing, JobDataTabViewing, ClientMessageI {
+		WebInterfacing, FileDataTabViewing, JobDataTabViewing, ClientMessageI, PluginSpecificDataForDisplay {
 
 	/**
 	 * 
@@ -74,6 +80,15 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+	
+	@Autowired
+	private JobService jobService;
+	
+	@Autowired
+	private SampleService sampleService;
+
+	@Autowired
+	private MessageServiceWebapp messageService;
 
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -289,5 +304,31 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 		} catch (Exception e) {
 			throw new PanelException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public Map<String,String> getPlugInSpecificSampleDataForDisplay(Integer jobId, Integer sampleId){
+		
+		Map<String,String> m = new LinkedHashMap<String,String>();
+		Job job = jobService.getJobByJobId(jobId);
+		Sample sample = sampleService.getSampleById(sampleId);		
+		if(sample != null && sample.getId()!=null){
+			if(job==null ||  job.getId()==null || !job.getSample().contains(sample)){
+				return m;
+			}
+			if(sample.getSampleType().getIName().toLowerCase().equals("dna")){//HELP macromolecule
+				  String typeOfHelpLibraryRequested = helptagService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
+				  if(typeOfHelpLibraryRequested!=null && !typeOfHelpLibraryRequested.isEmpty()){
+					  m.put(messageService.getMessage("helptag.typeOfHelpLibraryRequested.label"), typeOfHelpLibraryRequested);					  
+				  } 
+			  }
+			  else{//library
+				  String typeOfHelpLibrary = helptagService.getTypeOfHelpLibrary(sample);
+				  if(typeOfHelpLibrary!=null && !typeOfHelpLibrary.isEmpty()){
+					  m.put(messageService.getMessage("helptag.typeOfHelpLibrary.label"), typeOfHelpLibrary);
+				  }
+			  }
+		}				
+		return m;
 	}
 }

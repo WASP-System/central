@@ -5,6 +5,7 @@ package edu.yu.einstein.wasp.plugin.assay;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -34,12 +35,15 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
@@ -55,7 +59,8 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	WebInterfacing,
 	FileDataTabViewing,
 	ClientMessageI,
-	JobDataTabViewing {
+	JobDataTabViewing,
+	PluginSpecificDataForDisplay {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -75,7 +80,11 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	private SampleService sampleService;
 	@Autowired
 	private JobService jobService;
-
+	@Autowired
+	private MessageServiceWebapp messageService;
+	@Autowired
+	ChipSeqService chipseqService;
+	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
@@ -264,4 +273,21 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		}				
 	}
 	
+	@Override
+	public Map<String,String> getPlugInSpecificSampleDataForDisplay(Integer jobId, Integer sampleId){
+		
+		Map<String,String> m = new LinkedHashMap<String,String>();
+		Job job = jobService.getJobByJobId(jobId);
+		Sample sample = sampleService.getSampleById(sampleId);		
+		if(sample != null && sample.getId()!=null){
+			if(job==null ||  job.getId()==null || !job.getSample().contains(sample)){
+				return m;
+			}
+			String inputOrIPStatus = chipseqService.getInputOrIPStatus(sample);
+			if(inputOrIPStatus!=null && !inputOrIPStatus.isEmpty()){
+				m.put(messageService.getMessage("chipseq.inputOrIPStatus.label"), inputOrIPStatus);				 
+			}
+		}				
+		return m;
+	}
 }

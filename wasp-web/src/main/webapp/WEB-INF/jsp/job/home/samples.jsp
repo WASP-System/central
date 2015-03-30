@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -26,7 +27,8 @@
 		});
 	})(jQuery);
 </script>
-	
+-->	
+
 <br />
 	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
@@ -91,9 +93,17 @@
 						<br />		  
 					</c:if>
 	
-					<!-- for displaying plugin spcific information about a macromolecule-->
+					<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
 					<div id="divToDisplayExtraMetaForSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
-	
+					-->
+					<!-- for displaying plugin spcific information about a macromolecule-->
+					<c:if test="${ not empty samplePluginSpecificDataForDisplayMap.get(submittedObject)}">
+						<c:set value="${samplePluginSpecificDataForDisplayMap.get(submittedObject)}" var="pluginDataMap" />
+						<c:forEach var="type" items="${pluginDataMap}">
+  							 <label><c:out value="${type.key}"/></label>: <c:out value="${type.value}"/><br />
+						</c:forEach>
+					</c:if>
+					
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
@@ -168,8 +178,16 @@
 							</c:if>	
 							
 								
-							<!-- for displaying plugin spcific information about a library-->
-							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>	
+							<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
+							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>
+							-->
+							<!-- for displaying plugin spcific information about a library-->	
+							<c:if test="${ not empty samplePluginSpecificDataForDisplayMap.get(library)}">
+								<c:set value="${samplePluginSpecificDataForDisplayMap.get(library)}" var="pluginDataMap" />
+								<c:forEach var="type" items="${pluginDataMap}">
+  							 		<label><c:out value="${type.key}"/></label>: <c:out value="${type.value}"/><br />
+								</c:forEach>
+							</c:if>
 													
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
