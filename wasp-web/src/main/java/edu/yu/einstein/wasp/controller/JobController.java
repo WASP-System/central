@@ -118,6 +118,7 @@ import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -188,6 +189,8 @@ public class JobController extends WaspController {
 	private AdaptorsetDao adaptorsetDao;
 	@Autowired
 	private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
+	@Autowired
+	private AuthenticationService authenticationService;
 	@Autowired
 	private SampleService sampleService;
 	@Autowired
@@ -2917,15 +2920,23 @@ public class JobController extends WaspController {
 			
 		  //for each submittedMacromolecule, get list of it's facility-generated libraries; also determine if this sampleMacromolecule should have a library made from it
 		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
+		  
+		  //does not appear to be used on the web; commented out 3-31-15
+		  //Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
+		  
+		  
 		  for(Sample macromolecule : submittedMacromoleculeList){
 			  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
-			  boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(macromolecule);
+			  
+			  //does not appear to be used on the web; commented out 3-31-15
+			  //boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(macromolecule);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 			  //logger.debug("setting sample " + macromolecule.getId() + " (" + macromolecule.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
-			  createLibraryStatusMap.put(macromolecule, isSampleWaitingForLibraryCreation);
+			  //createLibraryStatusMap.put(macromolecule, isSampleWaitingForLibraryCreation);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 		  }
 		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
-		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
+		  
+		//does not appear to be used on the web; commented out 3-31-15
+		  //m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 		  
 		  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
 		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
@@ -3038,7 +3049,7 @@ public class JobController extends WaspController {
 		  m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap); //for displaying web anchor link to platformunit
 		 
 		  //if needed, fill up drop-down box that is used to assign a library to a flow cell's lane; note: not needed for sampleDetails web page
-		  if(showPlatformUnits==true){
+		  if( showPlatformUnits==true && ( authenticationService.hasRole("su") || authenticationService.hasRole("ft") ) ){//other users don't need this use
 			  
 				//new //leslie dubin; so far, this new code has NOT improved speed of access compared to code immediately below
 			  //List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getCompatibleAndAvailablePlatformUnits(job);//sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
