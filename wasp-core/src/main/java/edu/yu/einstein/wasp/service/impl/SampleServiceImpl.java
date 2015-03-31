@@ -3507,6 +3507,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			/**
 			 * {@inheritDoc}
 			 */
+			/* WAS an attempt at speeding up but did not work; ended up not being used, as there was no advantage
 			@Override
 			 public List<Sample> getCompatibleAndAvailablePlatformUnits(Job job){
 				String notOnAnyRunQueryString = "SELECT sample FROM " + Sample.class.getName() + " sample, " + SampleType.class.getName() + " sampleType, " + SampleSubtypeResourceCategory.class.getName() + " sampleSubtypeResourceCategory, " + JobResourcecategory.class.getName() + " jobResourceCategory WHERE sample.sampleTypeId = sampleType.id AND sampleType.iName = 'platformunit' AND sample.sampleSubtypeId = sampleSubtypeResourceCategory.sampleSubtypeId AND sampleSubtypeResourceCategory.resourcecategoryId = jobResourceCategory.resourcecategoryId AND jobResourceCategory.jobId = '" + job.getId().toString() + "' AND sample.id NOT IN (SELECT DISTINCT sampleId from " + Run.class.getName() + ")";
@@ -3568,5 +3569,6 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 			
 				return compatiblePlatformUnits;
 			 }
+			 */
 }
 
