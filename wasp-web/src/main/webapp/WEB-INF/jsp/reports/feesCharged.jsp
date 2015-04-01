@@ -4,7 +4,8 @@
 <fmt:message key="reports.feesCharged.label" />
 </h1>
 
-<form method="POST" onsubmit="openWaitDialog();  return true;">
+<form method="POST" onsubmit="if(confirm('<fmt:message key="reports.feesCharged_executeQuery.label" />')){ openWaitDialog();  return true;} return false; ">
+	<!-- not sure why #wait_dialog-modal misbehaves, but the only way to get it to display in safari is to add a confirm or alert before it; so live with it -->
 	<!--  datepicker -->
 	<table class="EditTable ui-widget ui-widget-content">
 	<tr class="FormData">

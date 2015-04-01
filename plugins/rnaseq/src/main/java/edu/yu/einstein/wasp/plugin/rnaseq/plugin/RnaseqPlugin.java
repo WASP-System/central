@@ -5,6 +5,7 @@
 package edu.yu.einstein.wasp.plugin.rnaseq.plugin;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.ui.ModelMap;
 import org.springframework.integration.support.MessageBuilder;
 
 import edu.yu.einstein.wasp.interfacing.Hyperlink; 
@@ -27,12 +29,20 @@ import edu.yu.einstein.wasp.integration.messages.WaspJobParameters;
 import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask; 
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.model.FileGroup;
+import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.Software; 
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding; 
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.plugin.rnaseq.service.RnaseqService;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.PanelTab;
 
@@ -44,7 +54,8 @@ public class RnaseqPlugin extends WaspPlugin
 			BatchJobProviding,
 			WebInterfacing,
 			FileDataTabViewing,
-			ClientMessageI {
+			ClientMessageI,
+			PluginSpecificDataForDisplay {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -61,6 +72,18 @@ public class RnaseqPlugin extends WaspPlugin
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 	
+	@Autowired
+	private JobService jobService;
+	
+	@Autowired
+	private SampleService sampleService;
+
+	@Autowired
+	private RnaseqService rnaseqService;
+
+	@Autowired
+	private MessageService messageService;
+
 	@Autowired
 	@Qualifier("rnaseq")
 	private Software rnaseq;
@@ -197,5 +220,54 @@ public class RnaseqPlugin extends WaspPlugin
 	public void destroy() throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+	
+	@Override
+	public Map<String,String> getPlugInSpecificSampleDataForDisplay(Integer jobId, Integer sampleId){
+		
+		Map<String,String> m = new LinkedHashMap<String,String>();
+		Job job = jobService.getJobByJobId(jobId);
+		Sample sample = sampleService.getSampleById(sampleId);		
+		if(sample != null && sample.getId()!=null){
+			if(job==null ||  job.getId()==null || !job.getSample().contains(sample)){
+				return m;
+			}
+			if(sample.getSampleType().getIName().toLowerCase().equals("rna")){
+				  String rnaFraction = rnaseqService.getRNAFraction(sample);
+				  if(rnaFraction!=null && !rnaFraction.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.fraction.label"), rnaFraction);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.requestedDirectionality.label"), rnaDirectionality);
+				  }
+			}
+			if(sample.getSampleType().getIName().toLowerCase().equals("cdna")){
+				  String ribosomeDepleteionMethod = rnaseqService.getRibosomeDepletionMethod(sample);
+				  if(ribosomeDepleteionMethod!=null && !ribosomeDepleteionMethod.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.ribosomeDepletion.label"), ribosomeDepleteionMethod);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.directionality2.label"), rnaDirectionality);
+				  }
+			}
+			if(sample.getSampleType().getIName().toLowerCase().endsWith("library")){//user-submitted and facility library  
+				  String ribosomeDepleteionMethod = rnaseqService.getRibosomeDepletionMethod(sample);
+				  if(ribosomeDepleteionMethod!=null && !ribosomeDepleteionMethod.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.ribosomeDepletion.label"), ribosomeDepleteionMethod);	
+				  }
+				  String rnaDirectionality = rnaseqService.getDirectionality(sample);
+				  if(rnaDirectionality!=null && !rnaDirectionality.isEmpty()){
+					  m.put(messageService.getMessage("rnaseq.directionality2.label"), rnaDirectionality);	
+				  }
+			}
+		}				
+		return m;
+	}
+	
+	@Override
+	public void getPlugInSpecificSamplePairDataForDisplay(Integer jobId, ModelMap m){
+		
 	}
 }

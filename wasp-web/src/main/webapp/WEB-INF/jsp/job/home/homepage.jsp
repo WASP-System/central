@@ -18,7 +18,7 @@
 
 <div id="tabs">	
   <ul>
-		<li><a id="basicAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/basic.do" />" ><fmt:message key="jobHomeHomepage.basicTab.label" /></a></li>
+		<li><a id="basicAnchor"  onclick="openWaitDialog(); " href="<wasp:relativeUrl value="job/${job.getId()}/basic.do" />" ><fmt:message key="jobHomeHomepage.basicTab.label" /></a></li>
 		<sec:authorize access="hasRole('su')">
 			<li><a id="basicUpdateAnchor"  href="<wasp:relativeUrl value="job/${job.getId()}/basicUpdate.do" />" >Basic Update</a></li>
 		</sec:authorize>

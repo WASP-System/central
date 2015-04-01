@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/jsp/taglib.jsp" %>
 
+<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
 <script type="text/javascript">
 	(function($){ 
 		$(document).ready(function(){
@@ -26,7 +27,8 @@
 		});
 	})(jQuery);
 </script>
-	
+-->	
+
 <br />
 	 	 								
 <a class="button" href="javascript:void(0);" onclick='showSmallModalessDialog("<wasp:relativeUrl value="job/${job.getId()}/basic.do" />");' ><fmt:message key="jobHomeSamples.viewBasicRequest.label" /></a>
@@ -77,6 +79,9 @@
 					<label><fmt:message key="jobHomeSamples.id.label" />:</label> <c:out value="${submittedObject.getId()}"/><br />
 					<label><fmt:message key="jobHomeSamples.type.label" />:</label> <c:out value="${submittedObject.getSampleType().getName()}"/><br />
 					<label><fmt:message key="jobHomeSamples.species.label" />:</label> <c:out value="${submittedObjectOrganismMap.get(submittedObject)}" /><br />
+					<c:if test="${not empty submittedObjectRequestedCoverageMap.get(submittedObject)}">
+						<label><fmt:message key="jobHomeSamples.lanesRequested.label" />:</label> <c:out value="${submittedObjectRequestedCoverageMap.get(submittedObject)}" /> <br />
+					</c:if>
 					<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(submittedObject)}" /><br />
 					<c:if test='${qcStatusMap.get(submittedObject) != "NONEXISTENT" && receivedStatusMap.get(submittedObject) == "RECEIVED"}'>
 						<label><fmt:message key="listJobSamples.qcStatus.label" /></label>: <c:out value="${qcStatusMap.get(submittedObject)}"/>
@@ -88,9 +93,17 @@
 						<br />		  
 					</c:if>
 	
-					<!-- for displaying plugin spcific information about a macromolecule-->
+					<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
 					<div id="divToDisplayExtraMetaForSampleId_<c:out value="${submittedObject.getId()}"/>" ></div>
-	
+					-->
+					<!-- for displaying plugin spcific information about a macromolecule-->
+					<c:if test="${ not empty samplePluginSpecificDataForDisplayMap.get(submittedObject)}">
+						<c:set value="${samplePluginSpecificDataForDisplayMap.get(submittedObject)}" var="pluginDataMap" />
+						<c:forEach var="type" items="${pluginDataMap}">
+  							 <label><c:out value="${type.key}"/></label>: <c:out value="${type.value}"/><br />
+						</c:forEach>
+					</c:if>
+					
 					<sec:authorize access="hasRole('su') or hasRole('ft')">
 						<c:if test='${isAggregationAnalysisStarted == false && receivedStatusMap.get(submittedObject)=="RECEIVED" && qcStatusMap.get(submittedObject)=="PASSED"}'>
 							<c:choose>	 	 						
@@ -132,6 +145,9 @@
 							<label><fmt:message key="jobHomeSamples.adaptor.label" />:</label> <c:out value="${adaptorSet.getName()}" /> <br />
 							 <c:set value="${libraryAdaptorMap.get(library)}" var="adaptor"/>
 							<label><fmt:message key="jobHomeSamples.index.label" />:</label> <c:out value="${adaptor.getName()}" /> <br />
+							<c:if test="${not empty submittedObjectRequestedCoverageMap.get(library)}">
+								<label><fmt:message key="jobHomeSamples.lanesRequested.label" />:</label> <c:out value="${submittedObjectRequestedCoverageMap.get(library)}" /> <br />
+							</c:if>
 							<c:if test="${not empty receivedStatusMap.get(library)}">
 								<label><fmt:message key="jobHomeSamples.arrivalStatus.label" />:</label> <c:out value="${receivedStatusMap.get(library)}" /><br />
 							</c:if>
@@ -162,8 +178,16 @@
 							</c:if>	
 							
 								
-							<!-- for displaying plugin spcific information about a library-->
-							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>	
+							<!-- This mechanism for displaying plugin specific data via ajax calls, is no longer used
+							<div id="divToDisplayExtraMetaForSampleId_<c:out value="${library.getId()}"/>" ></div>
+							-->
+							<!-- for displaying plugin spcific information about a library-->	
+							<c:if test="${ not empty samplePluginSpecificDataForDisplayMap.get(library)}">
+								<c:set value="${samplePluginSpecificDataForDisplayMap.get(library)}" var="pluginDataMap" />
+								<c:forEach var="type" items="${pluginDataMap}">
+  							 		<label><c:out value="${type.key}"/></label>: <c:out value="${type.value}"/><br />
+								</c:forEach>
+							</c:if>
 													
 							<sec:authorize access="hasRole('su') or hasRole('ft')">
 							<c:if test='${qcStatusMap.get(library) == "PASSED"}'>	
@@ -203,7 +227,7 @@
 											<tr class="FormData"><td class="label-centered" style="background-color:#FAF2D6; white-space:nowrap;"><fmt:message key="listJobSamples.addLibraryToPlatformUnit.label" /></td></tr>
 											<c:if test='${assignLibraryToPlatformUnitStatusMap.get(library) == false }'>
 												<tr>
-													<td>
+													<td><%--as of 3-23-15, this is no longer used --%>
 														<span style="color:red"><fmt:message key="listJobSamples.userRequestMet.label" /></span>
 													</td>
 												</tr>

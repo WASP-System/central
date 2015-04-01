@@ -56,6 +56,7 @@ public class HelptagController extends WaspController {
 		return "helptag/description";
 	}
 
+/*	next method no longer used (as of 3-30-15; dubin)
 	@RequestMapping(value="/{jobId}/{sampleId}/plugInSpecificSampleDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	public void plugInSpecificSampleDataForDisplay(
@@ -63,7 +64,7 @@ public class HelptagController extends WaspController {
 			  @PathVariable("sampleId") Integer sampleId, 
 			  HttpServletResponse response ) {
 	      
-		/* *********THIS IS AN AJAX CALL************* */
+		///* *********THIS IS AN AJAX CALL************* * /
 		
 		  Job job = jobService.getJobByJobId(jobId);
 		  Sample sample = null;
@@ -94,6 +95,7 @@ public class HelptagController extends WaspController {
 			  }
 		  }
 	}
+	
 
 	@RequestMapping(value="/{jobId}/plugInSpecificSamplePairingDataForDisplay", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
@@ -101,7 +103,7 @@ public class HelptagController extends WaspController {
 			  @PathVariable("jobId") Integer jobId, 
 			  ModelMap m ) {
 	      
-		/* *********THIS IS AN AJAX CALL************* */
+		///* *********THIS IS AN AJAX CALL************* * /
 		
 		  Job job = jobService.getJobByJobId(jobId);
 			List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
@@ -154,5 +156,5 @@ public class HelptagController extends WaspController {
 
 		  return "helptag/helptagSpecificSamplePairingPostSubmission";
 	}
-	  
+	 */ 
 }

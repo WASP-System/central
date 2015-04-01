@@ -51,6 +51,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.itextpdf.text.DocumentException;
 
+import edu.yu.einstein.wasp.Assert;
 import edu.yu.einstein.wasp.MetaMessage;
 import edu.yu.einstein.wasp.Strategy;
 import edu.yu.einstein.wasp.Strategy.StrategyType;
@@ -74,6 +75,7 @@ import edu.yu.einstein.wasp.exception.SampleException;
 import edu.yu.einstein.wasp.exception.SampleMultiplexException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.exception.WaspException;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.model.AcctGrant;
 import edu.yu.einstein.wasp.model.AcctQuote;
 import edu.yu.einstein.wasp.model.AcctQuoteMeta;
@@ -107,6 +109,7 @@ import edu.yu.einstein.wasp.model.Workflow;
 import edu.yu.einstein.wasp.model.WorkflowSoftware;
 import edu.yu.einstein.wasp.model.Workflowresourcecategory;
 import edu.yu.einstein.wasp.model.WorkflowresourcecategoryMeta;
+import edu.yu.einstein.wasp.plugin.WaspPluginRegistry;
 import edu.yu.einstein.wasp.quote.AdditionalCost;
 import edu.yu.einstein.wasp.quote.Comment;
 import edu.yu.einstein.wasp.quote.Discount;
@@ -115,6 +118,7 @@ import edu.yu.einstein.wasp.quote.MPSQuote;
 import edu.yu.einstein.wasp.quote.SequencingCost;
 import edu.yu.einstein.wasp.service.AccountsService;
 import edu.yu.einstein.wasp.service.AdaptorService;
+import edu.yu.einstein.wasp.service.AuthenticationService;
 import edu.yu.einstein.wasp.service.EmailService;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.FilterService;
@@ -133,6 +137,7 @@ import edu.yu.einstein.wasp.taglib.JQFieldTag;
 import edu.yu.einstein.wasp.util.MetaHelper;
 import edu.yu.einstein.wasp.util.SampleWrapper;
 import edu.yu.einstein.wasp.util.StringHelper;
+import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 import edu.yu.einstein.wasp.web.Tooltip;
 
 @Controller
@@ -185,6 +190,8 @@ public class JobController extends WaspController {
 	@Autowired
 	private AdaptorsetResourceCategoryDao adaptorsetResourceCategoryDao;
 	@Autowired
+	private AuthenticationService authenticationService;
+	@Autowired
 	private SampleService sampleService;
 	@Autowired
 	private FilterService filterService;
@@ -218,6 +225,9 @@ public class JobController extends WaspController {
 	private WorkflowService workflowService;
 	@Autowired
 	private SoftwareService softwareService;
+	@Autowired
+	private WaspPluginRegistry waspPluginRegistry;
+
 	
 	@Value("${wasp.analysis.perLibraryFee:0}")
 	private Float perLibraryAnalysisFee;
@@ -2458,10 +2468,23 @@ public class JobController extends WaspController {
 			return "job/home/requests";
 		}
 		
-		//samplePairingRequest
-		getSamplePairsRequested(job, m);
+		///////////////////////////////////Next call no longer used; moved to plugin-specific code
+		////////////////////////////////getSamplePairsRequested(job, m);
+		
+		//plugin specific samplePairingRequest 
+		//3-27-15; dubin replacement for those ajax calls from the web
+		PluginSpecificDataForDisplay pluginSpecificDataForDisplay = null;
+		List<PluginSpecificDataForDisplay> plugins = waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), PluginSpecificDataForDisplay.class);
+		//Assert.assertTrue(plugins.size()==1 || plugins.size()==0);		  
+		if(plugins!=null && plugins.size()==1 ){
+			pluginSpecificDataForDisplay = plugins.get(0);
+			pluginSpecificDataForDisplay.getPlugInSpecificSamplePairDataForDisplay(jobId, m);
+		}
+		
 		//getReplicatesRequest
-		getSampleReplicatesRequested(job, m);
+		//THIS IS CHIPSEQ specific and should be moved there, if it ever turns out to be used 
+		//getSampleReplicatesRequested(job, m);
+		
 		//software request
 		getSoftwareRequested(job, m);
 		//getSubmittedSamplesAndOrganism_Genome_BuildForAlignment
@@ -2591,7 +2614,7 @@ public class JobController extends WaspController {
 			return "job/home/message";
 		}
 
-		getSampleLibraryRunData(job, m);
+		getSampleLibraryRunData(job, m, true);
 		
 		return "job/home/addLibrariesToCell";
 	}
@@ -2617,14 +2640,14 @@ public class JobController extends WaspController {
 		if(cellId==null || cellId.intValue()<=0){//could occur, user forgot to select a cell
 			logger.warn("No Cell Selected");
 			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", messageService.getMessage("platformunit.noCellSelected.error")); 
-			getSampleLibraryRunData(job, m);			
+			getSampleLibraryRunData(job, m, true);	
 			return "job/home/addLibrariesToCell";
 		}
 		Sample cell = sampleService.getSampleById(cellId);
 		if(cell==null || cell.getId()==null || cell.getId().intValue()<=0){//rather unlikely error
 			logger.warn("CellId not valid");
 			m.addAttribute("addLibrariesToPlatformUnitErrorMessage", messageService.getMessage("platformunit.invalidCellId.error")); 
-			getSampleLibraryRunData(job, m);			
+			getSampleLibraryRunData(job, m, true);	
 			return "job/home/addLibrariesToCell";
 		}
 		
@@ -2802,7 +2825,7 @@ public class JobController extends WaspController {
 			addLibrariesToPlatformUnitSuccessMessage = numLibrariesSuccessfullyAdded + " " + messageService.getMessage("platformunit.librariesAdded.label");
 		}
 		
-		getSampleLibraryRunData(job, m);
+		getSampleLibraryRunData(job, m, true);
 		
 		m.addAttribute("addLibrariesToPlatformUnitErrorMessage", addLibrariesToPlatformUnitErrorMessage);
 		m.addAttribute("addLibrariesToPlatformUnitSuccessMessage", addLibrariesToPlatformUnitSuccessMessage);
@@ -2815,19 +2838,22 @@ public class JobController extends WaspController {
 	  @PreAuthorize("hasRole('su') or hasRole('ft') or hasRole('da-*') or hasRole('jv-' + #jobId)")
 	  public String jobSamplesPage(@PathVariable("jobId") Integer jobId, 
 			  ModelMap m) throws SampleTypeException {
-			
+
 		Job job = jobService.getJobByJobId(jobId);
 		if(job.getId()==null){
 		   	logger.warn("Job unexpectedly not found");
 		   	m.addAttribute("errorMessage", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		getSampleLibraryRunData(job, m);
+		getSampleLibraryRunData(job, m, true);
 		
 		return "job/home/samples";
 	}
 
-	private void getSampleLibraryRunData(Job job, ModelMap m) throws SampleTypeException {
+	private void getSampleLibraryRunData(Job job, ModelMap m, boolean showPlatformUnits) throws SampleTypeException {
+
+		
+		  long grandTotalStartTime = System.nanoTime();		
 		
 		  m.addAttribute("job", job);
 		  m.addAttribute("jobStatus", jobService.getDetailedJobStatusString(job));
@@ -2853,12 +2879,22 @@ public class JobController extends WaspController {
 		  submittedObjectList.addAll(submittedLibraryList);		  
 		  sampleService.sortSamplesBySampleId(submittedObjectList);
 		  m.addAttribute("submittedObjectList", submittedObjectList);	//main object list used on the web page 
-		  	  
+
 		  //For each job's sample, get the qcStatus and comments; note the call changes if library (getLibraryQCStatus) or macromolecule (getSampleQCStatus)
 		  //10-14-14 added reasonForNewLibraryCommentsMap for each library (each library will have a List<MetaMessage> but each list may or may not be empty)
 		  Map<Sample, String> qcStatusMap = new HashMap<Sample, String>();
 		  Map<Sample, List<MetaMessage>> qcStatusCommentsMap = new HashMap<Sample, List<MetaMessage>>();
 		  Map<Sample, List<MetaMessage>> reasonForNewLibraryCommentsMap = new HashMap<Sample, List<MetaMessage>>();
+		  
+		  //3-27-15; dubin replacement for those ajax calls from the web
+		  PluginSpecificDataForDisplay pluginSpecificDataForDisplay = null;
+		  Map<Sample, Map<String,String>> samplePluginSpecificDataForDisplayMap = new HashMap<Sample, Map<String,String>>();
+		  List<PluginSpecificDataForDisplay> plugins = waspPluginRegistry.getPluginsHandlingArea(job.getWorkflow().getIName(), PluginSpecificDataForDisplay.class);
+		  //Assert.assertTrue(plugins.size()==1 || plugins.size()==0);		  
+		  if(plugins!=null && plugins.size()==1 ){
+			  pluginSpecificDataForDisplay = plugins.get(0);
+		  }
+		  
 		  for(Sample s : allJobSamples){
 			  //if(s.getSampleType().getIName().toLowerCase().contains("library")){
 			  if(allJobLibraries.contains(s)){//user-submitted libraries and facility-generated libraries
@@ -2870,22 +2906,37 @@ public class JobController extends WaspController {
 				  qcStatusMap.put(s, sampleService.convertSampleQCStatusForWeb(sampleService.getSampleQCStatus(s)));
 				  qcStatusCommentsMap.put(s, sampleService.getSampleQCComments(s.getId()));
 			  }
+			  if(pluginSpecificDataForDisplay!=null){
+				  Map<String,String> pluginSpecificDataMap = pluginSpecificDataForDisplay.getPlugInSpecificSampleDataForDisplay(job.getId(), s.getId());
+				  if(!pluginSpecificDataMap.isEmpty()){					  
+					  samplePluginSpecificDataForDisplayMap.put(s, pluginSpecificDataMap);
+				  }
+			  }
 		  }	 
 		  m.addAttribute("qcStatusMap", qcStatusMap);
 		  m.addAttribute("qcStatusCommentsMap", qcStatusCommentsMap);
 		  m.addAttribute("reasonForNewLibraryCommentsMap", reasonForNewLibraryCommentsMap);
-		  
+		  m.addAttribute("samplePluginSpecificDataForDisplayMap", samplePluginSpecificDataForDisplayMap);
+			
 		  //for each submittedMacromolecule, get list of it's facility-generated libraries; also determine if this sampleMacromolecule should have a library made from it
 		  Map<Sample, List<Sample>> submittedMacromoleculeFacilityLibraryListMap = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();
+		  
+		  //does not appear to be used on the web; commented out 3-31-15
+		  //Map<Sample, Boolean> createLibraryStatusMap = new HashMap<Sample, Boolean>();//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
+		  
+		  
 		  for(Sample macromolecule : submittedMacromoleculeList){
 			  submittedMacromoleculeFacilityLibraryListMap.put(macromolecule, macromolecule.getChildren());//could also have used sampleService.getFacilityGeneratedLibraries(macromolecule)
-			  boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(macromolecule);
+			  
+			  //does not appear to be used on the web; commented out 3-31-15
+			  //boolean isSampleWaitingForLibraryCreation = sampleService.isSampleAwaitingLibraryCreation(macromolecule);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 			  //logger.debug("setting sample " + macromolecule.getId() + " (" + macromolecule.getName() + ") is waiting for library creation = "+ isSampleWaitingForLibraryCreation);
-			  createLibraryStatusMap.put(macromolecule, isSampleWaitingForLibraryCreation);
+			  //createLibraryStatusMap.put(macromolecule, isSampleWaitingForLibraryCreation);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 		  }
 		  m.addAttribute("submittedMacromoleculeFacilityLibraryListMap", submittedMacromoleculeFacilityLibraryListMap);
-		  m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);
+		  
+		//does not appear to be used on the web; commented out 3-31-15
+		  //m.addAttribute("createLibraryStatusMap", createLibraryStatusMap);//3-31-15 dubin: does not appear to be used on the web; commented out 3-31-15
 		  
 		  //for each submittedLibrary, get list of it's libraries (done for consistency, as this is actually a list of one, the library itself)
 		  Map<Sample, List<Sample>> submittedLibrarySubmittedLibraryListMap = new HashMap<Sample, List<Sample>>();
@@ -2896,26 +2947,36 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("submittedLibrarySubmittedLibraryListMap", submittedLibrarySubmittedLibraryListMap);
 
-		  //for each submittedObject (a submittedMacromolecule or a submittedLibrary), get species and get receviedStatus
+		  //for each submittedObject (a submittedMacromolecule or a submittedLibrary), get species and get receviedStatus and getRequestedSampleCoverage
 		  Map<Sample, String> submittedObjectOrganismMap = new HashMap<Sample, String>();		  
-		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();		 
+		  Map<Sample, String> receivedStatusMap = new HashMap<Sample, String>();
+		  Map<Sample, String> submittedObjectRequestedCoverageMap = new HashMap<Sample, String>();
+		    
 		  for(Sample submittedObject : submittedObjectList){
 			  submittedObjectOrganismMap.put(submittedObject, sampleService.getNameOfOrganism(submittedObject, "???"));
 			  logger.debug(submittedObject.getId() + ":" + sampleService.getReceiveSampleStatus(submittedObject) + ":" + sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
 			  receivedStatusMap.put(submittedObject, sampleService.convertSampleReceivedStatusForWeb(sampleService.getReceiveSampleStatus(submittedObject)));
-		  }
+			  ////3-23-15; dubin; the next three lines replaces code for calls to sampleService.isLibraryAwaitingPlatformUnitPlacement(library) [that appear below and is now commented out, as it took excessive time to execute and provided little useful information]
+			  int requestedCoverageForSubmittedSample = sampleService.getRequestedSampleCoverage(submittedObject);
+			  if(requestedCoverageForSubmittedSample>0){//leslie dubin
+				  submittedObjectRequestedCoverageMap.put(submittedObject, Integer.toString(requestedCoverageForSubmittedSample));
+			  }			  
+		  }		  
 		  m.addAttribute("submittedObjectOrganismMap", submittedObjectOrganismMap);
 		  m.addAttribute("receivedStatusMap", receivedStatusMap);
+		  m.addAttribute("submittedObjectRequestedCoverageMap", submittedObjectRequestedCoverageMap);		  
 		  
 		  //for each job's library, get its adaptor info and determine whether the library should be assigned to a platformUnit
 		  Map<Sample, Adaptorset> libraryAdaptorsetMap = new HashMap<Sample, Adaptorset>();
 		  Map<Sample, Adaptor> libraryAdaptorMap = new HashMap<Sample, Adaptor>();
-		  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>();
+		  //  Map<Sample, Boolean> assignLibraryToPlatformUnitStatusMap = new HashMap<Sample, Boolean>(); //as of 3-23-15, no longer used
 		  for(Sample library : allJobLibraries){
-			  
-			  boolean b = sampleService.isLibraryAwaitingPlatformUnitPlacement(library);
-			  assignLibraryToPlatformUnitStatusMap.put(library, b);
 
+			  //3-23-15 dubin; sampleService.isLibraryAwaitingPlatformUnitPlacement(library) took excessive amount of time to run, with little payoff
+			  //as such, the next two lines (and assignLibraryToPlatformUnitStatusMap) have been commented out and a its functionality has been replaced with code (above): getRequestedSampleCoverage()
+			  //boolean b = sampleService.isLibraryAwaitingPlatformUnitPlacement(library);			  
+			  //assignLibraryToPlatformUnitStatusMap.put(library, b);			  
+ 
 			  Adaptor adaptor;
 			  try{ 
 				  adaptor = adaptorService.getAdaptor(library);
@@ -2925,9 +2986,9 @@ public class JobController extends WaspController {
 		  }
 		  m.addAttribute("libraryAdaptorsetMap", libraryAdaptorsetMap);
 		  m.addAttribute("libraryAdaptorMap", libraryAdaptorMap);
-		  m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);
+		  ///m.addAttribute("assignLibraryToPlatformUnitStatusMap", assignLibraryToPlatformUnitStatusMap);//3-23-15 no longer used
 		  m.addAttribute("isAggregationAnalysisStarted", jobService.isAggregationAnalysisBatchJob(job));
-		  
+
 		  Map<Sample, List<Sample>> cellLibraryListMap = new HashMap<Sample, List<Sample>>();
 		  Map<Sample, Integer> cellIndexMap = new HashMap<Sample, Integer>();
 		  Map<Sample, Sample> cellPUMap = new HashMap<Sample, Sample>();
@@ -2979,6 +3040,7 @@ public class JobController extends WaspController {
 				  }  
 			  }
 		  }
+		  
 		  m.addAttribute("cellLibraryListMap", cellLibraryListMap);
 		  m.addAttribute("cellIndexMap", cellIndexMap);
 		  m.addAttribute("cellPUMap", cellPUMap); 
@@ -2986,99 +3048,66 @@ public class JobController extends WaspController {
 		  m.addAttribute("cellLibraryPMLoadedMap", cellLibraryPMLoadedMap);
 		  m.addAttribute("showPlatformunitViewMap", showPlatformunitViewMap); //for displaying web anchor link to platformunit
 		 
-		  //Next calculations ONLY NEEDED FOR mpsResultsListedBySample.jsp; do NOT remove this part please; needed for proper table display
-		  //HOWEVER, on 4-11-14, mpsResultsListedBySample.jsp was permanently removed
-		  //submittedObjectCellRowspan and submittedObjectCellRowspan
-		  //calculate the rowspans needed for the web, as the table display is rather complex, and determining these numbers is very hard to do at the web, as there are multiple dependencies. It is easier to perform here.
-		  Map<Sample, Integer> submittedObjectLibraryRowspan = new HashMap<Sample, Integer>();//number of libraries for each submitted Object (be it a submitted macromolecule or a submitted library)
-		  Map<Sample, Integer> submittedObjectCellRowspan = new HashMap<Sample, Integer>();//number of runs (zero, one, many) for each library
-		  for(Sample submittedObject : submittedObjectList){
+		  //if needed, fill up drop-down box that is used to assign a library to a flow cell's lane; note: not needed for sampleDetails web page
+		  if( showPlatformUnits==true && ( authenticationService.hasRole("su") || authenticationService.hasRole("ft") ) ){//other users don't need this use
 			  
-			  int numLibraries = 0;
-			  int numCells = 0;
-			  
-			  //calculate numLibraries
-			  List<Sample> facilityLibraryList2 = submittedMacromoleculeFacilityLibraryListMap.get(submittedObject);
-			  List<Sample> submittedLibraryList2 = submittedLibrarySubmittedLibraryListMap.get(submittedObject);
-			  numLibraries = (facilityLibraryList2==null?0:facilityLibraryList2.size()) + (submittedLibraryList2==null?0:submittedLibraryList2.size());
-			  
-			  //put numLibraries into its map for eventual use in web
-			  if(numLibraries==0){
-				  submittedObjectLibraryRowspan.put(submittedObject, 1);
-			  }
-			  else{
-				  submittedObjectLibraryRowspan.put(submittedObject, numLibraries);
-			  }
-			  
-			  //calculate numCells
-			  if(facilityLibraryList2!=null){
-				  for(Sample library : facilityLibraryList2){
-					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
-				  }
-			  }
-			  if(submittedLibraryList2!=null){
-				  for(Sample library : submittedLibraryList2){
-					  numCells += cellLibraryListMap.get(library)==null?0:cellLibraryListMap.get(library).size();
-				  }
-			  }
-			  
-			  //put numCells into its map for eventual use in web
-			  if(numCells==0){
-				  submittedObjectCellRowspan.put(submittedObject, 1);
-			  }
-			  else{
-				  submittedObjectCellRowspan.put(submittedObject, numCells);
-			  }
-		  }
-		  m.addAttribute("submittedObjectCellRowspan", submittedObjectCellRowspan);
-		  m.addAttribute("submittedObjectLibraryRowspan", submittedObjectLibraryRowspan);  
-		  
-		  //fill up drop-down box that is used to assign a library to a flow cell's lane
-		  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
-		  m.addAttribute("availableAndCompatiblePlatformUnitListOnForm", availableAndCompatiblePlatformUnitListOnForm);
-		  Map<Sample, List<Sample>> platformUnitCellListMapOnForm = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, List<Sample>> cellControlLibraryListMapOnForm = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, List<Sample>> cellLibraryWithoutControlListMapOnForm = new HashMap<Sample, List<Sample>>();
-		  Map<Sample, Adaptorset> libraryAdaptorsetMapOnForm = new HashMap<Sample, Adaptorset>();
-		  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
-
-		  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
-			  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
-			  
-			  List<Sample> cellList = new ArrayList<Sample>();
-			  int numberOfIndexedCellsOnPlatformUnit = indexedCellsOnPlatformUnitMap.size();
-			  for(int i = 1; i <= numberOfIndexedCellsOnPlatformUnit; i++){
-				  Sample cell = indexedCellsOnPlatformUnitMap.get(new Integer(i));
-				  cellList.add(cell);
-				  List<Sample> controlLibrariesOnCellList = sampleService.getControlLibrariesOnCell(cell);
-				  cellControlLibraryListMapOnForm.put(cell, controlLibrariesOnCellList);
-
-				  //should order next list by index???
-				  List<Sample> librariesWithoutControlsOnCellList = sampleService.getLibrariesOnCellWithoutControls(cell);
-				  cellLibraryWithoutControlListMapOnForm.put(cell, librariesWithoutControlsOnCellList);
-				  //need to order by index.
+				//new //leslie dubin; so far, this new code has NOT improved speed of access compared to code immediately below
+			  //List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getCompatibleAndAvailablePlatformUnits(job);//sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
+	 
+			  //old //leslie dubin; this is rather slow
+			  List<Sample> availableAndCompatiblePlatformUnitListOnForm = sampleService.getAvailableAndCompatiblePlatformUnits(job);//available flowCells that are compatible with this job
+	
+			  m.addAttribute("availableAndCompatiblePlatformUnitListOnForm", availableAndCompatiblePlatformUnitListOnForm);
+			  Map<Sample, List<Sample>> platformUnitCellListMapOnForm = new HashMap<Sample, List<Sample>>();
+			  Map<Sample, List<Sample>> cellControlLibraryListMapOnForm = new HashMap<Sample, List<Sample>>();
+			  Map<Sample, List<Sample>> cellLibraryWithoutControlListMapOnForm = new HashMap<Sample, List<Sample>>();
+			  Map<Sample, Adaptorset> libraryAdaptorsetMapOnForm = new HashMap<Sample, Adaptorset>();
+			  Map<Sample, Adaptor> libraryAdaptorMapOnForm = new HashMap<Sample, Adaptor>();
+	
+			  for(Sample platformUnit : availableAndCompatiblePlatformUnitListOnForm){
+	
+				  Map<Integer, Sample> indexedCellsOnPlatformUnitMap = sampleService.getIndexedCellsOnPlatformUnit(platformUnit);
 				  
-				  List<Sample> tempLibraryList = new ArrayList<Sample>();
-				  tempLibraryList.addAll(controlLibrariesOnCellList);
-				  tempLibraryList.addAll(librariesWithoutControlsOnCellList);
-				  
-				  //for each library on this drop-down list, get its adaptor info
-				  for(Sample library : tempLibraryList){
-					  Adaptor adaptor;
-					  try{ 
-						  adaptor = adaptorService.getAdaptor(library);
-						  libraryAdaptorMapOnForm.put(library, adaptor);
-						  libraryAdaptorsetMapOnForm.put(library, adaptor.getAdaptorset()); 
-					  }catch(Exception e){  }		  
+				  List<Sample> cellList = new ArrayList<Sample>();
+				  int numberOfIndexedCellsOnPlatformUnit = indexedCellsOnPlatformUnitMap.size();
+				  for(int i = 1; i <= numberOfIndexedCellsOnPlatformUnit; i++){
+					  Sample cell = indexedCellsOnPlatformUnitMap.get(new Integer(i));
+					  cellList.add(cell);
+					  List<Sample> controlLibrariesOnCellList = sampleService.getControlLibrariesOnCell(cell);
+					  cellControlLibraryListMapOnForm.put(cell, controlLibrariesOnCellList);
+	
+					  //should order next list by index???
+					  List<Sample> librariesWithoutControlsOnCellList = sampleService.getLibrariesOnCellWithoutControls(cell);
+					  cellLibraryWithoutControlListMapOnForm.put(cell, librariesWithoutControlsOnCellList);
+					  //need to order by index.
+					  
+					  List<Sample> tempLibraryList = new ArrayList<Sample>();
+					  tempLibraryList.addAll(controlLibrariesOnCellList);
+					  tempLibraryList.addAll(librariesWithoutControlsOnCellList);
+					  
+					  //for each library on this drop-down list, get its adaptor info
+					  for(Sample library : tempLibraryList){
+						  Adaptor adaptor;
+						  try{ 
+							  adaptor = adaptorService.getAdaptor(library);
+							  libraryAdaptorMapOnForm.put(library, adaptor);
+							  libraryAdaptorsetMapOnForm.put(library, adaptor.getAdaptorset()); ////doesn't appear to be used on any form
+						  }catch(Exception e){  }		  
+					  }
 				  }
+				  platformUnitCellListMapOnForm.put(platformUnit, cellList);
+	
 			  }
-			  platformUnitCellListMapOnForm.put(platformUnit, cellList);
-		  }
-		  m.addAttribute("platformUnitCellListMapOnForm", platformUnitCellListMapOnForm);		  
-		  m.addAttribute("cellControlLibraryListMapOnForm", cellControlLibraryListMapOnForm);
-		  m.addAttribute("cellLibraryWithoutControlListMapOnForm", cellLibraryWithoutControlListMapOnForm);
-		  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
-		  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);		  
+			  m.addAttribute("platformUnitCellListMapOnForm", platformUnitCellListMapOnForm);		  
+			  m.addAttribute("cellControlLibraryListMapOnForm", cellControlLibraryListMapOnForm);
+			  m.addAttribute("cellLibraryWithoutControlListMapOnForm", cellLibraryWithoutControlListMapOnForm);
+			  m.addAttribute("libraryAdaptorMapOnForm", libraryAdaptorMapOnForm);
+			  m.addAttribute("libraryAdaptorsetMapOnForm", libraryAdaptorsetMapOnForm);	////doesn't appear to be used on any form
+		
+		}//end if(showPlatformUnits==true)	  
+			
+		long grandTotalEstimatedTime = System.nanoTime() - grandTotalStartTime;//leslie dubin
+		logger.debug("grandTotalEstimatedTime for getSampleLibraryRunData(): " + grandTotalEstimatedTime );		  
 	}
 	
 	@Transactional
@@ -3105,7 +3134,7 @@ public class JobController extends WaspController {
 			m.addAttribute("updateConcentrationToCellLibraryErrorMessage", messageService.getMessage("listJobSamples.updateConcentrationToCellLibraryErrorMessage.error"));
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
-		getSampleLibraryRunData(job, m);		
+		getSampleLibraryRunData(job, m, true);	
 		return "job/home/samples";
 	}
 	
@@ -3134,7 +3163,7 @@ public class JobController extends WaspController {
 			m.addAttribute("removeLibraryFromCellErrorMessage", messageService.getMessage("listJobSamples.removeLibraryFromCellErrorMessage.error"));
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
-		getSampleLibraryRunData(job, m);		
+		getSampleLibraryRunData(job, m, true);		
 		return "job/home/samples";	
 	}
 	
@@ -3230,7 +3259,7 @@ public class JobController extends WaspController {
 			logger.warn(addLibraryToPlatformUnitErrorMessage);
 		}
 		m.addAttribute("libraryIdAssociatedWithMessage", libraryId);
-		getSampleLibraryRunData(job, m);		
+		getSampleLibraryRunData(job, m, true);		
 		return "job/home/samples";	
 	}
 	
@@ -3903,7 +3932,7 @@ public class JobController extends WaspController {
 		   	m.addAttribute("message", messageService.getMessage("job.jobUnexpectedlyNotFound.error")); 
 			return "job/home/message";
 		}
-		getSampleLibraryRunData(job, m);
+		getSampleLibraryRunData(job, m, false);
 		Map<Sample,List<SampleMeta>> sampleNormalizedSampleMetaListMap = new HashMap<Sample,List<SampleMeta>>();
 		List<SampleType> sampleTypeListOfSubmittedMacromoleculesThatAreNotLibraries = new ArrayList<SampleType>();//2-6-15; to deal with display of multiple sample types within (currently) submitted samples (that are not libraries) -- specifically to deal with RNA and cDNA submitted samples for RNA seq
 		for(Sample s : job.getSample()){

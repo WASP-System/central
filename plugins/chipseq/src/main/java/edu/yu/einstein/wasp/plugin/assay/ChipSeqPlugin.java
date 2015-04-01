@@ -3,9 +3,12 @@
  */
 package edu.yu.einstein.wasp.plugin.assay;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -23,6 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.ui.ModelMap;
 
 import edu.yu.einstein.wasp.chipseq.service.ChipSeqService;
 import edu.yu.einstein.wasp.exception.PanelException;
@@ -34,12 +38,17 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
@@ -55,7 +64,8 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	WebInterfacing,
 	FileDataTabViewing,
 	ClientMessageI,
-	JobDataTabViewing {
+	JobDataTabViewing,
+	PluginSpecificDataForDisplay {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -75,7 +85,11 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	private SampleService sampleService;
 	@Autowired
 	private JobService jobService;
-
+	@Autowired
+	private MessageService messageService;
+	@Autowired
+	ChipSeqService chipseqService;
+	
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
 
@@ -264,4 +278,51 @@ public class ChipSeqPlugin extends WaspPlugin implements
 		}				
 	}
 	
+	@Override
+	public Map<String,String> getPlugInSpecificSampleDataForDisplay(Integer jobId, Integer sampleId){
+		
+		Map<String,String> m = new LinkedHashMap<String,String>();
+		Job job = jobService.getJobByJobId(jobId);
+		Sample sample = sampleService.getSampleById(sampleId);		
+		if(sample != null && sample.getId()!=null){
+			if(job==null ||  job.getId()==null || !job.getSample().contains(sample)){
+				return m;
+			}
+			String inputOrIPStatus = chipseqService.getInputOrIPStatus(sample);
+			if(inputOrIPStatus!=null && !inputOrIPStatus.isEmpty()){
+				m.put(messageService.getMessage("chipseq.inputOrIPStatus.label"), inputOrIPStatus);				 
+			}
+		}				
+		return m;
+	}   
+	
+	@Override
+	public void getPlugInSpecificSamplePairDataForDisplay(Integer jobId, ModelMap m){
+		
+		Job job = jobService.getJobByJobId(jobId);
+		List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+		List<Sample> controlList = new ArrayList<Sample>();
+		//m.addAttribute("submittedSamplesList", submittedSamplesList);
+		Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+		Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+		for(Sample submittedSample : submittedSamplesList){
+			List<Sample> list = new ArrayList<Sample>();
+			for(SampleSource ss : sampleSourceSet){
+				Sample test = ss.getSample();//test is an IP sample
+				Sample control = ss.getSourceSample();
+				//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
+				if(submittedSample == control){
+					list.add(test);
+				}
+			}
+			if(!list.isEmpty()){
+				samplePairsMap.put(submittedSample, list);
+				controlList.add(submittedSample);
+			}
+		}
+		m.addAttribute("samplePairsMap", samplePairsMap);
+		m.addAttribute("controlListForSamplePairs", controlList);
+		m.addAttribute("SamplePairLabel_Left", messageService.getMessage("chipseq.chipseqInput.label"));
+		m.addAttribute("SamplePairLabel_Right", messageService.getMessage("chipseq.chipseqIP.label"));
+	}
 }

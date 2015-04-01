@@ -2179,7 +2179,7 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 		if (!isPlatformUnit(platformunit))
 			throw new SampleTypeException("sample is not a platformunit");
 		SampleMeta currentLockStatusMeta = new SampleMeta();
-		currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_AREA);
+		currentLockStatusMeta.setK(LOCK_META_AREA + "." + LOCK_META_KEY);
 		currentLockStatusMeta.setV(lockStatus.toString());
 		currentLockStatusMeta.setSampleId(platformunit.getId());
 		sampleMetaDao.setMeta(currentLockStatusMeta);
@@ -3504,5 +3504,71 @@ public class SampleServiceImpl extends WaspMessageHandlingServiceImpl implements
 				return metaMessageService.read("reasonForNewLibraryComment", sampleId, SampleMeta.class, sampleMetaDao);
 			}
 
+			/**
+			 * {@inheritDoc}
+			 */
+			/* WAS an attempt at speeding up but did not work; ended up not being used, as there was no advantage
+			@Override
+			 public List<Sample> getCompatibleAndAvailablePlatformUnits(Job job){
+				String notOnAnyRunQueryString = "SELECT sample FROM " + Sample.class.getName() + " sample, " + SampleType.class.getName() + " sampleType, " + SampleSubtypeResourceCategory.class.getName() + " sampleSubtypeResourceCategory, " + JobResourcecategory.class.getName() + " jobResourceCategory WHERE sample.sampleTypeId = sampleType.id AND sampleType.iName = 'platformunit' AND sample.sampleSubtypeId = sampleSubtypeResourceCategory.sampleSubtypeId AND sampleSubtypeResourceCategory.resourcecategoryId = jobResourceCategory.resourcecategoryId AND jobResourceCategory.jobId = '" + job.getId().toString() + "' AND sample.id NOT IN (SELECT DISTINCT sampleId from " + Run.class.getName() + ")";
+				List<Sample> jobCompatiblePlatformUnitsNotOnAnyRun = this.getSampleDao().findBySqlString(notOnAnyRunQueryString);
+				
+				String onRunQueryString = "SELECT sample FROM " + Sample.class.getName() + " sample, " + SampleType.class.getName() + " sampleType, " + SampleSubtypeResourceCategory.class.getName() + " sampleSubtypeResourceCategory, " + JobResourcecategory.class.getName() + " jobResourceCategory WHERE sample.sampleTypeId = sampleType.id AND sampleType.iName = 'platformunit' AND sample.sampleSubtypeId = sampleSubtypeResourceCategory.sampleSubtypeId AND sampleSubtypeResourceCategory.resourcecategoryId = jobResourceCategory.resourcecategoryId AND jobResourceCategory.jobId = '" + job.getId().toString() + "' AND sample.id IN (SELECT DISTINCT sampleId from " + Run.class.getName() + ")";
+				List<Sample> jobCompatiblePlatformUnitsOnRun = this.getSampleDao().findBySqlString(onRunQueryString);
+				List<Sample> compatiblePlatformUnits = new ArrayList<Sample>();
+				compatiblePlatformUnits.addAll(jobCompatiblePlatformUnitsNotOnAnyRun);
+				
+				
+			// 'run' batch jobs are provided with one parameter, runId
+		  // we can obtain all run job executions by selecting jobs which have these parameters (regardless of the values as specified by "*")
+		  Map<String, Set<String>> parameterMap = new HashMap<String, Set<String>>();
+		  Set<String> runIdStringSet = new LinkedHashSet<String>();
+		  runIdStringSet.add("*");
+		  parameterMap.put(WaspJobParameters.RUN_ID, runIdStringSet);
+		  Set<Integer> IdsForPlatformUnitsNotAvailable = new LinkedHashSet<Integer>();
+		  List<JobExecution> allRelevantJobExecutions = new ArrayList<JobExecution>();
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.EXECUTING) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.COMPLETED) );
+		  allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, false, ExitStatus.FAILED) );
+		  
+		  // make platform unit available again if ExitStatus is STOPPED (aborted) 
+		  // so comment the following line out for now:
+		  // allRelevantJobExecutions.addAll( batchJobExplorer.getJobExecutions(parameterMap, true, ExitStatus.STOPPED) );
+		  
+		  // get sample id for all platform units associated with the batch job executions retrieved
+		  for (JobExecution je: allRelevantJobExecutions){
+			  try{
+				  Run run = runService.getRunById(Integer.valueOf(batchJobExplorer.getJobParameterValueByKey(je, WaspJobParameters.RUN_ID)));
+				  IdsForPlatformUnitsNotAvailable.add(run.getPlatformUnit().getId());
+			  } catch (ParameterValueRetrievalException e){
+				  logger.warn(e.getLocalizedMessage());
+				  continue;
+			  } catch (NumberFormatException e){
+				  logger.warn(e.getLocalizedMessage());
+				  continue;
+			  }
+		  }
+		  
+		  // collect platform unit objects whose id's are not in the IdsForPlatformUnitsNotAvailable list
+		  for (Sample pu: jobCompatiblePlatformUnitsOnRun){
+			  try {
+				if (! IdsForPlatformUnitsNotAvailable.contains( pu.getId() ) && ! getPlatformUnitLockStatus(pu).equals(LockStatus.LOCKED))
+					compatiblePlatformUnits.add(pu);
+				} catch (SampleTypeException e) {
+					logger.warn("received unexpected exception: " + e.getLocalizedMessage()); // shouldn't get here
+				}
+		  }
+				
+				class SampleCreatedComparator implements Comparator<Sample> {
+					@Override
+					public int compare(Sample arg0, Sample arg1) {
+						return arg1.getCreated().compareTo(arg0.getCreated());
+					}
+				}
+				Collections.sort(compatiblePlatformUnits, new SampleCreatedComparator());//most recent is now first, least recent is last
+			
+				return compatiblePlatformUnits;
+			 }
+			 */
 }
 

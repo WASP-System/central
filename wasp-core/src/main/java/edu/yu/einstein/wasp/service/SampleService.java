@@ -1087,5 +1087,8 @@ public interface SampleService extends WaspMessageHandlingService {
 	  public void addControlLibraryToCell(Sample cell, Sample library,	Float libConcInCellPicoM) throws SampleTypeException, SampleException, SampleMultiplexException, MetadataException;
 	  public void setReasonForNewLibraryComment(Integer sampleId, String comment) throws Exception;
 	  public List<MetaMessage> getReasonForNewLibraryComment(Integer sampleId);
-			
+	  /* ended up not being used
+	   * public List<Sample> getCompatibleAndAvailablePlatformUnits(Job job);
+	   */
+	  	
 }

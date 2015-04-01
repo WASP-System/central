@@ -4,9 +4,12 @@
  */
 package edu.yu.einstein.wasp.helptag.plugin;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.ui.ModelMap;
 
 import edu.yu.einstein.wasp.exception.PanelException;
 import edu.yu.einstein.wasp.exception.WaspMessageBuildingException;
@@ -35,11 +39,18 @@ import edu.yu.einstein.wasp.integration.messages.tasks.BatchJobTask;
 import edu.yu.einstein.wasp.integration.messaging.MessageChannelRegistry;
 import edu.yu.einstein.wasp.interfacing.Hyperlink;
 import edu.yu.einstein.wasp.interfacing.plugin.BatchJobProviding;
+import edu.yu.einstein.wasp.interfacing.plugin.PluginSpecificDataForDisplay;
 import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.Job;
+import edu.yu.einstein.wasp.model.Sample;
+import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
+import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
+import edu.yu.einstein.wasp.service.MessageServiceWebapp;
+import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
@@ -49,7 +60,7 @@ import edu.yu.einstein.wasp.viewpanel.PanelTab;
  * @author
  */
 public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
-		WebInterfacing, FileDataTabViewing, JobDataTabViewing, ClientMessageI {
+		WebInterfacing, FileDataTabViewing, JobDataTabViewing, ClientMessageI, PluginSpecificDataForDisplay {
 
 	/**
 	 * 
@@ -74,6 +85,15 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 
 	@Autowired
 	private MessageChannelRegistry messageChannelRegistry;
+	
+	@Autowired
+	private JobService jobService;
+	
+	@Autowired
+	private SampleService sampleService;
+
+	@Autowired
+	private MessageService messageService;
 
 	protected JobExplorerWasp batchJobExplorer;
 	
@@ -289,5 +309,85 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 		} catch (Exception e) {
 			throw new PanelException(e.getMessage());
 		}
+	}
+	
+	@Override
+	public Map<String,String> getPlugInSpecificSampleDataForDisplay(Integer jobId, Integer sampleId){
+		
+		Map<String,String> m = new LinkedHashMap<String,String>();
+		Job job = jobService.getJobByJobId(jobId);
+		Sample sample = sampleService.getSampleById(sampleId);		
+		if(sample != null && sample.getId()!=null){
+			if(job==null ||  job.getId()==null || !job.getSample().contains(sample)){
+				return m;
+			}
+			if(sample.getSampleType().getIName().toLowerCase().equals("dna")){//HELP macromolecule
+				  String typeOfHelpLibraryRequested = helptagService.getTypeOfHelpLibraryRequestedForMacromolecule(sample);
+				  if(typeOfHelpLibraryRequested!=null && !typeOfHelpLibraryRequested.isEmpty()){
+					  m.put(messageService.getMessage("helptag.typeOfHelpLibraryRequested.label"), typeOfHelpLibraryRequested);					  
+				  } 
+			  }
+			  else{//library
+				  String typeOfHelpLibrary = helptagService.getTypeOfHelpLibrary(sample);
+				  if(typeOfHelpLibrary!=null && !typeOfHelpLibrary.isEmpty()){
+					  m.put(messageService.getMessage("helptag.typeOfHelpLibrary.label"), typeOfHelpLibrary);
+				  }
+			  }
+		}				
+		return m;
+	}
+	
+	@Override
+	public void getPlugInSpecificSamplePairDataForDisplay(Integer jobId, ModelMap m){
+		
+		    Job job = jobService.getJobByJobId(jobId);
+			List<Sample> submittedSamplesList = jobService.getSubmittedSamples(job);
+			List<Sample> controlList = new ArrayList<Sample>();
+			List<Sample> testWithPairList = new ArrayList<Sample>();
+			
+			//m.addAttribute("submittedSamplesList", submittedSamplesList);
+			Map<Sample, List<Sample>> samplePairsMap = new HashMap<Sample, List<Sample>>();
+			Set<SampleSource> sampleSourceSet = sampleService.getSamplePairsByJob(job);
+			for(Sample submittedSample : submittedSamplesList){
+				List<Sample> list = new ArrayList<Sample>();
+				for(SampleSource ss : sampleSourceSet){
+					Sample test = ss.getSample();//HpaII or beta-GT-MspI
+					Sample control = ss.getSourceSample();
+					//logger.debug("----control = " + control.getName() + " AND test = " + test.getName());
+					if(submittedSample == control){
+						list.add(test);
+						testWithPairList.add(test);
+					}
+				}
+				if(!list.isEmpty()){
+					samplePairsMap.put(submittedSample, list);//submittedSample is MspI
+					controlList.add(submittedSample);
+				}
+			}
+			
+			//if any test submitted sample (HpaII or betaGT-MspI) is NOT PAIRED WITH SOME CONTROL SAMPLE,
+			//then display as paired with standard reference
+			List<Sample> testsPairedWithUniversalReference = new ArrayList<Sample>();
+			for(Sample submittedSample : submittedSamplesList){
+				if(testWithPairList.contains(submittedSample)){
+					continue;//this test (HpaII or beta-GT-MspI) already paired up
+				}
+				else{
+					if(helptagService.isHpaII(submittedSample)||helptagService.isBetaGTMspI(submittedSample)){
+						testsPairedWithUniversalReference.add(submittedSample);
+					}
+				}
+			}
+			if(!testsPairedWithUniversalReference.isEmpty()){
+				Sample standardReferenceControl = new Sample();
+				standardReferenceControl.setName(messageService.getMessage("helptag.helptagStandardReference.label"));
+				samplePairsMap.put(standardReferenceControl, testsPairedWithUniversalReference);
+				controlList.add(standardReferenceControl);
+			}
+			
+			m.addAttribute("samplePairsMap", samplePairsMap);
+			m.addAttribute("controlListForSamplePairs", controlList);
+			m.addAttribute("SamplePairLabel_Left", messageService.getMessage("helptag.helptagMspI.label"));
+			m.addAttribute("SamplePairLabel_Right", messageService.getMessage("helptag.helptagHpaIIorBetaGTMspI.label"));
 	}
 }
