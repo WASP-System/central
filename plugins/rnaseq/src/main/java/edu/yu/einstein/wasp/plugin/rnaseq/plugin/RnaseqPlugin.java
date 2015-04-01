@@ -40,6 +40,7 @@ import edu.yu.einstein.wasp.interfacing.plugin.WebInterfacing;
 import edu.yu.einstein.wasp.viewpanel.FileDataTabViewing;
 import edu.yu.einstein.wasp.interfacing.plugin.cli.ClientMessageI;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
@@ -81,7 +82,7 @@ public class RnaseqPlugin extends WaspPlugin
 	private RnaseqService rnaseqService;
 
 	@Autowired
-	private MessageServiceWebapp messageService;
+	private MessageService messageService;
 
 	@Autowired
 	@Qualifier("rnaseq")

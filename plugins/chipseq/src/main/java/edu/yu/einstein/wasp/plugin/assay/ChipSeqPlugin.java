@@ -47,6 +47,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
@@ -85,7 +86,7 @@ public class ChipSeqPlugin extends WaspPlugin implements
 	@Autowired
 	private JobService jobService;
 	@Autowired
-	private MessageServiceWebapp messageService;
+	private MessageService messageService;
 	@Autowired
 	ChipSeqService chipseqService;
 	

@@ -48,6 +48,7 @@ import edu.yu.einstein.wasp.model.Sample;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.plugin.WaspPlugin;
 import edu.yu.einstein.wasp.service.JobService;
+import edu.yu.einstein.wasp.service.MessageService;
 import edu.yu.einstein.wasp.service.MessageServiceWebapp;
 import edu.yu.einstein.wasp.service.SampleService;
 import edu.yu.einstein.wasp.service.WaspMessageHandlingService;
@@ -92,7 +93,7 @@ public class HelptagPlugin extends WaspPlugin implements BatchJobProviding,
 	private SampleService sampleService;
 
 	@Autowired
-	private MessageServiceWebapp messageService;
+	private MessageService messageService;
 
 	protected JobExplorerWasp batchJobExplorer;
 	
