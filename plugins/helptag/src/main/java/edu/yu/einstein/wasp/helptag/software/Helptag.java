@@ -11,7 +11,6 @@ import org.springframework.batch.core.explore.wasp.ParameterValueRetrievalExcept
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.yu.einstein.wasp.exception.NullResourceException;
 import edu.yu.einstein.wasp.exception.SampleTypeException;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
@@ -95,21 +94,19 @@ public class Helptag extends SoftwarePackage{
 		return w;
 	}
 
-	private Build getGenomeBuild(SampleSource cellLibrary) {
+	@Transactional("entityManager")
+	public Build getGenomeBuild(SampleSource cellLibrary) throws ParameterValueRetrievalException {
+		logger.debug("getting genome build for cellLibrary id=" + cellLibrary.getId());
 		Build build = null;
 		try {
 			Sample library = sampleService.getLibrary(cellLibrary);
 			logger.debug("looking for genome build associated with sample: " + library.getId());
 			build = genomeService.getBuild(library);
-			if (build == null) {
-				String mess = "cell library does not have associated genome build metadata annotation";
-				logger.error(mess);
-				throw new NullResourceException(mess);
-			}
-			logger.debug("genome build: " + build.getGenome().getName() + "::" + build.getName());
+			logger.debug("genome build: " + genomeService.getDelimitedParameterString(build));
 		} catch (ParameterValueRetrievalException e) {
-			logger.error(e.toString());
-			e.printStackTrace();
+			String mess = "cell library " + cellLibrary.getId() + " does not have associated genome build metadata annotation";
+			logger.info(mess);
+			throw e;
 		}
 		return build;
 	}
