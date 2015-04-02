@@ -3,11 +3,10 @@
  */
 package edu.yu.einstein.wasp.helptag.batch.tasklet;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobParameter;
@@ -26,21 +25,18 @@ import edu.yu.einstein.wasp.grid.GridUnresolvableHostException;
 import edu.yu.einstein.wasp.grid.work.GridResult;
 import edu.yu.einstein.wasp.grid.work.WorkUnit;
 import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration;
-import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ExecutionMode;
-import edu.yu.einstein.wasp.grid.work.WorkUnitGridConfiguration.ProcessMode;
 import edu.yu.einstein.wasp.helptag.service.HelptagService;
 import edu.yu.einstein.wasp.helptag.software.Helptag;
 import edu.yu.einstein.wasp.model.FileGroup;
 import edu.yu.einstein.wasp.model.FileHandle;
 import edu.yu.einstein.wasp.model.FileType;
+import edu.yu.einstein.wasp.model.Job;
 import edu.yu.einstein.wasp.model.SampleSource;
-import edu.yu.einstein.wasp.plugin.fileformat.plugin.FastqComparator;
 import edu.yu.einstein.wasp.plugin.genomemetadata.GenomeIndexStatus;
 import edu.yu.einstein.wasp.plugin.genomemetadata.batch.tasklet.TestForGenomeIndexTasklet;
 import edu.yu.einstein.wasp.plugin.supplemental.organism.Build;
 import edu.yu.einstein.wasp.service.FileService;
 import edu.yu.einstein.wasp.service.SampleService;
-import edu.yu.einstein.wasp.software.SoftwarePackage;
 
 /**
  * @author AJ
@@ -97,7 +93,34 @@ public class HpaiiCountTasklet extends TestForGenomeIndexTasklet implements Step
 
 		try {
 			WorkUnit w = buildWorkUnit(context.getStepContext().getStepExecution());
+
+			LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
+			SampleSource cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
+
+			String hcountFileName = fileService.generateUniqueBaseFileName(cl) + "hcount";
+
+			FileGroup hcountG = new FileGroup();
+			FileHandle hcountF = new FileHandle();
+			hcountF.setFileName(hcountFileName);
+			hcountF.setFileType(hcountFileType);
+			hcountF = fileService.addFile(hcountF);
+			hcountG.setIsActive(1);
+			hcountG.addFileHandle(hcountF);
+			files.add(hcountF);
+
+			hcountG.setFileType(hcountFileType);
+			hcountG.setDerivedFrom(fileService.getFilesForCellLibraryByType(cl, bamFileType));
+			hcountG.setDescription(hcountFileName);
+			hcountG.setSoftwareGeneratedById(helptag.getId());
+			hcountG = fileService.addFileGroup(hcountG);
+			fileService.setSampleSourceFile(hcountG, cl);
+
+			w.setResultFiles(files);
+
+			logger.info("Before submitting hpaii count batch job");
 			GridResult result = executeWorkUnit(context, w);
+			logger.info("Batch job execution submitted with id=" + result.getGridJobId() + " on host '" + result.getHostname());
+
 			// place properties for use in later steps into the step execution context, to be promoted
 			// to the job context at run time.
 			stepExecutionContext.put("cellLibId", cellLibraryId);
@@ -111,64 +134,41 @@ public class HpaiiCountTasklet extends TestForGenomeIndexTasklet implements Step
 			skip = true;
 			return null;
 		}
-
-		WorkUnit w = helptag.getHpaiiCounter(cellLibraryId);
-		
-		LinkedHashSet<FileHandle> files = new LinkedHashSet<FileHandle>();
-		SampleSource cl = sampleService.getCellLibraryBySampleSourceId(cellLibraryId);
-
-		String hcountFileName = fileService.generateUniqueBaseFileName(cl) + "hcount";
-
-		FileGroup hcountG = new FileGroup();
-		FileHandle hcountF = new FileHandle();
-		hcountF.setFileName(hcountFileName);
-		hcountF.setFileType(hcountFileType);
-		hcountF = fileService.addFile(hcountF);
-		hcountG.setIsActive(1);
-		hcountG.addFileHandle(hcountF);
-		files.add(hcountF);
-
-		hcountG.setFileType(hcountFileType);
-		hcountG.setDerivedFrom(fileService.getFilesForCellLibraryByType(cl, bamFileType));
-		hcountG.setDescription(hcountFileName);
-		hcountG.setSoftwareGeneratedById(helptag.getId());
-		hcountG = fileService.addFileGroup(hcountG);
-		fileService.setSampleSourceFile(hcountG, cl);
-
-		// save in step context for use later
-		stepExecutionContext.put("hcountGID", hcountG.getId());
-
-		w.setResultFiles(files);
-
-		logger.info("Before submitting hpaii count batch job");
-
-		GridResult result = gridHostResolver.execute(w);
-
-		logger.info("Batch job execution submitted with id=" + result.getGridJobId() + " on host '" + result.getHostname());
-
-		return result;
-	}
-	
-	public static void doWork(int cellLibraryId) {
-		
 	}
 	
 	
+	/** 
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional("entityManager")
+	public void beforeStep(StepExecution stepExecution) {
+		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
+		Job job = sampleService.getJobOfLibraryOnCell(cellLib);
+
+		logger.debug("Beginning Helptag hpa2count step for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+
+		Set<FileGroup> fileGroups = new HashSet<FileGroup>();
+		;
+
+		for (FileGroup fg : fileService.getFilesForCellLibraryByType(cellLib, bamFileType)) {
+			fileGroups.add(fg);
+		}
+
+		Assert.assertTrue(fileGroups.size() == 1, "No BAM type filegroups returned for cellLibrary " + cellLib.getId() + " from job " + job.getId());
+		fgId = fileGroups.iterator().next().getId();
+		super.beforeStep(stepExecution);
+	}
+
 	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
+		if (skip == true) {
+			return new ExitStatus("SKIP");
+		}
 		return super.afterStep(stepExecution);
-	}
-
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		super.beforeStep(stepExecution);
-		logger.debug("StepExecutionListener beforeStep saving StepExecution");
 	}
 
 	@Override
@@ -193,27 +193,6 @@ public class HpaiiCountTasklet extends TestForGenomeIndexTasklet implements Step
 
 	@Override
 	@Transactional("entityManager")
-	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
-		FileGroup fg = fileService.getFileGroupById(fgId);
-
-		WorkUnitGridConfiguration c = new WorkUnitGridConfiguration();
-
-		c.setMode(ExecutionMode.TASK_ARRAY);
-		c.setNumberOfTasks(fg.getFileHandles().size());
-
-		c.setProcessMode(ProcessMode.MAX);
-
-		c.setMemoryRequirements(8);
-
-		List<SoftwarePackage> sd = new ArrayList<SoftwarePackage>();
-		sd.add(helptag);
-		c.setSoftwareDependencies(sd);
-		c.setResultsDirectory(WorkUnitGridConfiguration.SCRATCH_DIR_PLACEHOLDER);
-		return c;
-	}
-
-	@Override
-	@Transactional("entityManager")
 	public WorkUnit buildWorkUnit(StepExecution stepExecution) throws Exception {
 		SampleSource cellLib = sampleService.getSampleSourceDao().findById(cellLibraryId);
 		FileGroup fg = fileService.getFileGroupById(fgId);
@@ -226,13 +205,17 @@ public class HpaiiCountTasklet extends TestForGenomeIndexTasklet implements Step
 			}
 		}
 
-		WorkUnit w = helptag.getAln(cellLib, fg, jobParameters);
-		List<FileHandle> fhlist = new ArrayList<FileHandle>();
-		fhlist.addAll(fg.getFileHandles());
-		Collections.sort(fhlist, new FastqComparator(fastqService));
-		w.setRequiredFiles(fhlist);
-		w.setSecureResults(false);
+		WorkUnit w = helptag.getHpaiiCounter(cellLib, fg, jobParameters);
+
 		return w;
+	}
+
+	@Override
+	@Transactional("entityManager")
+	public WorkUnitGridConfiguration configureWorkUnit(StepExecution stepExecution) throws Exception {
+		FileGroup fg = fileService.getFileGroupById(fgId);
+
+		return helptag.prepareWorkUnitConfiguration(fg);
 	}
 
 }
