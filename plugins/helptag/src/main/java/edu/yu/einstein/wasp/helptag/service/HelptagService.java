@@ -17,13 +17,13 @@ import edu.yu.einstein.wasp.model.SampleDraft;
 import edu.yu.einstein.wasp.model.SampleDraftMeta;
 import edu.yu.einstein.wasp.model.SampleSource;
 import edu.yu.einstein.wasp.model.Software;
-import edu.yu.einstein.wasp.service.WaspService;
+import edu.yu.einstein.wasp.plugin.mps.service.DefaultReferenceGenomeService;
 import edu.yu.einstein.wasp.viewpanel.JobDataTabViewing;
 
 /**
  * 
  */
-public interface HelptagService extends WaspService {
+public interface HelptagService extends DefaultReferenceGenomeService {
 
 	/**
 	 * Perform Service

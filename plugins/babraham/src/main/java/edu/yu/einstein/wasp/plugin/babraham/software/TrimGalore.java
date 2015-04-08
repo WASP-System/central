@@ -182,6 +182,20 @@ public class TrimGalore extends SoftwarePackage {
         if (paired)
             w.addRequiredFile((FileHandle) fqa[firstFile + 1]);
         w.addCommand("inFile0Name=${" + WorkUnit.INPUT_FILE + "[" + 0 + "]##*/}");
+
+		/* added by AJ: temporary solution for NSF file doesn't exist error */
+		w.addCommand("COUNTER=0");
+		if (paired)
+			w.addCommand("while [ ! -e ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]} || ! -e ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]} ]; do ");
+		else
+			w.addCommand("while [ ! -e ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]} ]; do ");
+		w.addCommand("	if [ $COUNTER -lt 10 ]; then ");
+		w.addCommand("		sleep $(( ( RANDOM % 20 )  + 1 )); let COUNTER+=1;");
+		w.addCommand("	else ");
+		w.addCommand("		echo \"Input file ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]} does not exist!\" 1>&2; exit 2;");
+		w.addCommand("	fi done");
+		/* added by AJ end */
+
         String command = "trim_galore " + parameterString + " ${" + WorkUnit.INPUT_FILE + "[" + 0 + "]}";
         if (paired)
             command += " ${" + WorkUnit.INPUT_FILE + "[" + 1 + "]}";
